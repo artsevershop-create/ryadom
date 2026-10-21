@@ -191,7 +191,7 @@ button{cursor:pointer}
       </div>
     </header>
     <div id="scroll">
-      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Схема зала по сайту филармонии и Quick Tickets: 686 мест, 4 входа. Цены и занятость мест условные.</p></section>
+      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Схема зала по сайту филармонии: 686 мест, 4 входа. Цены и занятость мест условные.</p></section>
       <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
       <section><h2>Входы в зал</h2><div id="doors"></div><p class="hintline">Нажмите на вход, чтобы увидеть, к каким местам он ближе. Для выбранного места в зале рисуется путь от входа.</p></section>
       <section><h2>Подобрать места рядом</h2>
@@ -903,8 +903,8 @@ function summaryHTML(){
 function qtHTML(){
   var ev=EV(), url=H().qtBase+ev.qt;
   var seatsTxt=sel.map(function(i){var s=seats[i]; return 'ряд '+s.row+', место '+s.num}).join('; ');
-  return '<div class="qt"><b>Сейчас билеты продаются через Quick Tickets</b><p>Откройте этот сеанс и отметьте на схеме те же места: '+esc(seatsTxt)+'. Льготу по «Морошке» сейчас оформляют через раздел «Афиша» в приложении «Морошка» — он ведёт на Quick Tickets.</p>'+
-    '<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener">Открыть сеанс в Quick Tickets ↗</a></div>';
+  return '<div class="qt"><b>Билеты продаются через билетную систему площадки</b><p>Откройте этот сеанс и отметьте на схеме те же места: '+esc(seatsTxt)+'. Льготу по «Морошке» сейчас оформляют через раздел «Афиша» в приложении «Морошка» — он ведёт в билетную систему.</p>'+
+    '<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener">Открыть сеанс в билетной системе ↗</a></div>';
 }
 function morHTML(){
   if(!pay.mor)return '<button type="button" class="mor-on" id="morOn"><span class="mor-logo">М</span><span><b>Оплатить с картой «Морошка»</b><small>Льгота для жителей Ямала, кэшбэк и баллы</small></span></button>';
