@@ -1,0 +1,891 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>РЯДом: 3D-зал, который продаёт</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="3D-схема зала для сайта филармонии, театра, кинотеатра или ДК: вид из кресла, выбор места и оплата в одном окне поверх вашей билетной системы.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap">
+<style>
+/* Лендинг-«билет»: тёмная сцена в начале, дальше светлый зал; ряды кресел из логотипа — общий мотив разделов.
+   Движение: появление блоков при прокрутке, счётчики, наклон кадра в первом экране, живой мини-зал и калькулятор. */
+:root{
+  --paper:#FAF8F4; --panel:#FFFFFF; --panel-2:#FBF1D9; --ink:#14161F; --muted:#5E5A66; --line:#E6E0D4;
+  --gold:#F0B94A; --gold-ink:#A8650A; --ok:#2F8F4E;
+  --stage:#0E0D13; --stage-2:#1A1823; --stage-ink:#F2EFE9; --stage-muted:#A6A1AE; --stage-line:#2C2936;
+  --display:'Unbounded','Onest',system-ui,sans-serif;
+  --body:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --wrap:1160px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#101118; --panel:#181922; --panel-2:#2A2214; --ink:#F2EFE9; --muted:#A6A1AE; --line:#2C2B36;
+  --gold:#F0B94A; --gold-ink:#F0B94A; --ok:#6FD38E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#101118; --panel:#181922; --panel-2:#2A2214; --ink:#F2EFE9; --muted:#A6A1AE; --line:#2C2B36;
+  --gold:#F0B94A; --gold-ink:#F0B94A; --ok:#6FD38E; color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.01em;text-wrap:balance;margin:0}
+h2{font-size:clamp(28px,3.6vw,42px);line-height:1.12}
+h3{font-size:19px;line-height:1.3;font-weight:500}
+p{margin:0}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink)}
+.lead{font-size:19px;color:var(--muted);max-width:62ch}
+section{padding-block:clamp(64px,9vw,112px)}
+.sec-head{display:grid;gap:14px;margin-bottom:44px;max-width:760px}
+
+/* кнопки: блик при наведении, нажатие, круговая волна */
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:12px;font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;font:600 16px/1 var(--body);transition:transform .15s,background .15s,border-color .15s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn-gold{background:var(--gold);color:#241a05;box-shadow:0 6px 0 -2px #C98F20}
+.btn-gold:hover{background:#F5C665;box-shadow:0 10px 24px -6px rgba(240,185,74,.55),0 6px 0 -2px #C98F20}
+.btn-gold::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);transform:translateX(-130%)}
+.btn-gold:hover::after{transform:translateX(130%);transition:transform .7s}
+.btn-ghost{border-color:currentColor;background:transparent}
+.btn-ghost:hover{background:rgba(240,185,74,.12)}
+.btn .arr{display:inline-block;transition:transform .2s}
+.btn:hover .arr{transform:translate(3px,-3px)}
+.rip{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);animation:rip .6s ease-out forwards;pointer-events:none}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* полоса прогресса чтения */
+.progress{position:fixed;top:env(safe-area-inset-top,0px);left:0;width:100%;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:0 50%;z-index:30}
+
+/* шапка */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--stage);border-bottom:1px solid var(--stage-line);color:var(--stage-ink)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--stage)}
+.top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.02em}
+.logo .ryad{color:var(--gold)}
+.logo svg .seat{fill:currentColor}
+.logo svg .pick{transition:transform .2s;animation:pick 3.6s ease-in-out infinite}
+.logo:hover svg .pick{transform:translateY(-3px)}
+@keyframes pick{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(-3px)}90%{transform:translateY(0)}}
+.nav{display:flex;gap:6px;margin-left:auto;font-size:15px}
+.nav a{text-decoration:none;color:var(--stage-muted);padding:8px 12px;border-radius:8px;position:relative}
+.nav a:hover{color:var(--stage-ink)}
+.nav a.on{color:var(--stage-ink)}
+.nav a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;border-radius:2px;background:var(--gold)}
+.top .btn{padding:10px 16px;font-size:14px}
+@media (max-width:1000px){.nav{display:none}.top .btn{margin-left:auto}}
+
+/* сцена-герой */
+.hero{position:relative;background:var(--stage);color:var(--stage-ink);padding-block:clamp(48px,7vw,88px) 0;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-30% -10% auto;height:150%;background:conic-gradient(from 195deg at 72% -8%,transparent 0 16deg,rgba(240,185,74,.17) 24deg,transparent 34deg,rgba(255,106,92,.12) 52deg,transparent 64deg,rgba(240,185,74,.1) 80deg,transparent 92deg);animation:sweep 11s ease-in-out infinite alternate;pointer-events:none}
+@keyframes sweep{from{transform:rotate(-4deg)}to{transform:rotate(5deg)}}
+.hero .wrap,.hero-foot{position:relative;z-index:1}
+.fl{position:absolute;bottom:-24px;width:15px;height:13px;border-radius:4px 4px 2px 2px;background:var(--gold);opacity:0;animation:rise linear infinite;pointer-events:none}
+@keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}12%{opacity:.5}100%{transform:translateY(-760px) rotate(28deg);opacity:0}}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:48px;align-items:center}
+.hero h1{font-size:clamp(32px,3.9vw,50px);line-height:1.08}
+.hero h1 em{font-style:normal;color:var(--gold);background:linear-gradient(100deg,var(--gold) 40%,#fff3cf 50%,var(--gold) 60%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:glint 5s ease-in-out infinite}
+@keyframes glint{0%,60%{background-position:120% 0}100%{background-position:-120% 0}}
+.hero .lead{color:var(--stage-muted);margin-top:22px}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.hero .note{margin-top:18px;font-size:14px;color:var(--stage-muted)}
+.shot{position:relative;perspective:1200px}
+.shot .frame{border-radius:14px;overflow:hidden;border:1px solid var(--stage-line);box-shadow:0 30px 80px rgba(0,0,0,.55);transition:transform .25s ease-out;transform-style:preserve-3d;will-change:transform}
+.shot .frame img{width:100%}
+.ticket{position:absolute;left:-28px;bottom:-26px;display:flex;background:var(--paper);color:var(--ink);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.45);font-size:13px;max-width:calc(100% + 28px);animation:bob 5s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.ticket .main{padding:14px 18px;display:grid;gap:3px;min-width:0;transition:opacity .35s,transform .35s}
+.ticket.swap .main,.ticket.swap .stub{opacity:0;transform:translateY(6px)}
+.ticket .main b{font-family:var(--display);font-weight:600;font-size:15px}
+.ticket .main span{color:var(--muted)}
+.ticket .door{color:var(--ok)!important;font-weight:600}
+.ticket .stub{border-left:2px dashed var(--line);padding:14px 16px;display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;transition:opacity .35s,transform .35s}
+.hero-foot{margin-top:72px;border-top:1px solid var(--stage-line)}
+.hero-foot .wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;padding-block:26px}
+.hero-foot div{display:grid;gap:2px}
+.hero-foot b{font-family:var(--display);font-weight:600;font-size:22px;color:var(--gold);font-variant-numeric:tabular-nums}
+.hero-foot span{font-size:14px;color:var(--stage-muted)}
+.hero-foot b span{font-size:inherit;color:inherit}
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:minmax(0,1fr)}
+  .ticket{left:12px;bottom:-30px}
+  .hero-foot .wrap{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+/* появление при прокрутке: скрываем только то, что ниже первого экрана и пока не показано */
+.js [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.js [data-reveal].in{opacity:1;transform:none}
+
+/* ряд кресел — разделитель */
+.row-div{display:flex;gap:6px;justify-content:center;padding-block:4px}
+.row-div i{width:14px;height:12px;border-radius:3px 3px 2px 2px;background:var(--line);transition:background .3s}
+.row-div i.on{background:var(--gold);animation:hop 2.4s ease-in-out infinite}
+@keyframes hop{0%,60%,100%{transform:translateY(0)}75%{transform:translateY(-5px)}}
+
+/* проблема */
+.pains{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.pain{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px;display:grid;gap:10px;align-content:start;transition:transform .25s,box-shadow .25s,border-color .25s}
+.pain:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 14px 30px -14px rgba(168,101,10,.35)}
+.pain .q{width:44px;height:38px;border-radius:10px 10px 4px 4px;background:var(--panel-2);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:20px;color:var(--gold-ink);animation:wob 3.4s ease-in-out infinite}
+.pain:nth-child(2) .q{animation-delay:.5s}.pain:nth-child(3) .q{animation-delay:1s}
+@keyframes wob{0%,80%,100%{transform:rotate(0)}86%{transform:rotate(-8deg)}92%{transform:rotate(8deg)}}
+.pain q{font-family:var(--display);font-weight:500;font-size:17px;line-height:1.35;quotes:"«" "»"}
+.pain p{color:var(--muted);font-size:16px}
+@media (max-width:900px){.pains{grid-template-columns:minmax(0,1fr)}}
+
+/* живой мини-зал */
+.play{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:28px;align-items:start}
+.hallbox{background:var(--stage);border:1px solid var(--stage-line);border-radius:18px;padding:16px 16px 12px;color:var(--stage-ink);position:relative}
+.hallbox svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.seat{cursor:pointer;transition:fill .15s,opacity .2s,transform .15s;transform-box:fill-box;transform-origin:center}
+.seat:hover{transform:scale(1.35)}
+.c0{fill:#F5A623}.c1{fill:#EE7B30}.c2{fill:#D9486A}.c3{fill:#8A55D0}.c4{fill:#4A78E0}
+.seat.sold{fill:#33313d;cursor:not-allowed}
+.seat.sold:hover{transform:none}
+.seat.dim{opacity:.16}
+.seat.sel{fill:#8DFF7A;stroke:#fff;stroke-width:1.5}
+.pulse{fill:none;stroke:#8DFF7A;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{from{transform:scale(1);opacity:.9}to{transform:scale(3.4);opacity:0}}
+.route{fill:none;stroke:#8DFF7A;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len,800);stroke-dashoffset:var(--len,800);animation:draw 1.3s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.pulse,.route,.walker{pointer-events:none}
+.walker{fill:#fff;filter:drop-shadow(0 0 4px #8DFF7A)}
+.fov{fill:rgba(240,185,74,.15);stroke:rgba(240,185,74,.55);stroke-width:1;stroke-dasharray:5 4;opacity:0;transition:opacity .3s}
+.fov.on{opacity:1}
+.door rect{fill:#0d7a3e;transition:fill .2s}
+.door.on rect{fill:#2bbf68}
+.door text,.stagetxt,.rowlbl{font:600 11px var(--body);fill:#A6A1AE}
+.door text{fill:#fff;font-size:10px}
+.stagetxt{font-size:13px;letter-spacing:.2em;fill:#F0B94A}
+.tip{position:absolute;pointer-events:none;background:rgba(12,11,17,.96);border:1px solid var(--stage-line);border-radius:10px;padding:8px 11px;font-size:13px;line-height:1.35;color:var(--stage-ink);white-space:nowrap;opacity:0;transition:opacity .12s;z-index:3}
+.tip.on{opacity:1}
+.tip span{display:block;color:var(--stage-muted);font-size:12px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.legend button{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--stage-line);background:transparent;color:var(--stage-ink);font:500 13px var(--body);cursor:pointer;transition:background .15s,border-color .15s}
+.legend button i{width:11px;height:11px;border-radius:3px}
+.legend button:hover{border-color:var(--gold)}
+.legend button.on{background:var(--gold);border-color:var(--gold);color:#241a05}
+.side{display:grid;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px}
+.stubs{display:grid;gap:10px;min-height:96px}
+.stubrow{display:flex;background:var(--paper);border:1px solid var(--line);border-radius:12px;font-size:14px;animation:pop .3s ease-out}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+.stubrow .m{padding:10px 14px;flex:1;min-width:0;display:grid;gap:1px}
+.stubrow b{font-weight:600}
+.stubrow .d{color:var(--ok);font-weight:600;font-size:13px}
+.stubrow .p{border-left:2px dashed var(--line);padding:10px 14px;display:grid;place-items:center;font-family:var(--display);font-weight:600;white-space:nowrap}
+.empty{color:var(--muted);font-size:15px}
+.tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.tot b{font-family:var(--display);font-weight:600;font-size:24px;font-variant-numeric:tabular-nums}
+.tot span{color:var(--muted);font-size:14px}
+.acts{display:flex;flex-wrap:wrap;gap:10px}
+.btn-line{background:transparent;border:1px solid var(--line);color:var(--ink);padding:11px 16px;font-size:15px}
+.btn-line:hover{border-color:var(--gold)}
+.hint{font-size:14px;color:var(--muted)}
+@media (max-width:900px){.play{grid-template-columns:minmax(0,1fr)}}
+
+/* как работает: линия прогресса */
+.steps{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:2px solid var(--line)}
+.steps::before{content:"";position:absolute;left:0;top:-2px;height:2px;width:100%;background:var(--ink);transform:scaleX(0);transform-origin:0 50%;transition:transform 1.6s cubic-bezier(.3,.7,.2,1)}
+.steps.in::before{transform:scaleX(1)}
+.step{padding:26px 22px 0 0;display:grid;gap:10px;align-content:start;position:relative}
+.step::before{content:"";position:absolute;left:0;top:-8px;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(240,185,74,.6);animation:ping 2.6s ease-out infinite}
+.step:nth-child(2)::before{animation-delay:.4s}.step:nth-child(3)::before{animation-delay:.8s}.step:nth-child(4)::before{animation-delay:1.2s}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(240,185,74,.6)}70%,100%{box-shadow:0 0 0 14px rgba(240,185,74,0)}}
+.step .n{font-family:var(--display);font-weight:600;font-size:14px;color:var(--gold-ink)}
+.step p{color:var(--muted);font-size:16px}
+.step .t{font-size:14px;font-weight:600;color:var(--ink)}
+@media (max-width:900px){.steps{grid-template-columns:minmax(0,1fr) minmax(0,1fr);row-gap:28px}}
+@media (max-width:520px){.steps{grid-template-columns:minmax(0,1fr)}}
+
+/* возможности */
+.feat-big{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:56px;align-items:center;padding-block:28px}
+.feat-big + .feat-big{border-top:1px solid var(--line)}
+.feat-big.flip .txt{order:2}
+.feat-big .txt{display:grid;gap:14px}
+.feat-big .txt p{color:var(--muted)}
+.feat-big ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:16px}
+.feat-big li{display:flex;gap:10px}
+.feat-big li::before{content:"";flex:0 0 12px;height:10px;margin-top:8px;border-radius:3px 3px 2px 2px;background:var(--gold)}
+.img{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--stage);transition:transform .35s,box-shadow .35s}
+.img:hover{transform:translateY(-4px);box-shadow:0 24px 50px -20px rgba(0,0,0,.45)}
+.img img{width:100%}
+.img.narrow{max-width:360px;justify-self:center}
+.phone{position:relative;width:min(300px,100%);justify-self:center;border-radius:38px;padding:11px;background:#1c1b24;border:2px solid #3a3846;box-shadow:0 30px 60px -24px rgba(0,0,0,.6)}
+.phone img{border-radius:28px;width:100%}
+.phone::after{content:"";position:absolute;left:11px;right:11px;top:11px;height:52px;border-radius:28px 28px 0 0;background:linear-gradient(180deg,rgba(240,185,74,.45),transparent);animation:scan 4.5s ease-in-out infinite;pointer-events:none}
+@keyframes scan{0%{transform:translateY(0);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(560px);opacity:0}}
+@media (max-width:900px){.feat-big{grid-template-columns:minmax(0,1fr);gap:24px}.feat-big.flip .txt{order:0}}
+.feat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;margin-top:40px}
+.fg{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:8px;align-content:start}
+.fg p{color:var(--muted);font-size:16px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--panel-2);color:var(--gold-ink);justify-self:start}
+@media (max-width:900px){.feat-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* кейс */
+.case{background:var(--stage);color:var(--stage-ink)}
+.case .eyebrow{color:var(--gold)}
+.case .lead{color:var(--stage-muted)}
+.case-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:48px;align-items:center}
+.case .img{border-color:var(--stage-line)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--stage-line);border:1px solid var(--stage-line);border-radius:14px;overflow:hidden;margin:28px 0}
+.facts div{background:var(--stage-2);padding:16px 18px;display:grid;gap:2px}
+.facts b{font-family:var(--display);font-weight:600;font-size:24px;font-variant-numeric:tabular-nums}
+.facts span{font-size:14px;color:var(--stage-muted)}
+@media (max-width:900px){.case-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* для кого */
+.who{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.who article{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:10px;align-content:start;transition:transform .25s,border-color .25s,box-shadow .25s}
+.who article:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 16px 34px -16px rgba(168,101,10,.4)}
+.who .ic{width:44px;height:44px;border-radius:12px;background:var(--panel-2);display:grid;place-items:center;color:var(--gold-ink);transition:transform .3s}
+.who article:hover .ic{transform:rotate(-8deg) scale(1.1)}
+.who p{color:var(--muted);font-size:16px}
+.who .fit{font-size:14px;font-weight:600;color:var(--ink);margin-top:4px}
+@media (max-width:1000px){.who{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.who{grid-template-columns:minmax(0,1fr)}}
+.integr{margin-top:28px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:15px;color:var(--muted)}
+.integr b{color:var(--ink);font-weight:600;margin-right:4px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--panel);color:var(--ink)}
+
+/* тарифы */
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:14px;align-content:start;transition:transform .25s,box-shadow .25s}
+.plan:hover{transform:translateY(-5px);box-shadow:0 20px 40px -20px rgba(0,0,0,.35)}
+.plan.mid{border:2px solid var(--gold)}
+.plan .size{font-size:15px;color:var(--muted)}
+.plan .price{font-family:var(--display);font-weight:600;font-size:34px;font-variant-numeric:tabular-nums;line-height:1}
+.plan .price small{font-family:var(--body);font-size:15px;font-weight:500;color:var(--muted)}
+.bar{display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.bar .track{height:8px;border-radius:99px;background:var(--line);position:relative;overflow:hidden}
+.bar .track i{position:absolute;inset:0 auto 0 0;width:0;background:var(--gold);border-radius:99px;transition:width 1.3s cubic-bezier(.3,.7,.2,1) .2s}
+.plans.in .bar .track i{width:var(--w)}
+.plan ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:8px;font-size:15px}
+.plan li{display:flex;gap:10px}
+.plan li::before{content:"✓";color:var(--ok);font-weight:700}
+@media (max-width:900px){.plans{grid-template-columns:minmax(0,1fr)}}
+.addons{margin-top:28px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.addons table{width:100%;border-collapse:collapse;font-size:16px}
+.addons td{padding:12px 0;border-bottom:1px solid var(--line)}
+.addons td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:16px}
+.addons .box{background:var(--panel-2);border-radius:16px;padding:22px;display:grid;gap:8px;font-size:16px}
+.addons .box b{font-family:var(--display);font-weight:600}
+@media (max-width:900px){.addons{grid-template-columns:minmax(0,1fr)}}
+
+/* калькулятор */
+.calc{margin-top:44px;background:var(--stage);color:var(--stage-ink);border-radius:20px;padding:clamp(22px,4vw,36px);display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px}
+.calc h3{font-size:22px}
+.calc .sub{color:var(--stage-muted);font-size:15px;margin-top:6px}
+.calc fieldset{border:0;margin:18px 0 0;padding:0;display:grid;gap:10px}
+.calc legend{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);padding:0;margin-bottom:2px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--stage-line);border-radius:12px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:#4a4658}
+.opt input{accent-color:#F0B94A;width:18px;height:18px;margin:0}
+.opt:has(input:checked){border-color:var(--gold);background:rgba(240,185,74,.09)}
+.opt span{flex:1}
+.opt em{font-style:normal;color:var(--stage-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tiers .opt{flex-direction:column;align-items:flex-start;gap:4px}
+.tiers .opt em{font-size:13px}
+.step2{display:inline-flex;align-items:center;border:1px solid var(--stage-line);border-radius:12px;overflow:hidden}
+.step2 button{width:44px;height:44px;background:transparent;border:0;color:var(--stage-ink);font:500 22px var(--body);cursor:pointer}
+.step2 button:hover{background:rgba(240,185,74,.15)}
+.step2 output{min-width:44px;text-align:center;font-weight:600;font-size:18px;font-variant-numeric:tabular-nums}
+.result{background:var(--stage-2);border:1px solid var(--stage-line);border-radius:16px;padding:24px;display:grid;gap:14px;align-content:start}
+.result .big{font-family:var(--display);font-weight:600;font-size:clamp(32px,5vw,46px);line-height:1;font-variant-numeric:tabular-nums;color:var(--gold)}
+.result ul{margin:0;padding:0;list-style:none;display:grid;gap:8px;font-size:15px;color:var(--stage-muted)}
+.result li{display:flex;justify-content:space-between;gap:12px}
+.result li b{color:var(--stage-ink);font-weight:500;font-variant-numeric:tabular-nums}
+.result .fine{font-size:13px;color:var(--stage-muted)}
+@media (max-width:900px){.calc{grid-template-columns:minmax(0,1fr)}.tiers{grid-template-columns:minmax(0,1fr)}}
+
+/* вопросы */
+.faq{display:grid;gap:0;max-width:860px}
+.faq details{border-top:1px solid var(--line);padding-block:4px}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{cursor:pointer;list-style:none;padding:18px 40px 18px 0;font-weight:600;font-size:18px;position:relative}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";position:absolute;right:4px;top:12px;font:400 28px/1 var(--display);color:var(--gold-ink);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{padding:0 0 20px;color:var(--muted);max-width:68ch}
+
+/* заявка */
+.contact{background:var(--panel-2)}
+.contact-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.contact .direct{display:grid;gap:10px;margin-top:26px;font-size:17px}
+.contact .direct span{color:var(--muted);font-size:14px;display:block}
+form{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:14px}
+.field{display:grid;gap:6px}
+.field label{font-size:14px;font-weight:600}
+.field input,.field select,.field textarea{font:16px var(--body);color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%;transition:border-color .15s,box-shadow .15s}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(240,185,74,.25)}
+.field .err{font-size:13px;color:#C2410C;min-height:0}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.fine{font-size:13px;color:var(--muted)}
+#sent{display:grid;gap:12px}
+#sent pre{white-space:pre-wrap;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;font:14px/1.5 var(--body);margin:0}
+@media (max-width:900px){.contact-grid,.two{grid-template-columns:minmax(0,1fr)}}
+
+footer{background:var(--stage);color:var(--stage-muted);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;padding-block:32px}
+footer .logo{color:var(--stage-ink);font-size:18px}
+footer .sp{margin-left:auto}
+
+/* липкая кнопка на телефоне */
+.fab{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:none;justify-content:center;transform:translateY(120%);transition:transform .35s}
+.fab.on{transform:none}
+@media (max-width:700px){.fab{display:flex}}
+</style>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="РЯДом — на главную">
+      <svg width="34" height="26" viewBox="0 0 56 40" aria-hidden="true"><g class="seat"><rect x="2" y="14" width="9" height="12" rx="2"/><rect x="13" y="14" width="9" height="12" rx="2"/><rect x="35" y="14" width="9" height="12" rx="2"/><rect x="46" y="14" width="9" height="12" rx="2"/></g><rect class="pick" x="24" y="10" width="9" height="16" rx="2" fill="#F0B94A"/><rect x="2" y="30" width="53" height="3" rx="1.5" fill="#A8650A"/></svg>
+      <span><span class="ryad">РЯД</span>ом</span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Разделы">
+      <a href="#try">Попробовать</a><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#who">Для кого</a><a href="#price">Тарифы</a><a href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn btn-gold" href="#contact">Обсудить зал</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" id="heroSec">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow" style="color:var(--gold);text-transform:none;letter-spacing:.03em;font-size:16px">РЯДом: 3D-зал, который продаёт</p>
+      <h1 style="margin-top:16px">Зритель видит сцену <em>со своего кресла</em> и&nbsp;покупает билет</h1>
+      <p class="lead">«РЯДом» — 3D-схема вашего зала на сайте. Зритель выбирает место, смотрит вид из кресла и оплачивает в том же окне. Билетную систему менять не нужно: мы работаем поверх неё.</p>
+      <div class="cta">
+        <a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть демо зала <span class="arr">↗</span></a>
+        <a class="btn btn-ghost" href="#try">Выбрать место здесь</a>
+      </div>
+      <p class="note">Демо собрано на реальном зале Ямальской филармонии. Работает в браузере, на телефоне тоже.</p>
+    </div>
+    <div class="shot" id="shot">
+      <div class="frame" id="frame"><img src="img2/app-overview.jpg" width="2880" height="1800" alt="3D-модель концертного зала на 686 мест с панелью выбора мероприятия и цен"></div>
+      <div class="ticket" id="tk" aria-live="polite">
+        <div class="main"><b id="tkSeat">Амфитеатр · ряд 10 · место 14</b><span id="tkEv">Игорь Саруханов · 12 ноября, 19:00</span><span class="door" id="tkDoor">Вход 2, левая сторона</span></div>
+        <div class="stub" id="tkPrice">3 000 ₽</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-foot">
+    <div class="wrap">
+      <div><b><span data-count="686">686</span></b><span>мест в модели филармонии</span></div>
+      <div><b>0 ₽</b><span>на замену билетной системы</span></div>
+      <div><b><span data-count="4">4</span> входа</b><span>и путь до каждого места</span></div>
+      <div><b>1–4 недели</b><span>от схемы зала до запуска</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="pain">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Почему плоская схема мешает продажам</p>
+      <h2>Квадратик на схеме не показывает, что увидит зритель</h2>
+    </div>
+    <div class="pains">
+      <article class="pain" data-reveal style="--d:0s"><div class="q" aria-hidden="true">?</div><q>А сцену из 18-го ряда хорошо видно?</q><p>Такие вопросы уходят в кассу и в соцсети. Пока зритель ждёт ответа, он откладывает покупку или выбирает другой вечер.</p></article>
+      <article class="pain" data-reveal style="--d:.12s"><div class="q" aria-hidden="true">?</div><q>Возьму подальше, вдруг там пульт загораживает</q><p>Без вида из кресла зритель перестраховывается: выбирает знакомые ряды и обходит места, о которых ничего не знает.</p></article>
+      <article class="pain" data-reveal style="--d:.24s"><div class="q" aria-hidden="true">?</div><q>Дальние ряды всё равно не продаются</q><p>Недорогие места кажутся плохими, даже если оттуда видна вся сцена. В 3D зритель сам убеждается, что вид хороший.</p></article>
+    </div>
+  </div>
+</section>
+
+<div class="row-div" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+
+<section id="try">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Попробуйте здесь</p>
+      <h2>Выберите место в зале Ямальской филармонии</h2>
+      <p class="lead">Нажмите на свободное кресло: появятся цена, ближайший вход и путь до места. Это упрощённая схема, полный 3D-зал с видом из кресла открывается в демо.</p>
+    </div>
+    <div class="play" data-reveal>
+      <div class="hallbox">
+        <svg id="mh" viewBox="20 22 760 560" role="img" aria-label="Схема зала: партер и амфитеатр, 686 мест. Нажмите на место, чтобы выбрать."></svg>
+        <div class="tip" id="tip"></div>
+        <div class="legend" id="legend" role="group" aria-label="Категории мест"></div>
+      </div>
+      <div class="side">
+        <div class="card">
+          <h3 style="margin-bottom:12px">Ваши места</h3>
+          <div class="stubs" id="stubs"><p class="empty">Пока ничего не выбрано. Нажмите на кресло в зале.</p></div>
+          <div class="tot"><span id="cnt">0 мест</span><b id="sum">0 ₽</b></div>
+        </div>
+        <div class="acts">
+          <button class="btn btn-gold" id="best" type="button">Подобрать 2 места рядом</button>
+          <button class="btn btn-line" id="clear" type="button">Очистить</button>
+        </div>
+        <p class="hint">Занятые места условные. Одновременно можно выбрать до 4 мест.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Как это работает</p>
+      <h2>Запуск за четыре шага, без новой билетной системы</h2>
+    </div>
+    <div class="steps" id="steps" data-reveal>
+      <div class="step"><span class="n">Шаг 1</span><h3>Модель зала</h3><p>По вашей схеме рассадки и фотографиям строим 3D-зал: ряды, проходы, входы, сцену и интерьер.</p><span class="t">1–4 недели</span></div>
+      <div class="step"><span class="n">Шаг 2</span><h3>Связь с продажей</h3><p>Подключаемся к вашей билетной системе. Цены и занятость мест берём из неё, заказ отправляем туда же.</p><span class="t">по API или через оператора</span></div>
+      <div class="step"><span class="n">Шаг 3</span><h3>Кнопка на сайте</h3><p>Ставим на сайт один фрагмент кода. Зритель открывает зал из афиши, ничего не устанавливая.</p><span class="t">1 день</span></div>
+      <div class="step"><span class="n">Шаг 4</span><h3>Сопровождение</h3><p>Обновляем афишу и схемы рассадки, следим за работой, добавляем новые залы.</p><span class="t">ежемесячно</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Возможности</p>
+      <h2>Всё, что нужно зрителю, чтобы решиться на покупку</h2>
+    </div>
+
+    <div class="feat-big" data-reveal>
+      <div class="txt">
+        <h3 style="font-size:24px">Вид из любого кресла</h3>
+        <p>Двойной клик по месту, и зритель оказывается в кресле: видит сцену, экран, соседние ряды. Можно осмотреться и сравнить два места за минуту.</p>
+        <ul><li>Пять готовых ракурсов: обзор, партер, амфитеатр, со сцены, сверху</li><li>Подбор лучших мест рядом для компании от 1 до 6 человек</li><li>Цвет кресла показывает ценовую категорию</li></ul>
+      </div>
+      <div class="img"><img src="img2/app-seat.jpg" width="2880" height="1800" alt="Вид на сцену из 9-го ряда партера, справа панель с выбранными местами и входами" loading="lazy"></div>
+    </div>
+
+    <div class="feat-big flip" data-reveal>
+      <div class="txt">
+        <h3 style="font-size:24px">Ближайший вход и путь к месту</h3>
+        <p>Для каждого места мы считаем ближайший вход. Он указан в подсказке и в билете, а в зале подсвечен путь от двери до кресла. Зрители меньше блуждают перед началом, контролёрам проще.</p>
+        <ul><li>Входы и выходы по реальной схеме зала</li><li>Подсветка мест, к которым ближе каждый вход</li><li>Вход печатается в электронном билете</li></ul>
+      </div>
+      <div class="img"><img src="img2/view-door.jpg" width="2136" height="1800" alt="Амфитеатр и поперечный проход с подсвеченным «Входом 2»" loading="lazy"></div>
+    </div>
+
+    <div class="feat-big" data-reveal>
+      <div class="txt">
+        <h3 style="font-size:24px">Оплата в том же окне</h3>
+        <p>Выбранные места держатся за зрителем 10 минут. Оплата картой «Мир» или по СБП, билет с QR-кодом приходит сразу. Если продажи идут через билетного оператора, заказ уходит к нему.</p>
+        <ul><li>Льготы для жителей Ямала по карте «Морошка»</li><li>Пушкинская карта и возвраты остаются в вашей билетной системе</li><li>Проверка мест на сервере, двойная продажа исключена</li></ul>
+      </div>
+      <div class="img narrow"><img src="img2/pay-sheet.jpg" width="920" height="1720" alt="Окно оплаты с подтверждённой льготой по карте «Морошка»" loading="lazy"></div>
+    </div>
+
+    <div class="feat-big flip" data-reveal>
+      <div class="txt">
+        <h3 style="font-size:24px">Работает на телефоне</h3>
+        <p>Большинство зрителей выбирают места с телефона. Зал открывается в обычном браузере, без приложения: тянете, чтобы повернуть, двумя пальцами приближаете, нажимаете на кресло.</p>
+        <ul><li>Схема, афиша и корзина умещаются на одном экране</li><li>Кнопка «Подобрать лучшие» экономит время в очереди продаж</li><li>Те же цены, входы и оплата, что и на компьютере</li></ul>
+      </div>
+      <div class="phone"><img src="img2/phone-app.jpg" width="780" height="1687" alt="3D-зал на экране телефона с афишей и кнопкой перехода к оплате" loading="lazy"></div>
+    </div>
+
+    <div class="feat-grid">
+      <div class="fg" data-reveal style="--d:0s"><span class="tag">Доход площадки</span><h3>Реклама и афиша на стенах</h3><p>Баннеры партнёров и афиша следующих концертов висят на стенах 3D-зала. Их видит каждый, кто выбирает место.</p></div>
+      <div class="fg" data-reveal style="--d:.12s"><span class="tag">Доход площадки</span><h3>Допродажи к билету</h3><p>Программка, гардероб без очереди, буфет, парковка, сувениры. Предлагаем в момент покупки, подключаем по запросу.</p></div>
+      <div class="fg" data-reveal style="--d:.24s"><span class="tag">Опция</span><h3>Аналитика зала</h3><p>Какие места смотрят чаще всего и какие смотрят, но не покупают. Помогает пересобрать ценовые категории.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="case" class="case">
+  <div class="wrap case-grid">
+    <div class="img" data-reveal><img src="img2/view-stage.jpg" width="2136" height="1800" alt="Вид со сцены на партер и амфитеатр Ямальской филармонии в 3D" loading="lazy"></div>
+    <div data-reveal style="--d:.12s">
+      <p class="eyebrow">Демо на реальном зале</p>
+      <h2 style="margin-top:14px">Концертный зал Ямальской филармонии, Салехард</h2>
+      <p class="lead" style="margin-top:16px">Модель собрана по официальной схеме и фотографиям зала. Нумерация мест совпадает с Quick Tickets, где сейчас продаются билеты, в афише настоящие концерты сезона.</p>
+      <div class="facts">
+        <div><b data-count="686">686</b><span>мест в модели</span></div>
+        <div><b>2–25</b><span>ряды партера и амфитеатра</span></div>
+        <div><b data-count="4">4</b><span>входа по схеме зала</span></div>
+        <div><b data-count="4">4</b><span>концерта в афише демо</span></div>
+      </div>
+      <a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть демо зала <span class="arr">↗</span></a>
+    </div>
+  </div>
+</section>
+
+<section id="who">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Для кого</p>
+      <h2>Для залов, где зрителю важно, откуда он будет смотреть</h2>
+    </div>
+    <div class="who">
+      <article data-reveal style="--d:0s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 20h18M5 20V9l7-5 7 5v11M9 20v-6h6v6"/></svg></div><h3>Филармонии и театры</h3><p>Партер, амфитеатр, балконы и ложи. Зритель видит сцену из каждого ряда и спокойно берёт дальние места.</p><p class="fit">Тариф «Средний» или «Большой»</p></article>
+      <article data-reveal style="--d:.1s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Кинотеатры</h3><p>Быстрый выбор в небольших залах и реклама фильмов на стенах. Отдельная модель для каждого зала.</p><p class="fit">Тариф «Камерный» за зал</p></article>
+      <article data-reveal style="--d:.2s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V8l8-4 8 4v13M4 13h16M9 21v-4h6v4"/></svg></div><h3>ДК и площадки</h3><p>Один зал под концерты, спектакли и собрания. Разные схемы рассадки в одной модели.</p><p class="fit">Тариф «Камерный», запуск за 1–2 недели</p></article>
+      <article data-reveal style="--d:.3s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a2 2 0 0 0 0 4v4a2 2 0 0 1 2 2h14a2 2 0 0 1 2-2v-4a2 2 0 0 0 0-4V6H3z"/><path d="M13 6v14" stroke-dasharray="2 2"/></svg></div><h3>Билетные операторы</h3><p>3D как модуль для ваших площадок. Подключаем один раз и разворачиваем на всех залах.</p><p class="fit">Партнёрские условия</p></article>
+    </div>
+    <div class="integr" data-reveal><b>Работаем с:</b><span class="chip">Quick Tickets</span><span class="chip">вашей билетной системой по API</span><span class="chip">картами «Мир» и СБП</span><span class="chip">картой жителя Ямала «Морошка»</span></div>
+  </div>
+</section>
+
+<section id="price" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Тарифы</p>
+      <h2>Разовая оплата за зал, без процента с билетов</h2>
+      <p class="lead">В любой тариф входят 3D-модель по вашему плану, выбор места с видом из кресла, интеграция с билетной системой, виджет на сайт и мобильная версия.</p>
+    </div>
+    <div class="plans" id="plans" data-reveal>
+      <article class="plan">
+        <h3>Камерный</h3><p class="size">до 300 мест</p>
+        <p class="price">150 000 <small>₽ за зал</small></p>
+        <div class="bar"><span>Срок: 1–2 недели</span><div class="track"><i style="--w:50%"></i></div></div>
+        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+      <article class="plan mid">
+        <h3>Средний</h3><p class="size">300–800 мест</p>
+        <p class="price">300 000 <small>₽ за зал</small></p>
+        <div class="bar"><span>Срок: 2–3 недели</span><div class="track"><i style="--w:75%"></i></div></div>
+        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+      <article class="plan">
+        <h3>Большой</h3><p class="size">от 800 мест</p>
+        <p class="price">490 000 <small>₽ за зал</small></p>
+        <div class="bar"><span>Срок: 3–4 недели</span><div class="track"><i style="--w:100%"></i></div></div>
+        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+    </div>
+    <div class="addons" data-reveal>
+      <table aria-label="Дополнительные опции">
+        <tr><td>Подбор лучших мест рядом</td><td>+40 000 ₽</td></tr>
+        <tr><td>Аналитика зала</td><td>+50 000 ₽</td></tr>
+        <tr><td>Оплата в окне 3D-зала</td><td>+60 000 ₽</td></tr>
+        <tr><td>Фирменный стиль и второй язык</td><td>+30 000 ₽</td></tr>
+        <tr><td>Реклама на стенах, допродажи</td><td>по запросу</td></tr>
+      </table>
+      <div class="box"><b>Сопровождение</b><p>Ежемесячная плата за обслуживание: обновление афиши и схем, хостинг, поддержка. Сумма зависит от числа залов, её назовём в коммерческом предложении.</p></div>
+    </div>
+
+    <div class="calc" id="calc" data-reveal>
+      <div>
+        <h3>Прикиньте стоимость</h3>
+        <p class="sub">Ориентировочный расчёт: опции считаем за каждый зал, абонентская плата не входит. Точную сумму назовём в коммерческом предложении.</p>
+        <fieldset>
+          <legend>Размер зала</legend>
+          <div class="tiers" id="tiers">
+            <label class="opt"><input type="radio" name="tier" value="150000"><span>Камерный</span><em>до 300 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="300000" checked><span>Средний</span><em>300–800 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="490000"><span>Большой</span><em>от 800 мест</em></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Количество залов</legend>
+          <div class="step2" role="group" aria-label="Количество залов"><button type="button" id="hm" aria-label="Меньше">−</button><output id="hn">1</output><button type="button" id="hp" aria-label="Больше">+</button></div>
+        </fieldset>
+        <fieldset id="opts">
+          <legend>Опции</legend>
+          <label class="opt"><input type="checkbox" value="40000" data-n="Подбор мест рядом"><span>Подбор лучших мест рядом</span><em>+40 000 ₽</em></label>
+          <label class="opt"><input type="checkbox" value="50000" data-n="Аналитика"><span>Аналитика зала</span><em>+50 000 ₽</em></label>
+          <label class="opt"><input type="checkbox" value="60000" data-n="Оплата в окне"><span>Оплата в окне 3D-зала</span><em>+60 000 ₽</em></label>
+          <label class="opt"><input type="checkbox" value="30000" data-n="Стиль и 2 языка"><span>Фирменный стиль и второй язык</span><em>+30 000 ₽</em></label>
+        </fieldset>
+      </div>
+      <div class="result" aria-live="polite">
+        <p class="eyebrow" style="color:var(--gold)">Итого, разово</p>
+        <p class="big" id="total">300 000 ₽</p>
+        <ul id="break"></ul>
+        <p class="fine">Реклама на стенах и допродажи подключаются по запросу, их цена здесь не учтена.</p>
+        <button class="btn btn-gold" id="toForm" type="button">Запросить предложение с этим расчётом</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Вопросы</p><h2>Что обычно спрашивают директора</h2></div>
+    <div class="faq" data-reveal>
+      <details open><summary>Придётся менять билетную систему?</summary><p>Нет. «РЯДом» работает поверх неё: цены и занятость мест берём из вашей системы, туда же уходит заказ. Касса, отчёты, возвраты и Пушкинская карта остаются как есть.</p></details>
+      <details><summary>Что нужно от площадки?</summary><p>Схема рассадки (лучше в векторе), фотографии зала, правила ценовых категорий и контакт технической поддержки вашей билетной системы. Ещё нужен один сотрудник, который будет согласовывать работу.</p></details>
+      <details><summary>Будет ли работать на телефоне?</summary><p>Да. Зал открывается в обычном браузере, без приложений. На телефоне панель выбора уходит под схему, управление пальцами: потянуть, чтобы повернуть зал, свести пальцы, чтобы приблизить.</p></details>
+      <details><summary>Вы работаете с Quick Tickets?</summary><p>Сейчас демо ведёт зрителя на страницу сеанса в Quick Tickets с номерами выбранных мест. Синхронизацию занятости и передачу заказа подключаем по договорённости с Quick Tickets. Открытого API у них нет, поэтому сроки зависят от оператора.</p></details>
+      <details><summary>Как работает льгота по «Морошке»?</summary><p>Зритель отмечает категорию льготы и подтверждает статус, скидка применяется к заказу. Для этого нужно соглашение с оператором Единой карты жителя Ямала. Если льготы уже настроены в вашей билетной системе, мы передаём заказ туда.</p></details>
+      <details><summary>Сколько стоит обслуживание?</summary><p>Это ежемесячная плата, она зависит от числа залов и опций. Мы назовём её в коммерческом предложении после того, как увидим ваш зал.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="wrap contact-grid">
+    <div data-reveal>
+      <p class="eyebrow">Заявка</p>
+      <h2 style="margin-top:14px">Покажем ваш зал в 3D до подписания договора</h2>
+      <p class="lead" style="margin-top:16px">Пришлите схему рассадки. Мы назовём срок и стоимость, а для крупных залов соберём демо на вашем зале.</p>
+      <div class="direct">
+        <div><span>Почта</span>[email]</div>
+        <div><span>Телефон</span>[телефон]</div>
+        <div><span>Контактное лицо</span>[имя и должность]</div>
+      </div>
+    </div>
+    <form id="lead" novalidate data-reveal style="--d:.12s">
+      <div class="two">
+        <div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div>
+        <div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="fContact">Телефон или почта</label><input id="fContact" name="contact" autocomplete="email" placeholder="+7 900 000-00-00"><span class="err" id="eContact"></span></div>
+        <div class="field"><label for="fSize">Мест в зале</label><select id="fSize" name="size"><option>до 300</option><option selected>300–800</option><option>от 800</option><option>несколько залов</option></select></div>
+      </div>
+      <div class="field"><label for="fMsg">Билетная система и вопросы</label><textarea id="fMsg" name="msg" rows="3" placeholder="Продаём через Quick Tickets, хотим запуститься к новому сезону"></textarea></div>
+      <button class="btn btn-gold" type="submit" style="justify-self:start">Отправить заявку</button>
+      <p class="fine">Нажимая кнопку, вы соглашаетесь на обработку контактных данных для ответа на заявку.</p>
+      <div id="sent" hidden></div>
+    </form>
+  </div>
+</section>
+</main>
+
+<div class="fab" id="fab"><a class="btn btn-gold" href="#contact" style="flex:1;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.35)">Обсудить зал</a></div>
+
+<footer>
+  <div class="wrap">
+    <a class="logo" href="#top"><svg width="28" height="20" viewBox="0 0 56 40" aria-hidden="true"><g fill="currentColor"><rect x="2" y="14" width="9" height="12" rx="2"/><rect x="13" y="14" width="9" height="12" rx="2"/><rect x="35" y="14" width="9" height="12" rx="2"/><rect x="46" y="14" width="9" height="12" rx="2"/></g><rect x="24" y="10" width="9" height="16" rx="2" fill="#F0B94A"/><rect x="2" y="30" width="53" height="3" rx="1.5" fill="#A8650A"/></svg><span><span class="ryad" style="color:var(--gold)">РЯД</span>ом</span></a>
+    <span>3D-зал, который продаёт</span>
+    <span class="sp">[Название компании] · ИНН [ИНН]</span>
+    <span>© <span id="yr">2026</span></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var fmt=function(n){return Math.round(n).toLocaleString('ru-RU').replace(/ /g,' ')+' ₽'};
+  try{$('#yr').textContent=new Date().getFullYear()}catch(e){}
+
+  /* ---------- появление блоков при прокрутке ---------- */
+  var io=null;
+  if(!reduce&&'IntersectionObserver' in window){
+    document.documentElement.classList.add('js');
+    io=new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('in'); io.unobserve(e.target)}
+    })},{threshold:.12,rootMargin:'0px 0px -6% 0px'});
+    $$('[data-reveal],#plans,#steps').forEach(function(el){io.observe(el)});
+  } else $$('#plans,#steps').forEach(function(el){el.classList.add('in')});
+
+  /* ---------- счётчики ---------- */
+  function countUp(el){
+    var to=+el.getAttribute('data-count'), t0=null, dur=1400;
+    if(reduce){el.textContent=to; return}
+    function f(t){if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur); k=1-Math.pow(1-k,3); el.textContent=Math.round(to*k); if(k<1)requestAnimationFrame(f)}
+    el.textContent=0; requestAnimationFrame(f);
+  }
+  if('IntersectionObserver' in window){
+    var co=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){countUp(e.target); co.unobserve(e.target)}})},{threshold:.6});
+    $$('[data-count]').forEach(function(el){co.observe(el)});
+  }
+
+  /* ---------- прогресс, меню, липкая кнопка ---------- */
+  var prog=$('#progress'), links=$$('#nav a'), fab=$('#fab');
+  var secs=links.map(function(a){return $(a.getAttribute('href'))});
+  function onScroll(){
+    var h=document.documentElement, max=h.scrollHeight-innerHeight, y=scrollY;
+    prog.style.transform='scaleX('+(max>0?Math.min(1,y/max):0)+')';
+    var cur=-1; secs.forEach(function(s,i){if(s&&s.getBoundingClientRect().top<innerHeight*.4)cur=i});
+    links.forEach(function(a,i){a.classList.toggle('on',i===cur)});
+    var hero=$('#heroSec'); fab.classList.toggle('on',hero&&hero.getBoundingClientRect().bottom<0);
+  }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  /* ---------- круговая волна на кнопках ---------- */
+  document.addEventListener('pointerdown',function(e){
+    var b=e.target.closest&&e.target.closest('.btn'); if(!b||reduce)return;
+    var r=b.getBoundingClientRect(), d=Math.max(r.width,r.height)*2, s=document.createElement('span');
+    s.className='rip'; s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';
+    b.appendChild(s); setTimeout(function(){s.remove()},650);
+  });
+
+  /* ---------- первый экран: наклон кадра, плывущие кресла, билет-карусель ---------- */
+  var hero=$('#heroSec'), frame=$('#frame'), shot=$('#shot');
+  if(!reduce){
+    for(var i=0;i<16;i++){var f=document.createElement('i'); f.className='fl';
+      f.style.cssText='left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(9+Math.random()*9).toFixed(1)+'s;animation-delay:-'+(Math.random()*14).toFixed(1)+'s;transform-origin:center;'+(i%4===0?'background:#FF6A5C':'');
+      hero.insertBefore(f,hero.firstChild);}
+    shot.addEventListener('pointermove',function(e){
+      if(e.pointerType==='touch')return;
+      var r=shot.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+      frame.style.transform='rotateY('+(x*9).toFixed(2)+'deg) rotateX('+(-y*6).toFixed(2)+'deg)';
+    });
+    shot.addEventListener('pointerleave',function(){frame.style.transform=''});
+  }
+  var T=[
+    {s:'Амфитеатр · ряд 10 · место 14',e:'Игорь Саруханов · 12 ноября, 19:00',d:'Вход 2, левая сторона',p:'3 000 ₽'},
+    {s:'Партер · ряд 4 · место 9',e:'Группа «Садко» · 17 ноября, 19:00',d:'Вход 1, левая сторона',p:'4 000 ₽'},
+    {s:'Партер · ряд 8 · место 22',e:'Минус 40 · 21 ноября, 18:00',d:'Вход 2, правая сторона',p:'3 600 ₽'},
+    {s:'Амфитеатр · ряд 18 · место 28',e:'Ирина Круг · 28 ноября, 17:00',d:'Вход 2, правая сторона',p:'2 300 ₽'}
+  ], ti=0, tk=$('#tk');
+  if(!reduce) setInterval(function(){
+    tk.classList.add('swap');
+    setTimeout(function(){ti=(ti+1)%T.length; var t=T[ti]; $('#tkSeat').textContent=t.s; $('#tkEv').textContent=t.e; $('#tkDoor').textContent=t.d; $('#tkPrice').textContent=t.p; tk.classList.remove('swap')},380);
+  },3800);
+
+  /* ---------- живой мини-зал: план Ямальской филармонии ---------- */
+  var NS='http://www.w3.org/2000/svg', svg=$('#mh');
+  var CATS=[{n:'Партер, 2–5 ряды',p:4000},{n:'Партер, 6–9 ряды',p:3600},{n:'Амфитеатр, 10–16 ряды',p:3000},{n:'Амфитеатр, 17–21 ряды',p:2300},{n:'Верхние ряды, 22–25',p:2000}];
+  var COL=['#F5A623','#EE7B30','#D9486A','#8A55D0','#4A78E0'];
+  var rowPy=function(r){return r===2?134:r<=9?151+(r-3)*17.5:r<=21?283+(r-10)*17.5:502.5+(r-22)*17.5};
+  var catOf=function(r){return r<=5?0:r<=9?1:r>=22?4:r<=16?2:3};
+  var blocks=function(r){
+    if(r===2)return [[1,14,function(n){return 149+(n-1)*17.2}],[15,28,function(n){return 424+(n-15)*17.2}]];
+    if(r<=9)return [[1,16,function(n){return 114+(n-1)*17.2}],[17,32,function(n){return 424+(n-17)*17.2}]];
+    var L=function(n){return 81+(n-1)*17.2},C=function(n){return 269+(n-10)*17.1},R=function(n){return 577+(n-26)*17.25};
+    if(r<=20)return [[1,9,L],[10,25,C],[26,34,R]];
+    if(r===21)return [[1,9,L],[10,11,C],[24,25,C],[26,34,R]];
+    var last={22:14,23:10,24:8,25:6}[r],lastL={22:7,23:5,24:4,25:3}[r];
+    return [[1,lastL,L],[lastL+1,last,function(n){return 715-(last-n)*17.2}]];
+  };
+  function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+  var R0=rng(12*7919), seats=[], sel=[], filt=-1;
+  for(var r=2;r<=25;r++){blocks(r).forEach(function(b){for(var n=b[0];n<=b[1];n++){
+    var cat=catOf(r), w=[1.3,1.2,1,.8,.6][cat];
+    seats.push({r:r,n:n,x:b[2](n),y:rowPy(r),cat:cat,sold:R0()<Math.min(.9,.45*w*.4+.1)});}})}
+  function el(name,attrs,parent){var e=document.createElementNS(NS,name); for(var k in attrs)e.setAttribute(k,attrs[k]); if(parent)parent.appendChild(e); return e}
+  /* сцена, подписи, двери */
+  el('rect',{x:150,y:34,width:500,height:46,rx:10,fill:'#26232f',stroke:'#3a3846'},svg);
+  var st=el('text',{x:400,y:62,'text-anchor':'middle','class':'stagetxt'},svg); st.textContent='СЦЕНА';
+  [2,3,4,5,6,7,8,9,10,12,14,16,18,20,22,24].forEach(function(rr){[58,742].forEach(function(xx){var t=el('text',{x:xx,y:rowPy(rr)+4,'text-anchor':'middle','class':'rowlbl'},svg); t.textContent=rr})});
+  var DOORS=[{n:'Вход 1',s:-1,y:134,x:22},{n:'Вход 1',s:1,y:134,x:778},{n:'Вход 2',s:-1,y:270,x:22},{n:'Вход 2',s:1,y:270,x:778}], doorEls=[];
+  DOORS.forEach(function(d){var g=el('g',{'class':'door'},svg); el('rect',{x:d.s<0?22:700,y:d.y-12,width:78,height:24,rx:6},g); g.firstChild.setAttribute('x',d.s<0?24:698);
+    var t=el('text',{x:d.s<0?63:737,y:d.y+4,'text-anchor':'middle'},g); t.textContent=d.n+(d.s<0?' · слева':' · справа'); doorEls.push(g)});
+  var fov=el('polygon',{'class':'fov'},svg), gSeats=el('g',{},svg), gRoute=el('g',{},svg);
+  var nodes=seats.map(function(s,i){
+    var e=el('rect',{x:(s.x-6.5).toFixed(1),y:(s.y-6).toFixed(1),width:13,height:12,rx:3,'class':'seat c'+s.cat+(s.sold?' sold':'')},gSeats); e.dataset.i=i; return e});
+  /* легенда-фильтр */
+  var lg=$('#legend');
+  CATS.forEach(function(c,i){var b=document.createElement('button'); b.type='button'; b.innerHTML='<i style="background:'+COL[i]+'"></i>'+c.n+' · '+fmt(c.p); b.onclick=function(){filt=filt===i?-1:i; $$('button',lg).forEach(function(x,k){x.classList.toggle('on',k===filt)}); nodes.forEach(function(nd,k){nd.classList.toggle('dim',filt>=0&&seats[k].cat!==filt)})}; lg.appendChild(b)});
+  /* ближайший вход и путь */
+  function doorFor(s){var left=s.x<398; return s.r<=5?(left?0:1):(left?2:3)}
+  function routePts(s){
+    var di=doorFor(s), d=DOORS[di], pts=[];
+    if(s.r<10){
+      var edge=d.s<0?98:712, dx=d.s<0?100:700;
+      pts=[[dx,d.y],[edge,d.y],[edge,s.y],[s.x,s.y]];
+    } else {
+      var ax=s.x<398?244:551; pts=[[d.s<0?100:700,270],[ax,270],[ax,s.y],[s.x,s.y]];
+    }
+    return {pts:pts,door:di};
+  }
+  var tip=$('#tip'), box=$('.hallbox');
+  svg.addEventListener('pointermove',function(e){
+    var t=e.target; if(!t.dataset||t.dataset.i===undefined){tip.classList.remove('on');return}
+    var s=seats[+t.dataset.i], r=box.getBoundingClientRect();
+    tip.innerHTML='<b>'+(s.r<=9?'Партер':'Амфитеатр')+' · ряд '+s.r+' · место '+s.n+'</b><span>'+(s.sold?'Место занято':fmt(CATS[s.cat].p)+' · '+DOORS[doorFor(s)].n+(s.x<398?', левая сторона':', правая сторона'))+'</span>';
+    tip.style.left=Math.min(e.clientX-r.left+14,r.width-200)+'px'; tip.style.top=(e.clientY-r.top+16)+'px'; tip.classList.add('on');
+  });
+  svg.addEventListener('pointerleave',function(){tip.classList.remove('on')});
+  svg.addEventListener('click',function(e){var t=e.target; if(t.dataset&&t.dataset.i!==undefined)toggle(+t.dataset.i)});
+  function toggle(i){
+    var s=seats[i]; if(s.sold)return;
+    var k=sel.indexOf(i); if(k>=0)sel.splice(k,1); else{ if(sel.length>=4)sel.shift(); sel.push(i)}
+    draw();
+  }
+  var walkT=null;
+  function draw(){
+    nodes.forEach(function(nd,k){nd.classList.toggle('sel',sel.indexOf(k)>=0)});
+    while(gRoute.firstChild)gRoute.removeChild(gRoute.firstChild);
+    doorEls.forEach(function(g){g.classList.remove('on')}); fov.classList.remove('on');
+    var stubs=$('#stubs'); stubs.innerHTML='';
+    if(!sel.length){stubs.innerHTML='<p class="empty">Пока ничего не выбрано. Нажмите на кресло в зале.</p>'}
+    var total=0;
+    sel.forEach(function(i){var s=seats[i], p=CATS[s.cat].p; total+=p;
+      var row=document.createElement('div'); row.className='stubrow';
+      row.innerHTML='<div class="m"><b>'+(s.r<=9?'Партер':'Амфитеатр')+' · ряд '+s.r+' · место '+s.n+'</b><span class="d">'+DOORS[doorFor(s)].n+(s.x<398?', левая сторона':', правая сторона')+'</span></div><div class="p">'+fmt(p)+'</div>';
+      stubs.appendChild(row);
+      var pu=el('rect',{x:(s.x-6.5).toFixed(1),y:(s.y-6).toFixed(1),width:13,height:12,rx:3,'class':'pulse'},gRoute);
+    });
+    $('#cnt').textContent=sel.length+' '+(sel.length===1?'место':sel.length<5&&sel.length>0?'места':'мест');
+    $('#sum').textContent=fmt(total);
+    if(sel.length){
+      var s=seats[sel[sel.length-1]], rt=routePts(s);
+      doorEls[rt.door].classList.add('on');
+      var d=rt.pts.map(function(p,k){return (k?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+      var path=el('path',{d:d,'class':'route'},gRoute), len=path.getTotalLength?Math.ceil(path.getTotalLength()):900;
+      path.style.setProperty('--len',len);
+      if(reduce){path.style.animation='none';path.style.strokeDashoffset=0}
+      else {
+        var w=el('circle',{r:5,'class':'walker'},gRoute), t0=null; clearTimeout(walkT);
+        (function step(t){if(!w.parentNode)return; if(!t0)t0=t; var k=((t-t0)%2600)/2600, pt=path.getPointAtLength(len*k); w.setAttribute('cx',pt.x); w.setAttribute('cy',pt.y); requestAnimationFrame(step)})(performance.now());
+      }
+      fov.setAttribute('points',s.x.toFixed(0)+','+s.y.toFixed(0)+' 150,80 650,80'); fov.classList.add('on');
+    }
+  }
+  $('#clear').onclick=function(){sel=[];draw()};
+  $('#best').onclick=function(){
+    var best=-1,bs=1e9;
+    for(var i=0;i<seats.length-1;i++){var a=seats[i],b=seats[i+1];
+      if(a.sold||b.sold||a.r!==b.r||Math.abs(b.x-a.x)>20)continue;
+      var sc=Math.hypot((a.x+b.x)/2-398,a.y-250); if(sc<bs){bs=sc;best=i}}
+    if(best>=0){sel=[best,best+1];draw()}
+  };
+
+  /* ---------- калькулятор ---------- */
+  var hn=1, shown=0, tot=$('#total');
+  function calc(){
+    var tier=+($('input[name=tier]:checked').value), ops=$$('#opts input:checked');
+    var per=tier+ops.reduce(function(a,o){return a+ +o.value},0), all=per*hn;
+    var tn={150000:'Камерный',300000:'Средний',490000:'Большой'}[tier];
+    $('#break').innerHTML='<li><span>Тариф «'+tn+'»</span><b>'+fmt(tier)+'</b></li>'+ops.map(function(o){return '<li><span>'+o.getAttribute('data-n')+'</span><b>+'+fmt(+o.value)+'</b></li>'}).join('')+'<li><span>Залов</span><b>× '+hn+'</b></li>';
+    calc.last={tn:tn,ops:ops.map(function(o){return o.getAttribute('data-n')}),all:all};
+    var from=shown, t0=null; shown=all;
+    if(reduce){tot.textContent=fmt(all);return}
+    requestAnimationFrame(function f(t){if(!t0)t0=t; var k=Math.min(1,(t-t0)/500); k=1-Math.pow(1-k,3); tot.textContent=fmt(from+(all-from)*k); if(k<1)requestAnimationFrame(f)});
+  }
+  $$('#calc input').forEach(function(i){i.addEventListener('change',calc)});
+  $('#hm').onclick=function(){hn=Math.max(1,hn-1);$('#hn').textContent=hn;calc()};
+  $('#hp').onclick=function(){hn=Math.min(20,hn+1);$('#hn').textContent=hn;calc()};
+  $('#toForm').onclick=function(){
+    var c=calc.last||{tn:'Средний',ops:[],all:300000};
+    $('#fMsg').value='Расчёт с сайта: тариф «'+c.tn+'», залов: '+hn+(c.ops.length?', опции: '+c.ops.join(', '):'')+', ориентировочно '+fmt(c.all)+'.';
+    $('#fSize').value=hn>1?'несколько залов':(c.tn==='Камерный'?'до 300':c.tn==='Большой'?'от 800':'300–800');
+    $('#contact').scrollIntoView({behavior:reduce?'auto':'smooth'});
+    setTimeout(function(){$('#fName').focus({preventScroll:true})},500);
+  };
+  shown=300000; tot.textContent=fmt(shown); calc.last={tn:'Средний',ops:[],all:300000}; calc();
+
+  /* ---------- заявка ---------- */
+  /* Куда отправлять заявки: адрес обработчика (бот, CRM). Пока пусто — показываем текст заявки для отправки вручную. */
+  var ENDPOINT='';
+  var f=$('#lead'), out=$('#sent');
+  function check(id,eid,ok,msg){var e=document.getElementById(id),er=document.getElementById(eid);er.textContent=ok?'':msg;e.setAttribute('aria-invalid',ok?'false':'true');return ok}
+  ['fName','fOrg','fContact'].forEach(function(id){document.getElementById(id).addEventListener('input',function(){document.getElementById('e'+id.slice(1)).textContent=''})});
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    var v={name:f.name.value.trim(),org:f.org.value.trim(),contact:f.contact.value.trim(),size:f.size.value,msg:f.msg.value.trim()};
+    var ok=check('fName','eName',v.name.length>1,'Напишите, как к вам обращаться')&
+           check('fOrg','eOrg',v.org.length>1,'Укажите площадку')&
+           check('fContact','eContact',/@|\d{6,}/.test(v.contact.replace(/[\s()-]/g,'')),'Нужен телефон или почта');
+    if(!ok)return;
+    var text='Заявка «РЯДом»\nИмя: '+v.name+'\nПлощадка: '+v.org+'\nКонтакт: '+v.contact+'\nМест в зале: '+v.size+(v.msg?'\nКомментарий: '+v.msg:'');
+    function manual(){
+      out.hidden=false;
+      out.innerHTML='<p><b>Заявка готова.</b> Отправьте её на [email] или в мессенджер по номеру [телефон]:</p><pre id="txt"></pre><button type="button" class="btn btn-ghost" id="cp">Скопировать текст</button>';
+      document.getElementById('txt').textContent=text;
+      document.getElementById('cp').onclick=function(){var b=this;
+        var sel2=function(){var r=document.createRange();r.selectNodeContents(document.getElementById('txt'));var s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Выделено, нажмите Ctrl+C'};
+        try{navigator.clipboard.writeText(text).then(function(){b.textContent='Скопировано'},sel2)}catch(_){sel2()}};
+    }
+    if(!ENDPOINT){manual();return}
+    fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)})
+      .then(function(r){if(!r.ok)throw 0;out.hidden=false;out.innerHTML='<p><b>Заявка отправлена.</b> Ответим в течение рабочего дня.</p>';f.reset()})
+      .catch(manual);
+  });
+})();
+</script>
+
+</body>
+</html>

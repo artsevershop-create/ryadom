@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Зал Ямальской филармонии</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: 3D hall fills the left, a fixed ticket panel sits on the right; on phones the hall is on top and the panel below. */
+:root{
+  --bg:#0b0a10;
+  --panel:#121119;
+  --panel-2:#1a1823;
+  --line:#2a2734;
+  --fg:#f2efe9;
+  --mute:#9d98a8;
+  --accent:#f0b94a;
+  --accent-ink:#241a05;
+  --ok:#8dff7a;
+  --bad:#ff6b6b;
+  --sold:#2c2c34;
+  --font-display:'Unbounded','Onest',system-ui,sans-serif;
+  --font-body:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 var(--font-body);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 372px}
+#view{position:relative;min-width:0;min-height:0;overflow:hidden;background:#07060a}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl:active{cursor:grabbing}
+#loading{position:absolute;inset:0;display:grid;place-items:center;background:#07060a;color:var(--mute);z-index:5;transition:opacity .4s}
+#loading.off{opacity:0;pointer-events:none}
+.chip{background:rgba(18,17,25,.82);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:7px 14px;font-weight:500;white-space:nowrap}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#toolbar{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;padding:2px;pointer-events:none}
+#toolbar::-webkit-scrollbar{display:none}
+#toolbar .chip{flex:0 0 auto;pointer-events:auto;padding:6px 12px}
+#panelToggle{position:absolute;top:12px;right:12px;z-index:3}
+#exitSeat{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:3}
+#seatBadge{position:absolute;top:56px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);padding:4px 12px;border-radius:999px;white-space:nowrap;z-index:2}
+#legend{position:absolute;top:12px;left:12px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;padding:7px 11px;max-width:calc(100% - 170px)}
+#legend span{display:inline-flex;align-items:center;gap:6px}
+#legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+#hint{width:100%;opacity:.8}
+#tip{position:absolute;z-index:4;pointer-events:none;background:rgba(12,11,17,.95);border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:grid;gap:2px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#tip b{font-weight:600}
+#tip span{color:var(--mute);font-size:12px}
+#tip em{font-style:normal;font-size:12px}
+#tip .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+
+#panel{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border-left:1px solid var(--line)}
+#panel header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 12px;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--font-display);font-weight:700;font-size:13px;line-height:1.3;letter-spacing:.02em}
+.brand span{color:var(--accent);margin-left:3px}
+.seg{display:flex;background:var(--panel-2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--mute);padding:6px 12px;border-radius:8px;font-weight:500}
+.seg button.on{background:var(--bg);color:var(--fg)}
+#scroll{flex:1;min-height:0;overflow-y:auto;padding:4px 18px 16px}
+#scroll section{padding-top:16px}
+#scroll h2{margin:0 0 9px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);font-weight:600}
+#events{display:grid;gap:8px}
+.ev{display:grid;gap:2px;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ev:hover{border-color:#4a4558}
+.ev.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ev .t{font-family:var(--font-display);font-weight:500;font-size:13px;line-height:1.3}
+.ev .s{color:var(--mute);font-size:12px}
+.ev .d{font-size:12px;color:var(--fg)}
+.cat{display:grid;grid-template-columns:14px 1fr auto;gap:2px 10px;align-items:center;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;padding:8px 8px}
+.cat:hover{background:var(--panel-2)}
+.cat.on{background:var(--panel-2);border-color:var(--line)}
+.cat i{width:12px;height:12px;border-radius:4px;grid-row:1 / 3}
+.cat .n{font-weight:500}
+.cat .p{font-variant-numeric:tabular-nums;font-weight:600}
+.cat .f{grid-column:2 / 4;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.hintline{font-size:12px;color:var(--mute);margin:6px 0 0}
+.finder{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.step{display:flex;align-items:center;background:var(--panel-2);border-radius:10px;border:1px solid var(--line)}
+.step button{width:34px;height:36px;border:0;background:transparent;font-size:18px}
+.step output{min-width:26px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-weight:600;background:var(--panel-2);border:1px solid var(--line)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+#mySeats{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#mySeats li{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto auto;gap:8px;align-items:center;background:var(--panel-2);border-radius:10px;padding:7px 8px 7px 10px}
+#mySeats li i{width:10px;height:10px;border-radius:3px}
+#mySeats .l{min-width:0;font-size:13px}
+#mySeats .l small{display:block;color:var(--mute)}
+#mySeats .pr{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px}
+#mySeats button{border:0;background:transparent;color:var(--mute);padding:4px 6px;border-radius:6px;font-size:12px}
+#mySeats button:hover{color:var(--fg);background:var(--bg)}
+.empty{color:var(--mute);font-size:13px;margin:0}
+#panel footer{border-top:1px solid var(--line);padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;background:var(--panel)}
+.tot{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tot .cnt{color:var(--mute);font-size:13px}
+.tot .sum{font-family:var(--font-display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+#hold{font-size:12px;color:var(--mute);min-height:17px;font-variant-numeric:tabular-nums}
+#pay{width:100%;padding:12px}
+#toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:10px;font-weight:500;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+#modal{position:fixed;inset:0;background:rgba(5,4,8,.72);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:20;padding:16px}
+.sheet{position:relative;width:min(460px,100%);max-height:calc(100% - 8px);overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px}
+.sheet h3{margin:0 0 4px;font-family:var(--font-display);font-weight:700;font-size:17px;padding-right:28px}
+.sheet .sub{color:var(--mute);margin:0 0 14px}
+.x{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:0;background:var(--panel-2);font-size:18px;line-height:1}
+.sum-box{background:var(--panel-2);border-radius:12px;padding:12px;display:grid;gap:6px;margin-bottom:14px;font-size:13px}
+.sum-box div{display:flex;justify-content:space-between;gap:12px}
+.sum-box .mute{color:var(--mute)}
+.sum-box .total{border-top:1px solid var(--line);padding-top:8px;font-weight:700;font-size:15px}
+.field{display:grid;gap:4px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--mute)}
+.field input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.field input:focus{outline:none;border-color:var(--accent)}
+.field input.err{border-color:var(--bad)}
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px}
+.pm button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;font-weight:500}
+.pm button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.demo{font-size:12px;color:var(--mute);margin:12px 0 0}
+.cat i.dr{background:#0d7a3e;border-radius:3px;box-shadow:inset 0 -4px 0 #08371c}
+#mySeats .l small.door{color:#8dff7a;opacity:.85}
+.sec{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);font-weight:600;margin:4px 0 10px}
+.qt{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 16px;display:grid;gap:8px;background:linear-gradient(180deg,rgba(255,138,61,.08),transparent)}
+.qt b{font-weight:600}
+.qt p{margin:0;font-size:13px;color:var(--mute)}
+.qt a{text-decoration:none;text-align:center}
+.mor-logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#ff8a3d,#e0457b);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:700;flex:0 0 auto}
+.mor-on{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:1px dashed #6d4a5a;background:transparent;border-radius:12px;padding:10px 12px;margin:2px 0 12px}
+.mor-on:hover{border-color:#ff8a3d}
+.mor-on small{display:block;color:var(--mute);font-size:12px}
+.mor{border:1px solid #6d4a5a;border-radius:12px;padding:12px;margin:2px 0 12px;background:rgba(224,69,123,.06)}
+.mor-h{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+.mor-h b{flex:1}
+.mor-x{border:0;background:var(--panel-2);border-radius:50%;width:28px;height:28px}
+.mor select{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--fg);font:inherit}
+.mor-ok{color:var(--ok);font-size:13px;margin:0}
+.mor-n{font-size:12px;color:var(--mute);margin:8px 0 0}
+.sum-box .mor-line{color:#ff9fc2}
+.done{text-align:center}
+.done canvas{background:#fff;border-radius:10px;padding:8px;margin:6px auto 10px;display:block;image-rendering:pixelated}
+.ok{width:46px;height:46px;border-radius:50%;background:var(--ok);color:#0b2a05;display:grid;place-items:center;font-size:24px;margin:0 auto 10px}
+@media (max-width:860px){
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:46% minmax(0,1fr)}
+  #panel{border-left:0;border-top:1px solid var(--line)}
+  #legend #hint{display:none}
+  #legend{font-size:11px;padding:5px 9px}
+  #seatBadge{top:50px}
+}
+#app.nopanel{grid-template-columns:minmax(0,1fr) 0}
+#app.nopanel #panel{display:none}
+@media (max-width:860px){#app.nopanel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0}}
+@media (prefers-reduced-motion:reduce){#loading{transition:none}}
+</style>
+
+<div id="app">
+  <main id="view">
+    <canvas id="gl" aria-label="3D-схема зала"></canvas>
+    <div id="loading">Строим зал…</div>
+    <div id="legend">
+      <span><i style="background:linear-gradient(90deg,#F5A623,#D9486A,#4A78E0)"></i>Свободно: цвет по категории</span>
+      <span><i style="background:var(--ok)"></i>Выбрано</span>
+      <span><i style="background:linear-gradient(90deg,#8a6a3a,#8c4a5e,#4f6aa0)"></i>Занято: тот же цвет, приглушённый</span>
+      <span><i style="background:#0d7a3e"></i>Вход и путь к месту</span>
+      <span id="hint">Тяните — вращать · колесо — масштаб · клик по месту — выбрать · двойной клик по месту — вид из кресла, по афише или баннеру — подлететь к стене</span>
+    </div>
+    <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
+    <button id="exitSeat" class="chip" hidden>← Выйти из вида</button>
+    <div id="seatBadge" hidden></div>
+    <div id="tip" hidden></div>
+    <div id="toolbar" role="toolbar" aria-label="Ракурсы"></div>
+  </main>
+  <aside id="panel">
+    <header>
+      <div class="brand">Ямальская филармония<span>3D</span></div>
+      <div class="seg" id="venueSeg" hidden>
+        <button data-v="concert" class="on">Концертный зал</button>
+        <button data-v="cinema">Кинозал</button>
+      </div>
+    </header>
+    <div id="scroll">
+      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Схема зала по сайту филармонии и Quick Tickets: 686 мест, 4 входа. Цены и занятость мест условные.</p></section>
+      <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
+      <section><h2>Входы в зал</h2><div id="doors"></div><p class="hintline">Нажмите на вход, чтобы увидеть, к каким местам он ближе. Для выбранного места в зале рисуется путь от входа.</p></section>
+      <section><h2>Подобрать места рядом</h2>
+        <div class="finder">
+          <div class="step"><button id="nMinus" aria-label="Меньше">−</button><output id="nVal">2</output><button id="nPlus" aria-label="Больше">+</button></div>
+          <button class="btn" id="bestBtn">Подобрать лучшие</button>
+        </div>
+      </section>
+      <section><h2>Ваши места</h2><ul id="mySeats"></ul></section>
+    </div>
+    <footer>
+      <div class="tot"><span class="cnt" id="cnt">Места не выбраны</span><span class="sum" id="sum">0 ₽</span></div>
+      <div id="hold"></div>
+      <button class="btn primary" id="pay" disabled>Перейти к оплате</button>
+    </footer>
+  </aside>
+</div>
+<div id="modal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><button class="x" id="mClose" aria-label="Закрыть">×</button><div id="mBody"></div></div></div>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+var T=THREE;
+var $=function(s){return document.querySelector(s)};
+var fmt=function(n){return n.toLocaleString('ru-RU')+' ₽'};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MAXSEL=8;
+
+/* ---------- Данные ---------- */
+var HALLS={
+ concert:{
+  kind:'concert',
+  venue:'Ямальская филармония, Салехард',
+  cats:[
+   {name:'Партер, 2–5 ряды',price:4000,color:'#F5A623'},
+   {name:'Партер, 6–9 ряды',price:3600,color:'#EE7B30'},
+   {name:'Амфитеатр, 10–16 ряды',price:3000,color:'#D9486A'},
+   {name:'Амфитеатр, 17–21 ряды',price:2300,color:'#8A55D0'},
+   {name:'Верхние ряды, 22–25',price:2000,color:'#4A78E0'}],
+  presets:[
+   {name:'Обзор',tgt:[0,2,10],th:0,ph:1.1,dist:40},
+   {name:'Партер',tgt:[0,1,6],th:.45,ph:1.25,dist:15},
+   {name:'Амфитеатр',tgt:[0,2,4],th:0,ph:1.3,dist:28},
+   {name:'Со сцены',tgt:[0,3,16],th:3.14,ph:1.5,dist:20},
+   {name:'Сверху',tgt:[0,0,6],th:0,ph:.12,dist:55}],
+  look:[0,3,-9], sweet:[0,12],
+  qtBase:'https://quicktickets.ru/salehard-yamalskaya-filarmoniya/',
+  events:[
+   {title:'Игорь Саруханов',sub:'«70 лет в ритме сердца» · 12+',date:'12 ноября, чт',time:'19:00',pal:['#ff6a5c','#f2c14e','#2a0f1a'],seed:12,mult:1,sold:.45,qt:'s797'},
+   {title:'Группа «Садко»',sub:'Программа «Для тебя» · 6+',date:'17 ноября, вт',time:'19:00',pal:['#7bd88f','#f2c14e','#10251a'],seed:17,mult:.75,sold:.3,qt:'s801'},
+   {title:'Минус 40',sub:'Большой концерт · 12+',date:'21 ноября, сб',time:'18:00',pal:['#6ec1e4','#4d86e8','#0b1626'],seed:21,mult:.85,sold:.5,qt:'s796'},
+   {title:'Ирина Круг',sub:'Программа «Ребята» · 12+',date:'28 ноября, сб',time:'17:00',pal:['#ff4d8d','#f2c14e','#2b1055'],seed:28,mult:.95,sold:.4,qt:'s808'}]
+ }
+};
+
+/* ---------- Состояние ---------- */
+var kind='concert', evIdx=0, seats=[], sold=null, sel=[], filter=-1, doorF=-1, hover=-1, bestN=2;
+var walls=[];
+var tourOn=false, tourT=null, tourI=0, holdEnd=0, holdTimer=null;
+var H=function(){return HALLS[kind]};
+var EV=function(){return H().events[evIdx]};
+var priceOf=function(s){return Math.round(H().cats[s.cat].price*EV().mult/50)*50};
+
+/* ---------- Three: сцена ---------- */
+var canvas=$('#gl');
+var renderer=new T.WebGLRenderer({canvas:canvas,antialias:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+var scene=new T.Scene();
+scene.background=new T.Color(0x07060a);
+scene.fog=new T.Fog(0x07060a,70,170);
+var camera=new T.PerspectiveCamera(50,1,.1,300);
+var hall=new T.Group(); scene.add(hall);
+var baseMesh,backMesh,glowMesh,rimMesh,sidePan=[],stageLights=[],beams=[],catCol=[],catDim=[],catSold=[];
+var SOLD=new T.Color(0x2c2c34), SEL=new T.Color(0x8dff7a), WHITE=new T.Color(0xffffff);
+
+scene.add(new T.HemisphereLight(0xc9c6ff,0x2a1420,.95));
+scene.add(new T.AmbientLight(0xffffff,.32));
+var warm=new T.PointLight(0xffe0b0,.7,80); warm.position.set(0,16,14); scene.add(warm);
+
+/* текстуры */
+function stripeTex(c1,c2){
+  var c=document.createElement('canvas'); c.width=64; c.height=16; var x=c.getContext('2d');
+  x.fillStyle=c1; x.fillRect(0,0,64,16);
+  for(var i=0;i<64;i+=8){x.fillStyle=c2; x.fillRect(i,0,3,16)}
+  var t=new T.CanvasTexture(c); t.wrapS=T.RepeatWrapping; t.wrapT=T.RepeatWrapping; return t;
+}
+var wallTex=stripeTex('#8f5a31','#a36a3a');
+
+/* экран */
+var sc=document.createElement('canvas'); sc.width=1024; sc.height=512;
+var sx=sc.getContext('2d');
+var screenTex=new T.CanvasTexture(sc);
+function fitFont(txt,maxW,start,fam,w){
+  var s=start; for(;s>26;s-=4){sx.font=w+' '+s+'px '+fam; if(sx.measureText(txt).width<=maxW)break;} return s;
+}
+function drawScreen(t){
+  var ev=EV(), p=ev.pal, cn=H().kind==='cinema';
+  sx.globalCompositeOperation='source-over';
+  sx.fillStyle=p[2]; sx.fillRect(0,0,1024,512);
+  var g=sx.createRadialGradient(250+110*Math.sin(t*.5),180,10,250,200,560);
+  g.addColorStop(0,p[0]); g.addColorStop(1,'rgba(0,0,0,0)'); sx.globalAlpha=.85; sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  g=sx.createRadialGradient(780+100*Math.cos(t*.4),300,10,780,300,520);
+  g.addColorStop(0,p[1]); g.addColorStop(1,'rgba(0,0,0,0)'); sx.globalAlpha=.8; sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  sx.globalAlpha=1;
+  g=sx.createLinearGradient(0,0,0,512); g.addColorStop(0,'rgba(0,0,0,.25)'); g.addColorStop(1,'rgba(0,0,0,.55)'); sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  sx.textAlign='center'; sx.fillStyle='#fff';
+  var fam='Unbounded, Onest, sans-serif';
+  var fs=fitFont(ev.title,900,cn?84:78,fam,700);
+  sx.font='700 '+fs+'px '+fam; sx.shadowColor='rgba(0,0,0,.5)'; sx.shadowBlur=18;
+  sx.fillText(ev.title,512,cn?236:210);
+  sx.shadowBlur=0;
+  sx.font='500 32px Onest, sans-serif'; sx.globalAlpha=.9; sx.fillText(ev.sub,512,cn?290:262);
+  sx.font='600 28px Onest, sans-serif'; sx.globalAlpha=.8; sx.fillText(ev.date+' · '+ev.time,512,cn?336:308);
+  sx.globalAlpha=1;
+  if(!cn){
+    for(var i=0;i<56;i++){
+      var a=Math.sin(t*3+i*.5)*.5+.5, b=Math.sin(t*1.3+i*.21)*.5+.5;
+      var h=10+a*b*150; sx.fillStyle='rgba(255,255,255,.85)'; sx.fillRect(34+i*17.4,500-h,11,h);
+    }
+  } else {
+    sx.fillStyle='rgba(255,255,255,.14)';
+    sx.beginPath(); var rx=(t*60)%1400-200; sx.moveTo(rx,0); sx.lineTo(rx+90,0); sx.lineTo(rx-120,512); sx.lineTo(rx-210,512); sx.fill();
+  }
+  screenTex.needsUpdate=true;
+}
+
+/* геометрия-хелперы */
+function arcStrip(rin,rout,t0,t1,y,cx,cz){
+  var seg=48,pos=[],idx=[],i;
+  for(i=0;i<=seg;i++){var t=t0+(t1-t0)*i/seg,s=Math.sin(t),c=Math.cos(t);
+    pos.push(cx+rin*s,y,cz+rin*c,cx+rout*s,y,cz+rout*c);}
+  for(i=0;i<seg;i++){var a=i*2; idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  var g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function arcWall(r,t0,t1,y0,y1,cx,cz){
+  var seg=48,pos=[],idx=[],i;
+  for(i=0;i<=seg;i++){var t=t0+(t1-t0)*i/seg,s=Math.sin(t),c=Math.cos(t);
+    pos.push(cx+r*s,y0,cz+r*c,cx+r*s,y1,cz+r*c);}
+  for(i=0;i<seg;i++){var a=i*2; idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  var g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function Mat(c,o){return new T.MeshStandardMaterial(Object.assign({color:c,roughness:.9,side:T.DoubleSide},o||{}))}
+function add(geo,mat,x,y,z){var m=new T.Mesh(geo,mat); m.position.set(x||0,y||0,z||0); hall.add(m); return m}
+
+function clearHall(){
+  rimMesh=null; sidePan=[];
+  while(hall.children.length){
+    var o=hall.children.pop();
+    o.traverse(function(n){
+      if(n.geometry)n.geometry.dispose();
+      if(n.material&&n.material.dispose)n.material.dispose();
+    });
+  }
+  stageLights.forEach(function(l){scene.remove(l)}); stageLights=[]; beams=[];
+}
+
+/* ---------- Геометрия зала ----------
+   Нумерация и ряды — по схеме с сайта филармонии, входы — по схеме Quick Tickets:
+   «Вход 1» слева и справа у сцены (уровень 2-го ряда), «Вход 2» слева и справа
+   в поперечном проходе между 9-м и 10-м рядами. Стороны — как у зрителя, лицом к сцене:
+   место № 1 на левой стороне (x<0). Интерьер — по фото зала. */
+var XS=.044,ZS=.058,PXC=398,PY0=97,ADZ=2;
+var wx=function(px){return (px-PXC)*XS};
+var rowPy=function(r){return r===2?134:r<=9?151+(r-3)*17.5:r<=21?283+(r-10)*17.5:502.5+(r-22)*17.5};
+var rowZ=function(r){return (rowPy(r)-PY0)*ZS+1.5+(r>=10?ADZ:0)};
+var rowY=function(r){return r<=9?(r-2)*.12:1.5+(r-10)*.32};
+var HX=15.5, ZF=-21, ZB=32.4, STAGE_Z=1.2, AISLE_Y=.9;
+var TZ0=rowZ(9)+.52, TZ1=rowZ(10)-1.06;          /* поперечный проход */
+var AX=[-6.78,6.74], AW=1.6;                       /* лестничные проходы амфитеатра */
+var DOORS=[
+  {name:'Вход 1',side:'левая сторона',where:'у сцены',s:-1,z:(STAGE_Z+rowZ(2)-.51)/2,y:0,lvl:0},
+  {name:'Вход 1',side:'правая сторона',where:'у сцены',s:1,z:(STAGE_Z+rowZ(2)-.51)/2,y:0,lvl:0},
+  {name:'Вход 2',side:'левая сторона',where:'поперечный проход',s:-1,z:(TZ0+TZ1)/2,y:AISLE_Y,lvl:1},
+  {name:'Вход 2',side:'правая сторона',where:'поперечный проход',s:1,z:(TZ0+TZ1)/2,y:AISLE_Y,lvl:1}];
+var doorOf=[], backG=null, doorGlow=[], routeG=null, routeCurve=null, routeDots=[], routeDoor=-1;
+var doorName=function(d){return DOORS[d].name+' · '+DOORS[d].side};
+
+/* ---------- Построение зала ---------- */
+function buildHall(){
+  clearHall(); walls=[]; seats=[]; doorGlow=[]; routeG=null; routeCurve=null; routeDots=[]; routeDoor=-1;
+  var DEPTH=ZB-ZF, ZC=(ZB+ZF)/2;
+  wallTex.repeat.set(10,1);
+  add(new T.PlaneGeometry(HX*2,DEPTH).rotateX(-Math.PI/2),Mat(0x1d1216),0,-.02,ZC);
+  add(new T.BoxGeometry(HX*2,14,DEPTH),new T.MeshStandardMaterial({map:wallTex,side:T.BackSide,roughness:.85,color:0x93796a}),0,7,ZC);
+  add(new T.PlaneGeometry(HX*2,DEPTH).rotateX(Math.PI/2),Mat(0x5a3a24,{roughness:.8,side:T.FrontSide}),0,13.96,ZC);
+  var wood=Mat(0x8a5a34,{roughness:.7}), woodL=Mat(0xa8763f,{roughness:.6}), dark=Mat(0x0f0e13,{roughness:.5,metalness:.4});
+
+  /* потолок: сетка встроенных светильников, как на фото */
+  var dl=[]; for(var lx=-12.6;lx<=12.7;lx+=2.1)for(var lz=-1;lz<=31;lz+=2.3)dl.push([lx,lz]);
+  var dlm=new T.InstancedMesh(new T.CircleGeometry(.13,12).rotateX(Math.PI/2),new T.MeshBasicMaterial({color:0xfff1d6}),dl.length);
+  var o=new T.Object3D(); dl.forEach(function(p,i){o.position.set(p[0],13.9,p[1]); o.updateMatrix(); dlm.setMatrixAt(i,o.matrix)}); dlm.frustumCulled=false; hall.add(dlm);
+
+  /* акустические рёбра на стенах за амфитеатром */
+  [-1,1].forEach(function(s){for(var fz=14.5;fz<ZB-.6;fz+=1.7){var f=add(new T.BoxGeometry(.32,6,.95),woodL,s*(HX-.2),9.6,fz); f.rotation.y=s*.38}});
+
+  /* афиша и реклама на стенах */
+  function wtex(w,h,fn){var c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);var t=new T.CanvasTexture(c);t.anisotropy=4;return t}
+  function wrapTxt(g,t,x,y,mw,lh){var ws=t.split(' '),ln='',yy=y;ws.forEach(function(w){var tt=ln?ln+' '+w:w;if(g.measureText(tt).width>mw&&ln){g.fillText(ln,x,yy);ln=w;yy+=lh}else ln=tt});g.fillText(ln,x,yy);return yy}
+  function wallPanel(x,y,z,w,h,ry,map){var m=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({map:map,color:0xd8d8d8})); m.position.set(x,y,z); m.rotation.y=ry; hall.add(m); m.userData.wall={side:ry>0?'poster':'ad',x:x,y:y,z:z,w:w,h:h}; walls.push(m); return m}
+  HALLS.concert.events.forEach(function(e,k){
+    var map=wtex(360,504,function(g,w,h){
+      var gr=g.createLinearGradient(0,0,0,h); gr.addColorStop(0,e.pal[0]); gr.addColorStop(1,e.pal[2]); g.fillStyle=gr; g.fillRect(0,0,w,h);
+      g.fillStyle='rgba(0,0,0,.28)'; g.fillRect(0,h-150,w,150);
+      g.fillStyle='#fff'; g.font='600 22px sans-serif'; g.fillText('АФИША · ЖИВОЙ ЗВУК',24,46);
+      g.font='800 48px sans-serif'; wrapTxt(g,e.title,24,140,w-48,54);
+      g.font='500 24px sans-serif'; g.fillStyle='rgba(255,255,255,.88)'; wrapTxt(g,e.sub,24,300,w-48,30);
+      g.fillStyle='#fff'; g.font='800 36px sans-serif'; g.fillText(e.date.split(',')[0],24,h-82);
+      g.font='600 28px sans-serif'; g.fillText(e.time+' · билеты в 3D',24,h-36);
+    });
+    wallPanel(-HX+.08,6.6,-11+k*5.6,3.6,5.04,Math.PI/2,map);
+  });
+  [['ВАШ БРЕНД','здесь','#F0B94A','#1a1204',-9],['ПАРТНЁР','вечера','#ffffff','#14161F',-1.5],['СПОНСОР','зала','#F0B94A','#1a1204',6]].forEach(function(b){
+    var map=wtex(720,360,function(g,w,h){g.fillStyle=b[2];g.fillRect(0,0,w,h);g.strokeStyle=b[3];g.lineWidth=8;g.strokeRect(14,14,w-28,h-28);g.fillStyle=b[3];g.textAlign='center';g.font='800 74px sans-serif';g.fillText(b[0],w/2,170);g.font='600 56px sans-serif';g.fillText(b[1],w/2,250)});
+    wallPanel(HX-.08,6.4,b[4],6.4,3.2,-Math.PI/2,map);
+  });
+
+  /* сцена: прямой край, по бокам проходы к «Входу 1» */
+  var stM=new T.MeshStandardMaterial({color:0x18151d,roughness:.35,metalness:.3});
+  add(new T.BoxGeometry(26,1,STAGE_Z+4),stM,0,.5,(STAGE_Z-4)/2);
+  add(new T.BoxGeometry(HX*2,1,13),stM,0,.5,-10.5);
+  rimMesh=add(new T.BoxGeometry(26,.04,.04),new T.MeshBasicMaterial({color:0xffffff}),0,1.02,STAGE_Z);
+  add(new T.BoxGeometry(29,10,.3),Mat(0x0a090d),0,6,-16.9);
+  add(new T.PlaneGeometry(16,8),new T.MeshBasicMaterial({map:screenTex}),0,5.8,-16.7);
+  [-1,1].forEach(function(sg){sidePan.push(add(new T.PlaneGeometry(4.6,8),new T.MeshBasicMaterial({color:0x222222}),sg*10.8,5.8,-16.7))});
+  add(new T.BoxGeometry(6,.35,3.5),dark,0,1.18,-12.5);
+  [[-1.4,-12.3],[1.4,-12.8],[0,-13.6]].forEach(function(d){add(new T.CylinderGeometry(.55,.55,.5,20),Mat(0x24212b,{roughness:.4}),d[0],1.8,d[1])});
+  [-3.5,0,3.5].forEach(function(x){
+    add(new T.CylinderGeometry(.03,.03,1.7,8),dark,x,1.85,-6);
+    add(new T.SphereGeometry(.09,10,10),dark,x,2.75,-6);
+  });
+  [-1,1].forEach(function(sg){var la=add(new T.BoxGeometry(.75,3.4,.75),dark,sg*13.4,8.6,-.6); la.rotation.x=.12});
+  add(new T.BoxGeometry(22,.3,.3),dark,0,11,-8);
+  var cone=new T.ConeGeometry(2,10,24,1,true); cone.translate(0,-5,0);
+  for(var i=0;i<5;i++){
+    var m=new T.Mesh(cone,new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.09,blending:T.AdditiveBlending,depthWrite:false,side:T.DoubleSide}));
+    m.position.set(-8+i*4,11,-8); m.userData.ph=i*1.3; m.rotation.x=.25; hall.add(m); beams.push(m);
+    var lamp=new T.Mesh(new T.SphereGeometry(.24,12,12),new T.MeshBasicMaterial({color:0xffffff})); lamp.position.copy(m.position); hall.add(lamp); m.userData.lamp=lamp;
+  }
+  var l1=new T.PointLight(0xffffff,1.4,30); l1.position.set(-6,7,-6);
+  var l2=new T.PointLight(0xffffff,1.4,30); l2.position.set(6,7,-6);
+  scene.add(l1,l2); stageLights.push(l1,l2);
+
+  /* ступени рядов: партер пологий с центральным проходом, амфитеатр крутой с двумя лестницами */
+  var carpet=Mat(0x2e1a21), runner=Mat(0x5a2632), gold=new T.MeshBasicMaterial({color:0xf0b94a}), stepLit=new T.MeshBasicMaterial({color:0xffd27a});
+  var box=function(x0,x1,z0,z1,top,mat){if(top<=0||x1<=x0||z1<=z0)return; add(new T.BoxGeometry(x1-x0,top,z1-z0),mat,(x0+x1)/2,top/2-.02,(z0+z1)/2)};
+  var line=function(x0,x1,y,z,mat){add(new T.BoxGeometry(x1-x0,.03,.05),mat||gold,(x0+x1)/2,y,z)};
+  var SEG=[[-HX,AX[0]-AW/2],[AX[0]+AW/2,AX[1]-AW/2],[AX[1]+AW/2,HX]];
+  for(var r=2;r<=25;r++){
+    var y=rowY(r)+.05, z=rowZ(r), z0=r===10?TZ1:z-.51, z1=z+.51;
+    if(r<=9){
+      box(-HX,HX,z0,z1,y,carpet);
+      add(new T.BoxGeometry(1.7,.02,1),runner,0,y+.01,z);
+      line(-13,13,y+.01,z0+.02);
+      line(-.85,.85,y+.02,z0+.03,stepLit);
+    } else {
+      var ym=(r===10?AISLE_Y:rowY(r-1)+.05)/2+y/2;
+      SEG.forEach(function(sg){box(sg[0],sg[1],z0,z1,y,carpet); line(sg[0]+.2,sg[1]-.2,y+.01,z0+.02)});
+      AX.forEach(function(ax){
+        box(ax-AW/2,ax+AW/2,z0,z,ym,runner); box(ax-AW/2,ax+AW/2,z,z1,y,runner);
+        line(ax-AW/2+.1,ax+AW/2-.1,ym+.01,z0+.03,stepLit); line(ax-AW/2+.1,ax+AW/2-.1,y+.01,z+.03,stepLit);
+      });
+    }
+  }
+  /* поперечный проход и барьер амфитеатра (с проёмами у лестниц) */
+  box(-HX,HX,TZ0,TZ1,AISLE_Y,carpet);
+  var BH=rowY(10)+.9;
+  SEG.forEach(function(sg){box(sg[0],sg[1],TZ1-.18,TZ1,BH,wood); line(sg[0],sg[1],BH+.02,TZ1-.09)});
+  /* пульт звукорежиссёра на месте разрыва 21-го ряда, окна аппаратной в задней стене */
+  var dz=rowZ(21), dy=rowY(21)+.05;
+  add(new T.BoxGeometry(8.6,1.05,1.1),woodL,0,dy+.52,dz);
+  var con=add(new T.BoxGeometry(7.4,.1,.8),dark,0,dy+1.12,dz); con.rotation.x=-.25;
+  [-2.2,0,2.2].forEach(function(mx){add(new T.PlaneGeometry(1,.6),new T.MeshBasicMaterial({color:0x2c6db0}),mx,dy+1.55,dz+.2).rotation.y=Math.PI});
+  [-3.4,3.4].forEach(function(wx2){var w=add(new T.PlaneGeometry(3.8,1.5),new T.MeshBasicMaterial({color:0x14202e}),wx2,9.2,ZB-.03); w.rotation.y=Math.PI});
+
+  /* двери: 4 входа по схеме Quick Tickets + 2 верхних выхода у лестниц (по фото) */
+  function signTex(t1,t2){return wtex(320,110,function(g,w,h){g.fillStyle='#0d7a3e';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.font='800 46px sans-serif';g.fillText(t1,w/2,t2?54:72);if(t2){g.font='600 26px sans-serif';g.fillText(t2,w/2,92)}})}
+  function opening(x,z,y,ry,w,h,par){
+    var g=new T.Group(); g.position.set(x,y,z); g.rotation.y=ry; (par||hall).add(g);
+    var hole=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:0x050407})); hole.position.set(0,h/2,.02); g.add(hole);
+    [[-w/2-.07,h/2,.14,h+.14],[w/2+.07,h/2,.14,h+.14],[0,h+.07,w+.28,.14]].forEach(function(f){var fm=new T.Mesh(new T.BoxGeometry(f[2],f[3],.12),woodL); fm.position.set(f[0],f[1],.04); g.add(fm)});
+    var glow=new T.Mesh(new T.PlaneGeometry(w,h),new T.MeshBasicMaterial({color:0x8dff7a,transparent:true,opacity:0,depthWrite:false})); glow.position.set(0,h/2,.05); g.add(glow);
+    return {g:g,glow:glow,h:h};
+  }
+  DOORS.forEach(function(d){
+    var op=opening(d.s*(HX-.02),d.z,d.y,-d.s*Math.PI/2,1.8,2.4);
+    var sg=new T.Mesh(new T.PlaneGeometry(1.5,.52),new T.MeshBasicMaterial({map:signTex(d.name.toUpperCase(),'выход')})); sg.position.set(0,op.h+.5,.06); op.g.add(sg);
+    doorGlow.push(op.glow);
+  });
+  backG=new T.Group(); hall.add(backG);
+  AX.forEach(function(ax){
+    var op=opening(ax,ZB-.02,rowY(25)+.05,Math.PI,1.6,2.3,backG);
+    var sg=new T.Mesh(new T.PlaneGeometry(1.4,.48),new T.MeshBasicMaterial({map:signTex('ВЫХОД')})); sg.position.set(0,op.h+.45,.06); op.g.add(sg);
+  });
+
+  /* места по плану зала: ряды 2-25, 686 мест */
+  var blocks=function(r){
+    if(r===2)return [[1,14,function(n){return 149+(n-1)*17.2}],[15,28,function(n){return 424+(n-15)*17.2}]];
+    if(r<=9)return [[1,16,function(n){return 114+(n-1)*17.2}],[17,32,function(n){return 424+(n-17)*17.2}]];
+    var L=function(n){return 81+(n-1)*17.2},C=function(n){return 269+(n-10)*17.1},R=function(n){return 577+(n-26)*17.25};
+    if(r<=20)return [[1,9,L],[10,25,C],[26,34,R]];
+    if(r===21)return [[1,9,L],[10,11,C],[24,25,C],[26,34,R]];
+    var last={22:14,23:10,24:8,25:6}[r],lastL={22:7,23:5,24:4,25:3}[r];
+    return [[1,lastL,L],[lastL+1,last,function(n){return 715-(last-n)*17.2}]];
+  };
+  for(r=2;r<=25;r++){
+    (function(r){
+      blocks(r).forEach(function(b){
+        for(var n=b[0];n<=b[1];n++){
+          seats.push({x:wx(b[2](n)),y:rowY(r)+.05,z:rowZ(r),th:0,row:r,num:n,tier:r<=9?'Партер':'Амфитеатр',
+            cat:r<=5?0:r<=9?1:r>=22?4:r<=16?2:3});
+        }
+      });
+    })(r);
+  }
+  doorOf=seats.map(function(s){return routeFor(s).door});
+  /* инстансы кресел */
+  var N=seats.length;
+  var baseGeo=new T.BoxGeometry(.6,.4,.55); baseGeo.translate(0,.2,0);
+  var backGeo=new T.BoxGeometry(.6,.62,.12); backGeo.translate(0,.71,.3);
+  var sm=new T.MeshStandardMaterial({roughness:.7,metalness:.05});
+  baseMesh=new T.InstancedMesh(baseGeo,sm,N); backMesh=new T.InstancedMesh(backGeo,sm,N);
+  baseMesh.frustumCulled=backMesh.frustumCulled=false;
+  var d=new T.Object3D();
+  seats.forEach(function(s,i){
+    d.position.set(s.x,s.y,s.z); d.rotation.set(0,s.th,0); d.updateMatrix();
+    baseMesh.setMatrixAt(i,d.matrix); backMesh.setMatrixAt(i,d.matrix);
+  });
+  baseMesh.instanceMatrix.needsUpdate=backMesh.instanceMatrix.needsUpdate=true;
+  hall.add(baseMesh,backMesh);
+  glowMesh=new T.InstancedMesh(new T.SphereGeometry(.22,12,12),new T.MeshBasicMaterial({color:0x8dff7a}),MAXSEL);
+  glowMesh.frustumCulled=false; glowMesh.count=0; hall.add(glowMesh);
+  catCol=H().cats.map(function(c){return new T.Color(c.color)});
+  catDim=catCol.map(function(c){return c.clone().multiplyScalar(.22)});
+  catSold=catCol.map(function(c){return c.clone().lerp(SOLD,.6)});
+  applyEvent();
+}
+
+/* ---------- Путь от входа до места ----------
+   Перебираем входы и проходы, берём самый короткий путь. Партер: боковой или центральный
+   проход, вход 1 или 2 своей стороны. Амфитеатр: через вход 2 и одну из двух лестниц
+   (боковых проходов вдоль стен в амфитеатре нет, крайние блоки — только от лестницы). */
+function rampY(z,amph){
+  if(!amph){
+    if(z<=rowZ(2))return 0;
+    if(z>=rowZ(9))return rowY(9);
+    for(var r=2;r<9;r++)if(z<=rowZ(r+1)){var a=rowZ(r),b=rowZ(r+1);return rowY(r)+(rowY(r+1)-rowY(r))*(z-a)/(b-a)}
+  }
+  if(z<=TZ1-.2)return AISLE_Y;
+  if(z<=rowZ(10))return AISLE_Y+(rowY(10)-AISLE_Y)*(z-TZ1+.2)/(rowZ(10)-TZ1+.2);
+  for(var k=10;k<25;k++)if(z<=rowZ(k+1)){var c=rowZ(k),e=rowZ(k+1);return rowY(k)+(rowY(k+1)-rowY(k))*(z-c)/(e-c)}
+  return rowY(25);
+}
+function routeFor(s){
+  var amph=s.row>=10, legZ=s.z-.52, best=null;
+  var cand=amph?AX.filter(function(ax){return s.x<AX[0]-AW/2?ax===AX[0]:s.x>AX[1]+AW/2?ax===AX[1]:true})
+               :[0,(s.x<0?-1:1)*14.1];
+  DOORS.forEach(function(d,di){
+    if(amph&&d.lvl!==1)return;
+    if(!amph&&d.s!==(s.x<0?-1:1))return;
+    cand.forEach(function(ax){
+      var sy=s.y+.08, p=[], yd=d.y+.08;
+      p.push([d.s*(HX-.1),yd,d.z],[d.s*(HX-1.4),yd,d.z],[ax,yd,d.z]);
+      /* вдоль прохода с промежуточными точками для лестницы */
+      var n=Math.max(2,Math.ceil(Math.abs(legZ-d.z)/.5));
+      for(var k=1;k<=n;k++){var zz=d.z+(legZ-d.z)*k/n; p.push([ax,(k===n?sy:rampY(zz,amph)+.08),zz])}
+      p.push([s.x,sy,legZ],[s.x,sy,s.z-.15]);
+      /* идти вдоль ряда мимо сидящих втрое «дороже», чем по проходу */
+      var L=Math.abs(s.x-ax)*2; for(var j=1;j<p.length;j++)L+=Math.hypot(p[j][0]-p[j-1][0],p[j][2]-p[j-1][2])+Math.abs(p[j][1]-p[j-1][1])*2;
+      if(!best||L<best.len)best={door:di,pts:p,len:L};
+    });
+  });
+  return best;
+}
+function showRoute(i){
+  if(routeG){hall.remove(routeG); routeG.traverse(function(n){if(n.geometry)n.geometry.dispose(); if(n.material)n.material.dispose()}); routeG=null}
+  routeCurve=null; routeDots=[]; routeDoor=-1;
+  if(i<0)return;
+  var rt=routeFor(seats[i]), path=new T.CurvePath();
+  for(var j=1;j<rt.pts.length;j++)path.add(new T.LineCurve3(new T.Vector3().fromArray(rt.pts[j-1]),new T.Vector3().fromArray(rt.pts[j])));
+  routeG=new T.Group();
+  routeG.add(new T.Mesh(new T.TubeGeometry(path,rt.pts.length*10,.045,6,false),new T.MeshBasicMaterial({color:0x8dff7a,transparent:true,opacity:.75})));
+  var dg=new T.SphereGeometry(.11,10,10);
+  for(var k=0;k<6;k++){var m=new T.Mesh(dg,new T.MeshBasicMaterial({color:0xeaffe4})); routeG.add(m); routeDots.push(m)}
+  hall.add(routeG); routeCurve=path; routeDoor=rt.door;
+}
+
+/* занятые места и палитра события */
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function applyEvent(){
+  var ev=EV(), r=rng(ev.seed*7919+(kind==='cinema'?1:0)), w=[1.3,1.2,1,.8,.6,.5];
+  sold=new Uint8Array(seats.length);
+  seats.forEach(function(s,i){
+    var wt=kind==='concert'?w[s.cat]:[.8,1,1.25,1.1][s.cat];
+    sold[i]=r()<Math.min(.92,ev.sold*wt*.4)?1:0;
+  });
+  var c0=new T.Color(ev.pal[0]), c1=new T.Color(ev.pal[1]);
+  if(rimMesh)rimMesh.material.color.copy(c0);
+  sidePan.forEach(function(m){m.material.color.copy(c1).multiplyScalar(.55)});
+  beams.forEach(function(b,i){var c=i%2?c1:c0; b.material.color.copy(c); b.userData.lamp.material.color.copy(c)});
+  if(kind==='concert'){stageLights[0].color.copy(c0); stageLights[1].color.copy(c1)} else {stageLights[0].color.copy(c1).lerp(WHITE,.4)}
+  drawScreen(0);
+  refreshColors();
+}
+
+function refreshColors(){
+  var tmp=new T.Color();
+  for(var i=0;i<seats.length;i++){
+    var s=seats[i],c;
+    if(sold[i])c=catSold[s.cat];
+    else if(sel.indexOf(i)>=0)c=SEL;
+    else c=((filter>=0&&s.cat!==filter)||(doorF>=0&&doorOf[i]!==doorF))?catDim[s.cat]:catCol[s.cat];
+    tmp.copy(c);
+    if(i===hover&&!sold[i])tmp.lerp(WHITE,.4);
+    baseMesh.setColorAt(i,tmp);
+    tmp.multiplyScalar(.82); backMesh.setColorAt(i,tmp);
+  }
+  baseMesh.instanceColor.needsUpdate=backMesh.instanceColor.needsUpdate=true;
+  var d=new T.Object3D(); glowMesh.count=sel.length;
+  sel.forEach(function(i,k){var s=seats[i]; d.position.set(s.x,s.y+1.75,s.z); d.rotation.set(0,0,0); d.updateMatrix(); glowMesh.setMatrixAt(k,d.matrix)});
+  glowMesh.instanceMatrix.needsUpdate=true;
+}
+
+/* ---------- Камера ---------- */
+var cam={mode:'orbit',tgt:new T.Vector3(0,2,10),th:0,ph:1.15,dist:44,eye:new T.Vector3(),yaw:0,yaw0:0,pitch:0,fov:68,seatI:-1};
+var cur={pos:new T.Vector3(0,20,50),look:new T.Vector3(0,2,10),fov:50};
+function applyPreset(p){
+  cam.mode='orbit'; cam.tgt.set(p.tgt[0],p.tgt[1],p.tgt[2]); cam.th=p.th; cam.ph=p.ph; cam.dist=p.dist; onMode();
+}
+function viewFrom(i){
+  var s=seats[i], L=H().look;
+  cam.mode='seat'; cam.seatI=i;
+  cam.eye.set(s.x-Math.sin(s.th)*.0,s.y+1.2,s.z);
+  var dx=L[0]-cam.eye.x, dy=L[1]-cam.eye.y, dz=L[2]-cam.eye.z;
+  cam.yaw=cam.yaw0=Math.atan2(dx,-dz); cam.pitch=Math.atan2(dy,Math.hypot(dx,dz)); cam.fov=68;
+  stopTour(); onMode();
+}
+function onMode(){
+  var seat=cam.mode==='seat';
+  $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat;
+  if(seat){var s=seats[cam.seatI]; $('#seatBadge').textContent='Вид из кресла: '+seatLabel(s)+' · тяните, чтобы осмотреться'}
+}
+function desired(){
+  if(cam.mode==='orbit'){
+    var sp=Math.sin(cam.ph);
+    return {pos:new T.Vector3(sp*Math.sin(cam.th),Math.cos(cam.ph),sp*Math.cos(cam.th)).multiplyScalar(cam.dist).add(cam.tgt),look:cam.tgt.clone(),fov:50};
+  }
+  var cp=Math.cos(cam.pitch);
+  return {pos:cam.eye.clone(),look:cam.eye.clone().add(new T.Vector3(Math.sin(cam.yaw)*cp,Math.sin(cam.pitch),-Math.cos(cam.yaw)*cp)),fov:cam.fov};
+}
+function stepCam(dt){
+  var d=desired(), k=1-Math.exp(-dt*(cam.mode==='seat'?9:6));
+  cur.pos.lerp(d.pos,k); cur.look.lerp(d.look,k); cur.fov+=(d.fov-cur.fov)*k;
+  camera.position.copy(cur.pos); camera.lookAt(cur.look);
+  if(Math.abs(camera.fov-cur.fov)>.01){camera.fov=cur.fov; camera.updateProjectionMatrix()}
+}
+function rotateBy(dx,dy){
+  if(cam.mode==='orbit'){cam.th-=dx*.006; cam.ph=Math.max(.12,Math.min(1.5,cam.ph-dy*.006))}
+  else{cam.yaw=Math.max(cam.yaw0-1.3,Math.min(cam.yaw0+1.3,cam.yaw-dx*.004)); cam.pitch=Math.max(-.7,Math.min(.7,cam.pitch+dy*.004))}
+}
+function zoom(f){
+  if(cam.mode==='orbit')cam.dist=Math.max(6,Math.min(75,cam.dist*f));
+  else cam.fov=Math.max(34,Math.min(85,cam.fov*f));
+}
+
+/* ---------- Ввод ---------- */
+var raycaster=new T.Raycaster(), ndc=new T.Vector2();
+function pickAt(e){
+  var r=canvas.getBoundingClientRect();
+  ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  raycaster.setFromCamera(ndc,camera);
+  var h=raycaster.intersectObjects([baseMesh,backMesh],false)[0];
+  return h&&h.instanceId!==undefined?h.instanceId:-1;
+}
+/* афиши и баннеры на стенах: двойной клик (или кнопки «Афиши» и «Реклама») подлетает к панели */
+function wallAt(e){
+  if(!walls.length)return null;
+  var r=canvas.getBoundingClientRect();
+  ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  raycaster.setFromCamera(ndc,camera);
+  var hs=raycaster.intersectObjects(walls,false), hs2=raycaster.intersectObjects([baseMesh,backMesh],false);
+  if(!hs.length)return null;
+  if(hs2.length&&hs2[0].distance<hs[0].distance)return null;
+  return hs[0].object;
+}
+function flyToWall(m){
+  var d=m.userData.wall, left=d.side==='poster';
+  stopTour();
+  cam.mode='orbit'; cam.tgt.set(d.x,d.y,d.z); cam.th=left?Math.PI/2:-Math.PI/2; cam.ph=1.5;
+  cam.dist=Math.max(d.w,d.h*1.35)*1.5+1.5; onMode();
+}
+function wallPreset(side){
+  var list=walls.filter(function(m){return m.userData.wall.side===side});
+  if(!list.length)return;
+  var i=(wallPreset.i[side]||0)%list.length; wallPreset.i[side]=i+1; stopTour(); flyToWall(list[i]);
+}
+wallPreset.i={};
+var ptrs=new Map(), down=null, pinch0=0, hovBusy=false;
+function pdist(){var a=Array.from(ptrs.values());return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}
+canvas.addEventListener('pointerdown',function(e){
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); stopTour(); hideTip();
+  down={t:performance.now(),moved:0}; if(ptrs.size===2)pinch0=pdist();
+});
+canvas.addEventListener('pointermove',function(e){
+  var p=ptrs.get(e.pointerId);
+  if(p){
+    var dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+    if(ptrs.size===2){var d=pdist(); if(pinch0)zoom(pinch0/d); pinch0=d; if(down)down.moved=99}
+    else{if(down)down.moved+=Math.abs(dx)+Math.abs(dy); rotateBy(dx,dy)}
+  } else if(e.pointerType==='mouse'&&!hovBusy){
+    hovBusy=true; var ev=e;
+    requestAnimationFrame(function(){hovBusy=false; hoverAt(ev)});
+  }
+});
+function endPtr(e,click){
+  ptrs.delete(e.pointerId); pinch0=0;
+  if(click&&down&&ptrs.size===0&&down.moved<6&&performance.now()-down.t<600){var i=pickAt(e); if(i>=0)toggleSeat(i)}
+  if(ptrs.size===0)down=null;
+}
+canvas.addEventListener('pointerup',function(e){endPtr(e,true)});
+canvas.addEventListener('pointercancel',function(e){endPtr(e,false)});
+canvas.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')setHover(-1)});
+canvas.addEventListener('dblclick',function(e){
+  var i=pickAt(e); if(i>=0){viewFrom(i);return}
+  var w=wallAt(e); if(w)flyToWall(w);
+});
+canvas.addEventListener('wheel',function(e){e.preventDefault(); stopTour(); zoom(Math.exp(e.deltaY*.0012))},{passive:false});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){if(!$('#modal').hidden)closeModal(); else if(cam.mode==='seat')exitSeat()}
+});
+function exitSeat(){applyPreset(H().presets[0])}
+$('#exitSeat').addEventListener('click',exitSeat);
+
+var tip=$('#tip');
+function setHover(i){if(i!==hover){hover=i; refreshColors(); if(i<0)hideTip()}}
+function hideTip(){tip.hidden=true}
+function hoverAt(e){
+  if(down)return;
+  var i=pickAt(e); setHover(i);
+  if(i<0){hideTip();return}
+  var s=seats[i], c=H().cats[s.cat], r=$('#view').getBoundingClientRect();
+  tip.innerHTML='<b>'+esc(seatLabel(s))+'</b><span><i class="sw" style="background:'+c.color+'"></i>'+esc(c.name)+' · '+fmt(priceOf(s))+'</span><span>'+esc(doorName(doorOf[i]))+'</span><em>'+
+    (sold[i]?'Место занято':sel.indexOf(i)>=0?'Выбрано · клик, чтобы снять':'Свободно · клик, чтобы выбрать')+'</em>';
+  tip.hidden=false;
+  var x=e.clientX-r.left+16, y=e.clientY-r.top+16;
+  x=Math.min(x,r.width-tip.offsetWidth-8); y=Math.min(y,r.height-tip.offsetHeight-60);
+  tip.style.left=Math.max(8,x)+'px'; tip.style.top=Math.max(8,y)+'px';
+}
+
+/* ---------- Выбор мест ---------- */
+function seatLabel(s){return kind==='concert'?s.tier+' · ряд '+s.row+' · место '+s.num:'Ряд '+s.row+' · место '+s.num}
+function toggleSeat(i){
+  if(sold[i]){toast('Это место уже занято');return}
+  var k=sel.indexOf(i);
+  if(k>=0)sel.splice(k,1);
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i)}
+  onSel();
+}
+function onSel(){
+  if(sel.length&&!holdEnd){holdEnd=Date.now()+10*60*1000}
+  if(!sel.length)holdEnd=0;
+  showRoute(sel.length?sel[sel.length-1]:-1);
+  refreshColors(); renderCats(); renderSeats(); tickHold();
+}
+function tickHold(){
+  var el=$('#hold');
+  if(!holdEnd){el.textContent=''; return}
+  var left=holdEnd-Date.now();
+  if(left<=0){sel=[]; holdEnd=0; showRoute(-1); refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
+  var m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
+  el.textContent='Места удерживаются за вами ещё '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+setInterval(tickHold,1000);
+
+/* подбор лучших мест рядом */
+function bestSeats(){
+  var n=bestN, best=null, bs=1e9, sw=H().sweet;
+  for(var i=0;i+n<=seats.length;i++){
+    var ok=true,mx=0,mz=0,pen=0;
+    for(var k=0;k<n;k++){
+      var s=seats[i+k];
+      if(sold[i+k]||(filter>=0&&s.cat!==filter)){ok=false;break}
+      if(k>0){var p=seats[i+k-1]; if(p.row!==s.row||p.tier!==s.tier||Math.hypot(p.x-s.x,p.z-s.z)>1.1){ok=false;break}}
+      mx+=s.x; mz+=s.z; if(s.tier==='Балкон')pen=8;
+    }
+    if(!ok)continue;
+    var sc2=Math.hypot(mx/n-sw[0],mz/n-sw[1])+pen;
+    if(sc2<bs){bs=sc2;best=i}
+  }
+  if(best===null){toast('Нет '+n+' свободных мест подряд'+(filter>=0?' в этой категории':'')); return}
+  sel=[]; for(var j=0;j<n;j++)sel.push(best+j);
+  holdEnd=0; onSel(); viewFrom(best+Math.floor(n/2));
+  toast('Подобрали '+n+' '+(n===1?'место':n<5?'места':'мест')+' рядом');
+}
+
+/* ---------- Панель ---------- */
+function renderEvents(){
+  $('#events').innerHTML=H().events.map(function(e,i){
+    return '<button class="ev'+(i===evIdx?' on':'')+'" data-i="'+i+'"><span class="t">'+esc(e.title)+'</span><span class="s">'+esc(e.sub)+'</span><span class="d">'+esc(e.date)+' · '+esc(e.time)+' · '+esc(H().venue)+'</span></button>';
+  }).join('');
+}
+function renderCats(){
+  var free=H().cats.map(function(){return 0});
+  seats.forEach(function(s,i){if(!sold[i])free[s.cat]++});
+  $('#cats').innerHTML=H().cats.map(function(c,i){
+    var pr=Math.round(c.price*EV().mult/50)*50;
+    return '<button class="cat'+(filter===i?' on':'')+'" data-c="'+i+'"><i style="background:'+c.color+'"></i><span class="n">'+esc(c.name)+'</span><span class="p">'+fmt(pr)+'</span><span class="f">свободно '+free[i]+'</span></button>';
+  }).join('');
+}
+function renderDoors(){
+  var cnt=DOORS.map(function(){return 0}); doorOf.forEach(function(d){cnt[d]++});
+  $('#doors').innerHTML=DOORS.map(function(d,i){
+    return '<button class="cat'+(doorF===i?' on':'')+'" data-d="'+i+'"><i class="dr"></i><span class="n">'+esc(d.name)+' · '+esc(d.side)+'</span><span class="p">'+cnt[i]+' мест</span><span class="f">'+esc(d.where)+'</span></button>';
+  }).join('');
+}
+function renderSeats(){
+  var ul=$('#mySeats'), total=0;
+  if(!sel.length)ul.innerHTML='<li style="display:block"><p class="empty">Нажмите на кресло в зале или подберите места рядом.</p></li>';
+  else ul.innerHTML=sel.map(function(i){
+    var s=seats[i], c=H().cats[s.cat]; total+=priceOf(s);
+    return '<li><i style="background:'+c.color+'"></i><span class="l">'+esc(seatLabel(s))+'<small>'+esc(c.name)+'</small><small class="door">'+esc(doorName(doorOf[i]))+'</small></span><span class="pr">'+fmt(priceOf(s))+'</span><button data-v="'+i+'" title="Вид из кресла">Вид</button><button data-r="'+i+'" aria-label="Убрать место">✕</button></li>';
+  }).join('');
+  var n=sel.length;
+  $('#cnt').textContent=n?n+' '+(n===1?'место':n<5?'места':'мест'):'Места не выбраны';
+  $('#sum').textContent=fmt(total); $('#pay').disabled=!n;
+}
+function totalSel(){return sel.reduce(function(a,i){return a+priceOf(seats[i])},0)}
+
+$('#events').addEventListener('click',function(e){
+  var b=e.target.closest('.ev'); if(!b)return; var i=+b.dataset.i; if(i===evIdx)return;
+  var had=sel.length; evIdx=i; sel=[]; holdEnd=0; showRoute(-1); applyEvent(); renderEvents(); renderCats(); renderSeats(); tickHold();
+  if(had)toast('Выбор сброшен: другое мероприятие');
+});
+$('#cats').addEventListener('click',function(e){
+  var b=e.target.closest('.cat'); if(!b)return; var c=+b.dataset.c; filter=filter===c?-1:c; refreshColors(); renderCats();
+});
+$('#doors').addEventListener('click',function(e){
+  var b=e.target.closest('.cat'); if(!b)return; var d=+b.dataset.d; doorF=doorF===d?-1:d; refreshColors(); renderDoors();
+  if(doorF>=0){var D=DOORS[d]; stopTour(); applyPreset({tgt:[D.s*9,1.5,D.z+3],th:-D.s*1.05,ph:1.05,dist:17})}
+});
+$('#mySeats').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  if(b.dataset.v)viewFrom(+b.dataset.v); else if(b.dataset.r)toggleSeat(+b.dataset.r);
+});
+$('#nMinus').onclick=function(){bestN=Math.max(1,bestN-1); $('#nVal').textContent=bestN};
+$('#nPlus').onclick=function(){bestN=Math.min(6,bestN+1); $('#nVal').textContent=bestN};
+$('#bestBtn').onclick=bestSeats;
+$('#venueSeg').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b||b.dataset.v===kind)return;
+  kind=b.dataset.v; evIdx=0; sel=[]; holdEnd=0; filter=-1; hover=-1; stopTour();
+  document.querySelectorAll('#venueSeg button').forEach(function(x){x.classList.toggle('on',x===b)});
+  buildHall(); renderAll(); applyPreset(H().presets[0]); tickHold();
+});
+
+/* панель ракурсов */
+function renderToolbar(){
+  var tb=$('#toolbar'); tb.innerHTML='';
+  H().presets.forEach(function(p){
+    var b=document.createElement('button'); b.className='chip'; b.textContent=p.name;
+    b.onclick=function(){stopTour(); applyPreset(p)}; tb.appendChild(b);
+  });
+  if(walls.length)[['Афиши','poster'],['Реклама','ad']].forEach(function(p){
+    var b=document.createElement('button'); b.className='chip'; b.textContent=p[0];
+    b.title='Подлететь к стене. Нажмите ещё раз — следующая панель'; b.onclick=function(){wallPreset(p[1])}; tb.appendChild(b);
+  });
+  var t=document.createElement('button'); t.className='chip'+(tourOn?' on':''); t.id='tourBtn'; t.textContent='Автотур';
+  t.onclick=function(){tourOn?stopTour():startTour()}; tb.appendChild(t);
+  var v=document.createElement('button'); v.className='chip'; v.textContent='Вид из кресла';
+  v.onclick=function(){
+    var i=sel.length?sel[sel.length-1]:-1;
+    if(i<0){for(var k=0;k<seats.length;k++){if(!sold[k]&&Math.abs(seats[k].x)<2&&seats[k].row===8&&seats[k].tier!=='Балкон'){i=k;break}}}
+    if(i<0){for(var k2=0;k2<seats.length;k2++)if(!sold[k2]){i=k2;break}}
+    if(i>=0)viewFrom(i);
+  };
+  tb.appendChild(v);
+}
+function startTour(){tourOn=true; tourI=0; var b=$('#tourBtn'); if(b)b.classList.add('on'); nextTour()}
+function nextTour(){
+  if(!tourOn)return; var P=H().presets; applyPreset(P[tourI%P.length]); tourI++; tourT=setTimeout(nextTour,3800);
+}
+function stopTour(){tourOn=false; clearTimeout(tourT); var b=$('#tourBtn'); if(b)b.classList.remove('on')}
+
+function renderAll(){renderToolbar(); renderEvents(); renderCats(); renderDoors(); renderSeats()}
+
+/* ---------- Оплата (демо) ---------- */
+var pay={method:'card',mor:false,lg:0,ok:false};
+function openModal(){$('#modal').hidden=false}
+function closeModal(){$('#modal').hidden=true}
+$('#mClose').onclick=closeModal;
+$('#modal').addEventListener('pointerdown',function(e){if(e.target===this)closeModal()});
+$('#pay').onclick=function(){stopTour(); showForm(); openModal()};
+/* «Морошка» — Единая карта жителя Ямала, подключается к карте «Мир». Льготы на культуру
+   (многодетные, участники СВО и семьи, люди с ОВЗ) сейчас идут через «Афишу» приложения
+   со ссылкой на Quick Tickets. Здесь проверка статуса имитируется; размер скидки задаёт площадка. */
+var LG=[{n:'Без льготы — только кэшбэк по «Миру»',d:0},{n:'Многодетная семья',d:.3},{n:'Участник СВО и члены семьи',d:.3},{n:'Человек с ОВЗ',d:.3}];
+function payTotal(){return pay.mor&&pay.ok?Math.round(totalSel()*(1-LG[pay.lg].d)/10)*10:totalSel()}
+function doorsSel(list){var u=[]; list.forEach(function(i){var n=doorName(doorOf[i]); if(u.indexOf(n)<0)u.push(n)}); return u.join(', ')}
+function summaryHTML(){
+  var ev=EV(), rows=sel.map(function(i){var s=seats[i]; return '<div><span>'+esc(seatLabel(s))+'</span><span>'+fmt(priceOf(s))+'</span></div>'}).join('');
+  var disc=totalSel()-payTotal();
+  return '<div class="sum-box"><div><span class="mute">'+esc(ev.title)+'</span><span>'+esc(ev.date)+', '+esc(ev.time)+'</span></div><div><span class="mute">'+esc(H().venue)+'</span></div>'+rows+
+    '<div><span class="mute">Вход в зал</span><span>'+esc(doorsSel(sel))+'</span></div>'+
+    (disc?'<div class="mor-line"><span>Льгота «Морошки»: '+esc(LG[pay.lg].n)+'</span><span>−'+fmt(disc)+'</span></div>':'')+
+    '<div class="total"><span>Итого</span><span id="sTotal">'+fmt(payTotal())+'</span></div></div>';
+}
+function qtHTML(){
+  var ev=EV(), url=H().qtBase+ev.qt;
+  var seatsTxt=sel.map(function(i){var s=seats[i]; return 'ряд '+s.row+', место '+s.num}).join('; ');
+  return '<div class="qt"><b>Сейчас билеты продаются через Quick Tickets</b><p>Откройте этот сеанс и отметьте на схеме те же места: '+esc(seatsTxt)+'. Льготу по «Морошке» сейчас оформляют через раздел «Афиша» в приложении «Морошка» — он ведёт на Quick Tickets.</p>'+
+    '<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener">Открыть сеанс в Quick Tickets ↗</a></div>';
+}
+function morHTML(){
+  if(!pay.mor)return '<button type="button" class="mor-on" id="morOn"><span class="mor-logo">М</span><span><b>Оплатить с картой «Морошка»</b><small>Льгота для жителей Ямала, кэшбэк и баллы</small></span></button>';
+  return '<div class="mor"><div class="mor-h"><span class="mor-logo">М</span><b>Карта жителя Ямала «Морошка»</b><button type="button" class="mor-x" id="morOff" aria-label="Не применять">×</button></div>'+
+    '<div class="field"><label for="fLg">Категория</label><select id="fLg">'+LG.map(function(l,i){return '<option value="'+i+'"'+(i===pay.lg?' selected':'')+'>'+esc(l.n)+'</option>'}).join('')+'</select></div>'+
+    (pay.ok?'<p class="mor-ok">✓ Статус подтверждён в ГИС «Единая карта жителя Ямала»'+(LG[pay.lg].d?' · скидка '+Math.round(LG[pay.lg].d*100)+'%':'')+'</p>'
+           :'<button type="button" class="btn" id="morCheck" style="width:100%">Подтвердить через «Морошку»</button>')+
+    '<p class="mor-n">Оплата картой «Мир», к которой подключена «Морошка». Кэшбэк по программе лояльности «Мир» начисляется, если площадка участвует в программе НСПК. На входе покажите билет и QR-код из приложения «Морошка».</p></div>';
+}
+function showForm(){
+  $('#mBody').innerHTML='<h3 id="mTitle">Оформление заказа</h3><p class="sub">Билеты придут после оплаты.</p>'+summaryHTML()+qtHTML()+
+  '<p class="sec">Так будет после подключения: оплата прямо в 3D-зале (демо)</p>'+
+  '<div class="field"><label for="fName">Имя и фамилия</label><input id="fName" autocomplete="name" placeholder="Анна Петрова"></div>'+
+  '<div class="field"><label for="fPhone">Телефон</label><input id="fPhone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00"></div>'+
+  '<div class="field"><label for="fMail">Почта (по желанию)</label><input id="fMail" inputmode="email" autocomplete="email" placeholder="name@mail.ru"></div>'+
+  '<div id="morBox">'+morHTML()+'</div>'+
+  '<div class="pm"><button type="button" data-m="card" class="'+(pay.method==='card'?'on':'')+'">Карта «Мир»</button><button type="button" data-m="sbp" class="'+(pay.method==='sbp'?'on':'')+'">СБП</button></div>'+
+  '<div class="row"><button class="btn" id="mBack">Назад</button><button class="btn primary" id="mPay">Оплатить '+fmt(payTotal())+'</button></div>'+
+  '<p class="demo">Демо-версия: деньги не списываются, статус «Морошки» не проверяется по-настоящему. В рабочем сервисе — платёжный шлюз с картами «Мир» и СБП, проверка мест на сервере и запрос статуса в ГИС ЕКЖЯ по соглашению с оператором.</p>';
+  $('#mBack').onclick=closeModal;
+  document.querySelectorAll('.pm button').forEach(function(b){b.onclick=function(){pay.method=b.dataset.m; document.querySelectorAll('.pm button').forEach(function(x){x.classList.toggle('on',x===b)})}});
+  $('#mPay').onclick=submitPay;
+  bindMor();
+  setTimeout(function(){var f=$('#fName'); if(f)f.focus()},30);
+}
+function refreshPay(){
+  var sb=document.querySelector('.sum-box'); if(sb)sb.outerHTML=summaryHTML();
+  $('#morBox').innerHTML=morHTML(); bindMor();
+  var b=$('#mPay'); if(b&&!b.disabled)b.textContent='Оплатить '+fmt(payTotal());
+}
+function bindMor(){
+  var on=$('#morOn'), off=$('#morOff'), lg=$('#fLg'), ck=$('#morCheck');
+  if(on)on.onclick=function(){pay.mor=true; pay.method='card'; document.querySelectorAll('.pm button').forEach(function(x){x.classList.toggle('on',x.dataset.m==='card')}); refreshPay()};
+  if(off)off.onclick=function(){pay.mor=false; pay.ok=false; refreshPay()};
+  if(lg)lg.onchange=function(){pay.lg=+lg.value; pay.ok=false; refreshPay()};
+  if(ck)ck.onclick=function(){ck.disabled=true; ck.textContent='Запрашиваем статус…'; setTimeout(function(){pay.ok=true; refreshPay()},900)};
+}
+function submitPay(){
+  var n=$('#fName'), p=$('#fPhone'), bad=false;
+  [[n,n.value.trim().length<2],[p,p.value.replace(/\D/g,'').length<10]].forEach(function(a){a[0].classList.toggle('err',a[1]); if(a[1])bad=true});
+  if(bad){toast('Заполните имя и телефон'); return}
+  if(pay.mor&&!pay.ok){toast('Подтвердите статус «Морошки» или отключите её'); return}
+  var btn=$('#mPay'); btn.disabled=true; btn.textContent='Проводим оплату…';
+  var name=n.value.trim();
+  setTimeout(function(){
+    var order=String(Math.floor(100000+Math.random()*900000)), picked=sel.slice(), sum=payTotal(), ev=EV(), mor=pay.mor&&pay.ok, lg=LG[pay.lg];
+    picked.forEach(function(i){sold[i]=1});
+    var lines=picked.map(function(i){return '<div><span>'+esc(seatLabel(seats[i]))+'</span><span>'+fmt(priceOf(seats[i]))+'</span></div>'}).join('');
+    var doors=doorsSel(picked);
+    sel=[]; holdEnd=0; pay.mor=false; pay.ok=false; showRoute(-1); refreshColors(); renderCats(); renderSeats(); tickHold();
+    $('#mBody').innerHTML='<div class="done"><div class="ok">✓</div><h3 id="mTitle" style="padding:0">Заказ № '+order+' оплачен</h3><p class="sub">'+esc(name)+', ждём вас: '+esc(ev.title)+', '+esc(ev.date)+' в '+esc(ev.time)+'.</p><canvas id="qr" width="168" height="168"></canvas>'+
+      '<div class="sum-box" style="text-align:left">'+lines+'<div><span class="mute">Вход в зал</span><span>'+esc(doors)+'</span></div>'+
+      (mor?'<div class="mor-line"><span>«Морошка»: '+esc(lg.n)+'</span><span>✓</span></div>':'')+
+      '<div class="total"><span>Оплачено</span><span>'+fmt(sum)+'</span></div></div>'+
+      (mor&&lg.d?'<p class="mor-n" style="text-align:left">Билет льготный: на входе покажите QR-код из приложения «Морошка».</p>':'')+
+      '<button class="btn primary" id="mOk" style="width:100%">Готово</button><p class="demo">Это пример QR-кода. В рабочей версии билеты уходят на почту или в мессенджер, а на входе их сканируют.</p></div>';
+    drawQR($('#qr'),order); $('#mOk').onclick=closeModal;
+  },1100);
+}
+function drawQR(c,seed){
+  var x=c.getContext('2d'), n=21, s=8, r=rng(+seed);
+  x.fillStyle='#fff'; x.fillRect(0,0,168,168); x.fillStyle='#111';
+  function finder(ox,oy){x.fillRect(ox*s,oy*s,7*s,7*s); x.fillStyle='#fff'; x.fillRect((ox+1)*s,(oy+1)*s,5*s,5*s); x.fillStyle='#111'; x.fillRect((ox+2)*s,(oy+2)*s,3*s,3*s)}
+  for(var i=0;i<n;i++)for(var j=0;j<n;j++){
+    var inF=(i<8&&j<8)||(i>12&&j<8)||(i<8&&j>12);
+    if(!inF&&r()>.5)x.fillRect(i*s,j*s,s,s);
+  }
+  finder(0,0); finder(14,0); finder(0,14);
+}
+
+/* ---------- Уведомления ---------- */
+var toastT=null;
+function toast(m){var t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true},2600)}
+
+/* скрыть или показать правую панель */
+$('#panelToggle').addEventListener('click',function(){
+  var off=$('#app').classList.toggle('nopanel');
+  this.textContent=off?'◂ Показать панель':'Скрыть панель ▸'; this.setAttribute('aria-expanded',String(!off));
+});
+
+/* ---------- Размер и цикл ---------- */
+var view=$('#view');
+function resize(){
+  var w=view.clientWidth,h=view.clientHeight; if(!w||!h)return;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+if(window.ResizeObserver)new ResizeObserver(resize).observe(view); else window.addEventListener('resize',resize);
+resize();
+
+var clock=new T.Clock(), frame=0;
+function loop(){
+  requestAnimationFrame(loop);
+  var dt=Math.min(clock.getDelta(),.1), t=clock.elapsedTime;
+  frame++;
+  if(!reduce){
+    if(frame%3===0)drawScreen(t);
+    beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
+  }
+  if(routeCurve)routeDots.forEach(function(m,k){m.position.copy(routeCurve.getPointAt(((reduce?0:t*.12)+k/routeDots.length)%1))});
+  doorGlow.forEach(function(g,k){g.material.opacity=(k===routeDoor||k===doorF)?.28+(reduce?0:.18*Math.sin(t*4)):0});
+  stepCam(dt);
+  if(backG)backG.visible=camera.position.z<ZB-.2;
+  renderer.render(scene,camera);
+}
+
+buildHall(); renderAll(); applyPreset(H().presets[0]);
+cur.pos.set(0,26,60); cur.look.set(0,2,10);
+resize(); loop();
+setTimeout(function(){$('#loading').classList.add('off')},250);
+})();
+</script>
+
+</body>
+</html>
