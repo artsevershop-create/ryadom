@@ -387,8 +387,6 @@ function buildHall(){
   var dlm=new T.InstancedMesh(new T.CircleGeometry(.13,12).rotateX(Math.PI/2),new T.MeshBasicMaterial({color:0xfff1d6}),dl.length);
   var o=new T.Object3D(); dl.forEach(function(p,i){o.position.set(p[0],13.9,p[1]); o.updateMatrix(); dlm.setMatrixAt(i,o.matrix)}); dlm.frustumCulled=false; hall.add(dlm);
 
-  /* акустические рёбра на стенах за амфитеатром */
-  [-1,1].forEach(function(s){for(var fz=14.5;fz<ZB-.6;fz+=1.7){var f=add(new T.BoxGeometry(.32,6,.95),woodL,s*(HX-.2),9.6,fz); f.rotation.y=s*.38}});
 
   /* афиша и реклама на стенах */
   function wtex(w,h,fn){var c=document.createElement('canvas');c.width=w;c.height=h;fn(c.getContext('2d'),w,h);var t=new T.CanvasTexture(c);t.anisotropy=4;return t}
