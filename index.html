@@ -7,7 +7,7 @@
 <body>
 <title>РЯДОМ: ваше пространство в 3D</title>
 <link rel="icon" type="image/svg+xml" href="img/mark.svg">
-<meta name="description" content="3D-схема зала, арены или стадиона для сайта: вид из кресла, выбор места и оплата в одном окне поверх вашей билетной системы. Филармонии, театры, кинотеатры, ДК, хоккейные арены и стадионы.">
+<meta name="description" content="3D-схема зала, арены или стадиона для сайта: вид из кресла, выбор места и переход к покупке поверх вашей билетной системы. Филармонии, театры, кинотеатры, ДК, хоккейные арены и стадионы.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap">
@@ -284,8 +284,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .chip{border:1px solid var(--line);border-radius:999px;padding:6px 14px;background:var(--panel);color:var(--ink)}
 
 /* тарифы */
-.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
-@media (max-width:1000px){.plans{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.plans{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;align-items:stretch}
+.plan .sub2{font-size:15px;color:var(--muted)}.plan .sub2 b{color:var(--ink)}
+.plan.indiv{grid-column:1/-1;background:var(--panel-2)}
+@media (max-width:1100px){.plans{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:620px){.plans{grid-template-columns:minmax(0,1fr)}}
 .plan{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:14px;align-content:start;transition:transform .25s,box-shadow .25s}
 .plan:hover{transform:translateY(-5px);box-shadow:0 20px 40px -20px rgba(0,0,0,.35)}
@@ -301,7 +303,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .plan li{display:flex;gap:10px}
 .plan li::before{content:"✓";color:var(--ok);font-weight:700}
 @media (max-width:900px){.plans{grid-template-columns:minmax(0,1fr)}}
-.addons{margin-top:28px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.addons{margin-top:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+.addons .box ul{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:8px}.addons .box li{display:flex;gap:10px}.addons .box li::before{content:"✓";color:var(--ok);font-weight:700}
 .addons table{width:100%;border-collapse:collapse;font-size:16px}
 .addons td{padding:12px 0;border-bottom:1px solid var(--line)}
 .addons td:last-child{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:16px}
@@ -540,9 +543,9 @@ footer .sp{margin-left:auto}
 
     <div class="feat-big" data-reveal>
       <div class="txt">
-        <h3 style="font-size:24px">Оплата в том же окне</h3>
-        <p>Выбранные места держатся за зрителем 10 минут. Оплата картой «Мир» или по СБП, билет с QR-кодом приходит сразу. Если продажи идут через билетного оператора, заказ уходит к нему.</p>
-        <ul><li>Льготы для жителей Ямала по карте «Морошка»</li><li>Пушкинская карта и возвраты остаются в вашей билетной системе</li><li>Проверка мест на сервере, двойная продажа исключена</li></ul>
+        <h3 style="font-size:24px">Переход к покупке без лишних шагов</h3>
+        <p>Выбранные места держатся за зрителем 10 минут. Заказ с номерами выбранных мест уходит в вашу билетную систему, билет приходит от неё.</p>
+        <ul><li>Льготы для жителей Ямала по карте «Морошка»</li><li>Оплата, Пушкинская карта и возвраты остаются в вашей билетной системе</li><li>Проверка мест на сервере, двойная продажа исключена</li></ul>
       </div>
       <div class="img narrow"><img src="img2/pay-sheet.jpg" width="920" height="1720" alt="Окно оплаты с подтверждённой льготой по карте «Морошка»" loading="lazy"></div>
     </div>
@@ -551,15 +554,15 @@ footer .sp{margin-left:auto}
       <div class="txt">
         <h3 style="font-size:24px">Работает на телефоне</h3>
         <p>Большинство зрителей выбирают места с телефона. Зал открывается в обычном браузере, без приложения: тянете, чтобы повернуть, двумя пальцами приближаете, нажимаете на кресло.</p>
-        <ul><li>Схема, афиша и корзина умещаются на одном экране</li><li>Кнопка «Подобрать лучшие» экономит время в очереди продаж</li><li>Те же цены, входы и оплата, что и на компьютере</li></ul>
+        <ul><li>Схема, афиша и корзина умещаются на одном экране</li><li>Кнопка «Подобрать лучшие» экономит время в очереди продаж</li><li>Те же цены и входы, что и на компьютере</li></ul>
       </div>
-      <div class="phone"><img src="img2/phone-app.jpg" width="780" height="1687" alt="3D-зал на экране телефона с афишей и кнопкой перехода к оплате" loading="lazy"></div>
+      <div class="phone"><img src="img2/phone-app.jpg" width="780" height="1687" alt="3D-зал на экране телефона с афишей и кнопкой перехода к покупке" loading="lazy"></div>
     </div>
 
     <div class="feat-grid">
       <div class="fg" data-reveal style="--d:0s"><span class="tag">Доход площадки</span><h3>Реклама и афиша на стенах</h3><p>Баннеры партнёров и афиша следующих концертов висят на стенах 3D-зала. Их видит каждый, кто выбирает место.</p></div>
       <div class="fg" data-reveal style="--d:.12s"><span class="tag">Доход площадки</span><h3>Допродажи к билету</h3><p>Программка, гардероб без очереди, буфет, парковка, сувениры. Предлагаем в момент покупки, подключаем по запросу.</p></div>
-      <div class="fg" data-reveal style="--d:.24s"><span class="tag">Опция</span><h3>Аналитика зала</h3><p>Какие места смотрят чаще всего и какие смотрят, но не покупают. Помогает пересобрать ценовые категории.</p></div>
+      <div class="fg" data-reveal style="--d:.24s"><span class="tag">В подписке</span><h3>Статистика просмотров</h3><p>Какие места смотрят чаще всего. Базовая статистика входит в подписку и помогает пересобрать ценовые категории.</p></div>
     </div>
   </div>
 </section>
@@ -570,7 +573,7 @@ footer .sp{margin-left:auto}
     <div data-reveal style="--d:.12s">
       <p class="eyebrow">Демо на реальном зале</p>
       <h2 style="margin-top:14px">Концертный зал Ямальской филармонии, Салехард</h2>
-      <p class="lead" style="margin-top:16px">Модель собрана по официальной схеме и фотографиям зала. Нумерация мест совпадает с Quick Tickets, где сейчас продаются билеты, в афише настоящие концерты сезона.</p>
+      <p class="lead" style="margin-top:16px">Модель собрана по официальной схеме и фотографиям зала. Нумерация мест совпадает с билетной системой, где сейчас продаются билеты, в афише настоящие концерты сезона.</p>
       <div class="facts">
         <div><b data-count="686">686</b><span>мест в модели</span></div>
         <div><b>2–25</b><span>ряды партера и амфитеатра</span></div>
@@ -631,7 +634,7 @@ footer .sp{margin-left:auto}
         </div>
       </article>
     </div>
-    <p class="note" style="margin-top:24px;color:var(--stage-muted)">Демо собраны по типовым схемам: нумерация секторов, цены и занятость условные. Для запуска нужна официальная схема рассадки вашего объекта. Стоимость по размеру площадки смотрите в тарифах.</p>
+    <p class="note" style="margin-top:24px;color:var(--stage-muted)">Демо собраны по типовым схемам: нумерация секторов, цены и занятость условные. Для запуска нужна официальная схема рассадки вашего объекта. Стоимость по вместимости смотрите в тарифах.</p>
   </div>
 </section>
 
@@ -642,14 +645,14 @@ footer .sp{margin-left:auto}
       <h2>Для залов и арен, где зрителю важно, откуда он будет смотреть</h2>
     </div>
     <div class="who">
-      <article data-reveal style="--d:0s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 20h18M5 20V9l7-5 7 5v11M9 20v-6h6v6"/></svg></div><h3>Филармонии и театры</h3><p>Партер, амфитеатр, балконы и ложи. Зритель видит сцену из каждого ряда и спокойно берёт дальние места.</p><p class="fit">Тариф «Средний» или «Большой»</p></article>
-      <article data-reveal style="--d:.1s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Кинотеатры</h3><p>Быстрый выбор в небольших залах и реклама фильмов на стенах. Отдельная модель для каждого зала.</p><p class="fit">Тариф «Камерный» за зал</p></article>
-      <article data-reveal style="--d:.2s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V8l8-4 8 4v13M4 13h16M9 21v-4h6v4"/></svg></div><h3>ДК и площадки</h3><p>Один зал под концерты, спектакли и собрания. Разные схемы рассадки в одной модели.</p><p class="fit">Тариф «Камерный», запуск за 1–2 недели</p></article>
+      <article data-reveal style="--d:0s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 20h18M5 20V9l7-5 7 5v11M9 20v-6h6v6"/></svg></div><h3>Филармонии и театры</h3><p>Партер, амфитеатр, балконы и ложи. Зритель видит сцену из каждого ряда и спокойно берёт дальние места.</p><p class="fit">Средний или Большой зал</p></article>
+      <article data-reveal style="--d:.1s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Кинотеатры</h3><p>Быстрый выбор в небольших залах и реклама фильмов на стенах. Отдельная модель для каждого зала.</p><p class="fit">Малый зал, каждый зал отдельно</p></article>
+      <article data-reveal style="--d:.2s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V8l8-4 8 4v13M4 13h16M9 21v-4h6v4"/></svg></div><h3>ДК и площадки</h3><p>Один зал под концерты, спектакли и собрания. Разные схемы рассадки в одной модели.</p><p class="fit">Малый зал, запуск за 1–2 недели</p></article>
       <article data-reveal style="--d:.3s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="5.5"/><ellipse cx="12" cy="12" rx="4" ry="2"/></svg></div><h3>Хоккейные арены и ледовые дворцы</h3><p>Три яруса, углы и торцы, VIP-ложи. Болельщик видит лёд и экран-куб, а арена продаёт рекламу на бортах и LED-кольце.</p><p class="fit">Демо готово · расчёт по схеме арены</p></article>
       <article data-reveal style="--d:.4s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 18c0-6 4-10 9-10s9 4 9 10M7 18v-3M12 18v-5M17 18v-3"/></svg></div><h3>Футбольные стадионы</h3><p>Основные трибуны, сектора за воротами, временные трибуны: болельщик выбирает сектор, ряд и место и видит поле со своего кресла.</p><p class="fit">Демо готово · расчёт по схеме стадиона</p></article>
       <article data-reveal style="--d:.5s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a2 2 0 0 0 0 4v4a2 2 0 0 1 2 2h14a2 2 0 0 1 2-2v-4a2 2 0 0 0 0-4V6H3z"/><path d="M13 6v14" stroke-dasharray="2 2"/></svg></div><h3>Билетные операторы</h3><p>3D как модуль для ваших площадок. Подключаем один раз и разворачиваем на всех залах.</p><p class="fit">Партнёрские условия</p></article>
     </div>
-    <div class="integr" data-reveal><b>Работаем с:</b><span class="chip">Quick Tickets</span><span class="chip">вашей билетной системой по API</span><span class="chip">картами «Мир» и СБП</span><span class="chip">картой жителя Ямала «Морошка»</span></div>
+    <div class="integr" data-reveal><b>Работаем с:</b><span class="chip">Quick Tickets</span><span class="chip">вашей билетной системой по API</span><span class="chip">картой жителя Ямала «Морошка»</span></div>
   </div>
 </section>
 
@@ -657,93 +660,71 @@ footer .sp{margin-left:auto}
   <div class="wrap">
     <div class="sec-head" data-reveal>
       <p class="eyebrow">Тарифы</p>
-      <h2>Разовая оплата по размеру площадки, без процента с билетов</h2>
-      <p class="lead">В любой тариф входят 3D-модель по вашему плану, выбор места с видом из кресла, интеграция с билетной системой, виджет на сайт и мобильная версия. Сроки на шкале считаются до 12 недель.</p>
+      <h2>Создание зала один раз, обслуживание по подписке. Без процента с билетов</h2>
+      <p class="lead">Цена зависит от вместимости: от небольших кинозалов до арен на 10 000 мест. Стоимость указана за один зал при наличии пригодных планов и схем рассадки.</p>
     </div>
     <div class="plans" id="plans" data-reveal>
       <article class="plan">
-        <h3>Камерный</h3><p class="size">до 300 мест · малые залы, кинозалы, ДК</p>
-        <p class="price">150 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 1–2 недели</span><div class="track"><i style="--w:17%"></i></div></div>
-        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Малый зал</h3><p class="size">до 300 мест · небольшие театры, кинозалы, ДК</p>
+        <p class="price">79 000 <small>₽ создание, разово</small></p>
+        <p class="sub2">+ подписка 36 000 ₽ в год · <b>первый год 115 000 ₽</b></p>
+        <div class="bar"><span>Срок: 1–2 недели</span><div class="track"><i style="--w:25%"></i></div></div>
+        <ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li></ul>
       </article>
       <article class="plan mid">
-        <h3>Средний</h3><p class="size">300–800 мест · филармонии, театры</p>
-        <p class="price">300 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 2–3 недели</span><div class="track"><i style="--w:25%"></i></div></div>
-        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Средний зал</h3><p class="size">301–1 000 мест · театры, филармонии, концертные залы, цирки</p>
+        <p class="price">490 000 <small>₽ создание, разово</small></p>
+        <p class="sub2">+ подписка 60 000 ₽ в год · <b>первый год 550 000 ₽</b></p>
+        <div class="bar"><span>Срок: 2–3 недели</span><div class="track"><i style="--w:42%"></i></div></div>
+        <ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li></ul>
       </article>
       <article class="plan">
-        <h3>Большой</h3><p class="size">800–3 000 мест · ярусы, ложи, спортивные залы</p>
-        <p class="price">490 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 3–4 недели</span><div class="track"><i style="--w:33%"></i></div></div>
-        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Большой зал</h3><p class="size">1 001–3 000 мест · крупные театры, концертные площадки, спортивные залы</p>
+        <p class="price">790 000 <small>₽ создание, разово</small></p>
+        <p class="sub2">+ подписка 96 000 ₽ в год · <b>первый год 886 000 ₽</b></p>
+        <div class="bar"><span>Срок: 3–4 недели</span><div class="track"><i style="--w:58%"></i></div></div>
+        <ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li><li>Подбор лучших мест рядом входит</li></ul>
       </article>
       <article class="plan">
-        <h3>Дворец спорта</h3><p class="size">3–5 тыс. мест · одна конфигурация</p>
-        <p class="price">690 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 4–6 недель</span><div class="track"><i style="--w:50%"></i></div></div>
-        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Арена</h3><p class="size">3 001–10 000 мест · ледовые дворцы, баскетбольные и волейбольные арены</p>
+        <p class="price">1 190 000 <small>₽ создание, разово</small></p>
+        <p class="sub2">+ подписка 180 000 ₽ в год · <b>первый год 1 370 000 ₽</b></p>
+        <div class="bar"><span>Срок: 4–6 недель</span><div class="track"><i style="--w:80%"></i></div></div>
+        <ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li><li>Подбор лучших мест рядом входит</li></ul>
       </article>
-      <article class="plan">
-        <h3>Ледовая арена</h3><p class="size">5–15 тыс. мест · хоккей и концерт</p>
-        <p class="price">1 190 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 6–8 недель</span><div class="track"><i style="--w:67%"></i></div></div>
-        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
-      </article>
-      <article class="plan">
-        <h3>Стадион</h3><p class="size">от 15 тыс. мест · футбол и концерт</p>
-        <p class="price">1 890 000 <small>₽ за площадку</small></p>
-        <div class="bar"><span>Срок: 8–12 недель</span><div class="track"><i style="--w:100%"></i></div></div>
-        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
+      <article class="plan indiv">
+        <h3>От 10 001 места</h3><p class="size">стадионы и крупные многофункциональные комплексы</p>
+        <p class="price">Считаем индивидуально</p>
+        <p class="sub2">Пришлите схему трибун: назовём создание и подписку после изучения объекта</p>
       </article>
     </div>
     <div class="addons" data-reveal>
-      <table aria-label="Дополнительные опции">
-        <tr><td>Подбор лучших мест рядом</td><td>+40 000 ₽</td></tr>
-        <tr><td>Аналитика зала</td><td>+50 000 ₽</td></tr>
-        <tr><td>Оплата в окне 3D-зала</td><td>+60 000 ₽</td></tr>
-        <tr><td>Фирменный стиль и второй язык</td><td>+30 000 ₽</td></tr>
-        <tr><td>Ещё одна конфигурация арены (матч или концерт)</td><td>+150 000 ₽</td></tr>
-        <tr><td>Абонементы и сезонные билеты</td><td>+120 000 ₽</td></tr>
-        <tr><td>Реклама на стенах и бортах, допродажи</td><td>по запросу</td></tr>
-      </table>
-      <div class="box"><b>Сопровождение: 6 месяцев в стоимости</b><p>Обновление афиши и схем, хостинг и поддержка первые 6 месяцев входят в цену. Дальнейшую абонентскую плату назовём в коммерческом предложении.</p></div>
+      <div class="box"><b>Создание и запуск</b><ul><li>3D-модель по согласованным материалам</li><li>Схема с секторами, рядами и номерами кресел</li><li>Виртуальный обзор с выбранного места</li><li>Версия для телефона и компьютера</li><li>Размещение на сайте и переход к покупке</li><li>Одна конфигурация зала и два раунда правок</li></ul></div>
+      <div class="box"><b>Подписка на год</b><ul><li>Размещение модели, обслуживание, исправление ошибок</li><li>Обновления сервиса и базовая статистика просмотров</li><li>Поддержка сотрудника площадки</li><li>До четырёх небольших изменений подписей и описаний</li></ul></div>
     </div>
-
-    <p class="note" data-reveal style="margin:18px 0 0">Тарифы дворцов спорта, арен и стадионов ориентировочные: точную сумму и срок назовём после схемы трибун. Для нескольких площадок и сетей считаем со скидкой.</p>
+    <p class="note" data-reveal style="margin:18px 0 0">Перестройка сцены, изменение геометрии, новые схемы рассадки и дополнительные конфигурации оплачиваются отдельно. Подбор лучших мест рядом входит в тарифы от 500 000 ₽ (Большой зал и выше). Для кинотеатра с несколькими залами считаем каждый зал отдельно. Виртуальный обзор не заменяет фотографию: видимость может меняться из-за декораций и оборудования.</p>
     <div class="calc" id="calc" data-reveal>
       <div>
         <h3>Прикиньте стоимость</h3>
-        <p class="sub">Ориентировочный расчёт: опции считаем за каждую площадку, обслуживание первые 6 месяцев уже входит в цену. Точную сумму назовём в коммерческом предложении.</p>
+        <p class="sub">Ориентировочный расчёт для вашей площадки. Точную сумму назовём в коммерческом предложении.</p>
         <fieldset>
-          <legend>Тип площадки</legend>
+          <legend>Вместимость зала</legend>
           <div class="tiers" id="tiers">
-            <label class="opt"><input type="radio" name="tier" value="150000"><span>Камерный</span><em>до 300 мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="300000" checked><span>Средний</span><em>300–800 мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="490000"><span>Большой</span><em>800–3 000 мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="690000"><span>Дворец спорта</span><em>3–5 тыс. мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="1190000"><span>Ледовая арена</span><em>5–15 тыс. мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="1890000"><span>Стадион</span><em>от 15 тыс. мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="0"><span>Малый зал</span><em>до 300 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="1" checked><span>Средний зал</span><em>301–1 000 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="2"><span>Большой зал</span><em>1 001–3 000 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="3"><span>Арена</span><em>3 001–10 000 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="x"><span>Стадион и крупные объекты</span><em>от 10 001 места</em></label>
           </div>
         </fieldset>
         <fieldset>
-          <legend>Количество площадок</legend>
-          <div class="step2" role="group" aria-label="Количество площадок"><button type="button" id="hm" aria-label="Меньше">−</button><output id="hn">1</output><button type="button" id="hp" aria-label="Больше">+</button></div>
-        </fieldset>
-        <fieldset id="opts">
-          <legend>Опции</legend>
-          <label class="opt"><input type="checkbox" value="40000" data-n="Подбор мест рядом"><span>Подбор лучших мест рядом</span><em>+40 000 ₽</em></label>
-          <label class="opt"><input type="checkbox" value="50000" data-n="Аналитика"><span>Аналитика зала</span><em>+50 000 ₽</em></label>
-          <label class="opt"><input type="checkbox" value="60000" data-n="Оплата в окне"><span>Оплата в окне 3D-зала</span><em>+60 000 ₽</em></label>
-          <label class="opt"><input type="checkbox" value="30000" data-n="Стиль и 2 языка"><span>Фирменный стиль и второй язык</span><em>+30 000 ₽</em></label>
-          <label class="opt"><input type="checkbox" value="150000" data-n="Ещё одна конфигурация"><span>Ещё одна конфигурация арены</span><em>+150 000 ₽</em></label>
-          <label class="opt"><input type="checkbox" value="120000" data-n="Абонементы и сезонные билеты"><span>Абонементы и сезонные билеты</span><em>+120 000 ₽</em></label>
+          <legend>Количество залов</legend>
+          <div class="step2" role="group" aria-label="Количество залов"><button type="button" id="hm" aria-label="Меньше">−</button><output id="hn">1</output><button type="button" id="hp" aria-label="Больше">+</button></div>
         </fieldset>
       </div>
       <div class="result" aria-live="polite">
-        <p class="eyebrow" style="color:var(--gold)">Итого, разово</p>
-        <p class="big" id="total">300 000 ₽</p>
+        <p class="eyebrow" style="color:var(--gold)">Первый год</p>
+        <p class="big" id="total">550 000 ₽</p>
         <ul id="break"></ul>
         <p class="fine">Реклама на стенах и допродажи подключаются по запросу, их цена здесь не учтена.</p>
         <button class="btn btn-gold" id="toForm" type="button">Запросить предложение с этим расчётом</button>
@@ -757,12 +738,12 @@ footer .sp{margin-left:auto}
     <div class="sec-head" data-reveal><p class="eyebrow">Вопросы</p><h2>Что обычно спрашивают директора</h2></div>
     <div class="faq" data-reveal>
       <details open><summary>Придётся менять билетную систему?</summary><p>Нет. «РЯДом» работает поверх неё: цены и занятость мест берём из вашей системы, туда же уходит заказ. Касса, отчёты, возвраты и Пушкинская карта остаются как есть.</p></details>
-      <details><summary>Подходит ли это для стадионов и хоккейных арен?</summary><p>Да. Есть два готовых демо: хоккейная арена (три яруса, 12 000+ мест, VIP-ложи, реклама на бортах и LED-кольце) и футбольный стадион (основные трибуны с козырьком, трибуны за воротами, временные трибуны). Оба работают в режиме матча и концерта. Для вашего объекта мы строим модель по официальной схеме трибун: сектора, ряды и нумерация как в билетной системе. Стоимость арен и стадионов считаем отдельно, после того как увидим схему.</p></details>
+      <details><summary>Подходит ли это для стадионов и хоккейных арен?</summary><p>Да. Есть два готовых демо: хоккейная арена (три яруса, 12 000+ мест, VIP-ложи, реклама на бортах и LED-кольце) и футбольный стадион (основные трибуны с козырьком, трибуны за воротами, временные трибуны). Оба работают в режиме матча и концерта. Для вашего объекта мы строим модель по официальной схеме трибун: сектора, ряды и нумерация как в билетной системе. Площадки от 10 000 мест считаем индивидуально, после того как увидим схему.</p></details>
       <details><summary>Что нужно от площадки?</summary><p>Схема рассадки (лучше в векторе), фотографии зала, правила ценовых категорий и контакт технической поддержки вашей билетной системы. Ещё нужен один сотрудник, который будет согласовывать работу.</p></details>
       <details><summary>Будет ли работать на телефоне?</summary><p>Да. Зал открывается в обычном браузере, без приложений. На телефоне панель выбора уходит под схему, управление пальцами: потянуть, чтобы повернуть зал, свести пальцы, чтобы приблизить.</p></details>
       <details><summary>Вы работаете с Quick Tickets?</summary><p>Сейчас демо ведёт зрителя на страницу сеанса в Quick Tickets с номерами выбранных мест. Синхронизацию занятости и передачу заказа подключаем по договорённости с Quick Tickets. Открытого API у них нет, поэтому сроки зависят от оператора.</p></details>
       <details><summary>Как работает льгота по «Морошке»?</summary><p>Зритель отмечает категорию льготы и подтверждает статус, скидка применяется к заказу. Для этого нужно соглашение с оператором Единой карты жителя Ямала. Если льготы уже настроены в вашей билетной системе, мы передаём заказ туда.</p></details>
-      <details><summary>Сколько стоит обслуживание?</summary><p>Первые 6 месяцев обслуживания входят в стоимость. Дальше это ежемесячная плата, она зависит от числа залов и опций. Мы назовём её в коммерческом предложении после того, как увидим ваш зал.</p></details>
+      <details><summary>Сколько стоит обслуживание?</summary><p>Подписка на год: от 36 000 ₽ для малого зала до 180 000 ₽ для арены. В неё входят размещение модели, исправление ошибок, обновления, базовая статистика просмотров и поддержка сотрудника площадки.</p></details>
     </div>
   </div>
 </section>
@@ -979,13 +960,19 @@ footer .sp{margin-left:auto}
   };
 
   /* ---------- калькулятор ---------- */
+  var TIERS=[{n:'Малый зал',c:79000,s:36000},{n:'Средний зал',c:490000,s:60000},{n:'Большой зал',c:790000,s:96000},{n:'Арена',c:1190000,s:180000}];
   var hn=1, shown=0, tot=$('#total');
   function calc(){
-    var tier=+($('input[name=tier]:checked').value), ops=$$('#opts input:checked');
-    var per=tier+ops.reduce(function(a,o){return a+ +o.value},0), all=per*hn;
-    var tn={150000:'Камерный',300000:'Средний',490000:'Большой',690000:'Дворец спорта',1190000:'Ледовая арена',1890000:'Стадион'}[tier];
-    $('#break').innerHTML='<li><span>Тариф «'+tn+'»</span><b>'+fmt(tier)+'</b></li>'+ops.map(function(o){return '<li><span>'+o.getAttribute('data-n')+'</span><b>+'+fmt(+o.value)+'</b></li>'}).join('')+'<li><span>Площадок</span><b>× '+hn+'</b></li>';
-    calc.last={tn:tn,ops:ops.map(function(o){return o.getAttribute('data-n')}),all:all};
+    var v=$('input[name=tier]:checked').value, all, tn, html;
+    if(v==='x'){
+      tn='Стадион и крупные объекты'; all=0;
+      html='<li><span>Площадка от 10 001 места</span><b>индивидуально</b></li><li><span>Залов</span><b>× '+hn+'</b></li>';
+      calc.last={tn:tn,all:0};
+      $('#break').innerHTML=html; tot.textContent='Индивидуально'; shown=0; return;
+    }
+    var t=TIERS[+v]; tn=t.n; all=(t.c+t.s)*hn;
+    $('#break').innerHTML='<li><span>Создание, разово</span><b>'+fmt(t.c*hn)+'</b></li><li><span>Подписка на год</span><b>'+fmt(t.s*hn)+'</b></li><li><span>Залов</span><b>× '+hn+'</b></li>';
+    calc.last={tn:tn,all:all};
     var from=shown, t0=null; shown=all;
     if(reduce){tot.textContent=fmt(all);return}
     requestAnimationFrame(function f(t){if(!t0)t0=t; var k=Math.min(1,(t-t0)/500); k=1-Math.pow(1-k,3); tot.textContent=fmt(from+(all-from)*k); if(k<1)requestAnimationFrame(f)});
@@ -994,13 +981,13 @@ footer .sp{margin-left:auto}
   $('#hm').onclick=function(){hn=Math.max(1,hn-1);$('#hn').textContent=hn;calc()};
   $('#hp').onclick=function(){hn=Math.min(20,hn+1);$('#hn').textContent=hn;calc()};
   $('#toForm').onclick=function(){
-    var c=calc.last||{tn:'Средний',ops:[],all:300000};
-    $('#fMsg').value='Расчёт с сайта: тариф «'+c.tn+'», залов: '+hn+(c.ops.length?', опции: '+c.ops.join(', '):'')+', ориентировочно '+fmt(c.all)+'.';
-    $('#fSize').value=hn>1?'несколько залов':(c.tn==='Камерный'?'до 300':c.tn==='Большой'?'от 800':'300–800');
+    var c=calc.last||{tn:'Средний зал',all:550000};
+    $('#fMsg').value='Расчёт с сайта: '+c.tn+', залов: '+hn+(c.all?', ориентировочно за первый год '+fmt(c.all):', считаем индивидуально')+'.';
+    $('#fSize').value=hn>1?'несколько залов':(c.tn==='Малый зал'?'до 300':c.tn==='Средний зал'?'300–800':c.tn==='Большой зал'?'800–3000':c.tn==='Арена'?'3000–10000':'от 10 000');
     $('#contact').scrollIntoView({behavior:reduce?'auto':'smooth'});
     setTimeout(function(){$('#fName').focus({preventScroll:true})},500);
   };
-  shown=300000; tot.textContent=fmt(shown); calc.last={tn:'Средний',ops:[],all:300000}; calc();
+  shown=550000; tot.textContent=fmt(shown); calc.last={tn:'Средний зал',all:550000}; calc();
 
   /* ---------- заявка ---------- */
   /* Куда отправлять заявки: адрес обработчика (бот, CRM). Пока пусто — показываем текст заявки для отправки вручную. */
