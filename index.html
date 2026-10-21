@@ -75,10 +75,10 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .logo:hover svg .pick{transform:translateY(-3px)}
 @keyframes pick{0%,70%,100%{transform:translateY(0)}80%{transform:translateY(-3px)}90%{transform:translateY(0)}}
 .nav{display:flex;gap:6px;margin-left:auto;font-size:15px}
-.nav a{text-decoration:none;color:var(--stage-muted);padding:8px 12px;border-radius:8px;position:relative}
+.nav a{text-decoration:none;color:var(--stage-muted);padding:8px 9px;white-space:nowrap;border-radius:8px;position:relative}
 .nav a:hover{color:var(--stage-ink)}
 .nav a.on{color:var(--stage-ink)}
-.nav a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;border-radius:2px;background:var(--gold)}
+.nav a.on::after{content:"";position:absolute;left:9px;right:9px;bottom:2px;height:2px;border-radius:2px;background:var(--gold)}
 .top .btn{padding:10px 16px;font-size:14px}
 @media (max-width:1000px){.nav{display:none}.top .btn{margin-left:auto}}
 
@@ -242,14 +242,34 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (max-width:900px){.case-grid{grid-template-columns:minmax(0,1fr)}}
 
 /* для кого */
-.sport-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:36px}
+.sport-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:36px}
 .sport-card{background:var(--stage-2);border:1px solid var(--stage-line);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
 .sport-card .pic{display:block;border-bottom:1px solid var(--stage-line)}
 .sport-card img{width:100%;height:auto;display:block}
 .sport-card .body{padding:26px 28px 30px;display:grid;gap:18px;align-content:start}
 .sport-card h3{font-family:var(--display);font-weight:600;font-size:24px;line-height:1.2;margin:0}
 .sport-card .facts{margin:0}
-@media (max-width:900px){.sport-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1100px){.sport-grid{grid-template-columns:minmax(0,1fr)}}
+.venues{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.venue{display:grid;grid-template-rows:auto 1fr;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .25s,border-color .25s,box-shadow .25s}
+.venue:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 18px 38px -18px rgba(168,101,10,.45)}
+.venue .vimg{display:block;aspect-ratio:16/10;overflow:hidden;background:var(--stage)}
+.venue img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s}
+.venue:hover img{transform:scale(1.05)}
+.venue .vbody{display:grid;gap:6px;padding:20px 22px 22px;align-content:start}
+.venue .vtag{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink)}
+.venue b{font-family:var(--display);font-weight:600;font-size:20px;line-height:1.25}
+.venue .vmeta{color:var(--muted);font-size:15px}
+.venue .vgo{margin-top:6px;font-weight:600;font-size:15px;color:var(--ink)}
+.venue .vgo i{font-style:normal;color:var(--gold-ink)}
+.venue-cta{background:var(--stage);color:var(--stage-ink);border-color:var(--stage-line);grid-template-rows:1fr;align-content:center}
+.venue-cta .vtag{color:var(--gold)}
+.venue-cta .vmeta{color:var(--stage-muted)}
+.venue-cta .vgo{color:var(--gold)}
+.venue-cta .vbody{padding:32px 28px;align-content:center}
+@media (max-width:1000px){.venues{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:600px){.venues{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.venue img{transition:none}.venue:hover img{transform:none}}
 .who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .who article{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:10px;align-content:start;transition:transform .25s,border-color .25s,box-shadow .25s}
 .who article:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 16px 34px -16px rgba(168,101,10,.4)}
@@ -265,6 +285,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
 /* тарифы */
 .plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+@media (max-width:1000px){.plans{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.plans{grid-template-columns:minmax(0,1fr)}}
 .plan{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:14px;align-content:start;transition:transform .25s,box-shadow .25s}
 .plan:hover{transform:translateY(-5px);box-shadow:0 20px 40px -20px rgba(0,0,0,.35)}
 .plan.mid{border:2px solid var(--gold)}
@@ -300,6 +322,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .opt span{flex:1}
 .opt em{font-style:normal;color:var(--stage-muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (max-width:620px){.tiers{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .tiers .opt{flex-direction:column;align-items:flex-start;gap:4px}
 .tiers .opt em{font-size:13px}
 .step2{display:inline-flex;align-items:center;border:1px solid var(--stage-line);border-radius:12px;overflow:hidden}
@@ -357,9 +380,9 @@ footer .sp{margin-left:auto}
   <div class="wrap">
     <a class="logo" href="#top" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
     <nav class="nav" id="nav" aria-label="Разделы">
-      <a href="#try">Попробовать</a><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#who">Для кого</a><a href="#sport">Спорт</a><a href="#price">Тарифы</a><a href="#faq">Вопросы</a>
+      <a href="#venues">Площадки</a><a href="#try">Попробовать</a><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#who">Для кого</a><a href="#sport">Спорт</a><a href="#price">Тарифы</a><a href="#faq">Вопросы</a>
     </nav>
-    <a class="btn btn-gold" href="#contact">Обсудить зал</a>
+    <a class="btn btn-gold" href="#contact" style="white-space:nowrap">Обсудить</a>
   </div>
 </header>
 
@@ -390,6 +413,42 @@ footer .sp{margin-left:auto}
       <div><b>0 ₽</b><span>на замену билетной системы</span></div>
       <div><b><span data-count="4">4</span> входа</b><span>и путь до каждого места</span></div>
       <div><b>1–4 недели</b><span>от схемы зала до запуска</span></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="venues">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <p class="eyebrow">Площадки</p>
+      <h2>Одна платформа для залов, арен и стадионов</h2>
+      <p class="lead">Нажмите на любую площадку: это рабочие демо, в которых можно вращать модель, выбирать места и смотреть на сцену, лёд или поле из кресла.</p>
+    </div>
+    <div class="venues">
+      <a class="venue" href="demo/yamal.html" target="_blank" rel="noopener" data-reveal>
+        <span class="vimg"><img src="img2/app-overview.jpg" width="2880" height="1800" alt="Концертный зал филармонии в 3D" loading="lazy"></span>
+        <span class="vbody"><span class="vtag">Культура</span><b>Филармония и театр</b><span class="vmeta">686 мест · партер и амфитеатр</span><span class="vgo">Открыть демо <i aria-hidden="true">↗</i></span></span>
+      </a>
+      <a class="venue" href="demo/cinema.html" target="_blank" rel="noopener" data-reveal>
+        <span class="vimg"><img src="img/k-cinema.jpg" width="1360" height="800" alt="Кинозал в 3D: экран, ряды и диваны" loading="lazy"></span>
+        <span class="vbody"><span class="vtag">Кино</span><b>Кинозал и концертный зал</b><span class="vmeta">до 300 мест · диваны и VIP</span><span class="vgo">Открыть демо <i aria-hidden="true">↗</i></span></span>
+      </a>
+      <a class="venue" href="demo/futsal.html" target="_blank" rel="noopener" data-reveal>
+        <span class="vimg"><img src="img2/arena-futsal.jpg" width="1500" height="860" alt="Спортивный зал в 3D: площадка и трибуны" loading="lazy"></span>
+        <span class="vbody"><span class="vtag">Спорт</span><b>Спортивный зал</b><span class="vmeta">около 1 000 мест · футзал, баскетбол</span><span class="vgo">Открыть демо <i aria-hidden="true">↗</i></span></span>
+      </a>
+      <a class="venue" href="demo/hockey.html" target="_blank" rel="noopener" data-reveal>
+        <span class="vimg"><img src="img2/arena-hockey.jpg" width="1500" height="860" alt="Хоккейная арена в 3D: три яруса и лёд" loading="lazy"></span>
+        <span class="vbody"><span class="vtag">Спорт</span><b>Хоккейная арена</b><span class="vmeta">12 000+ мест · хоккей и концерт</span><span class="vgo">Открыть демо <i aria-hidden="true">↗</i></span></span>
+      </a>
+      <a class="venue" href="demo/stadium.html" target="_blank" rel="noopener" data-reveal>
+        <span class="vimg"><img src="img2/arena-stadium.jpg" width="1500" height="860" alt="Футбольный стадион в 3D: трибуны и поле" loading="lazy"></span>
+        <span class="vbody"><span class="vtag">Спорт</span><b>Футбольный стадион</b><span class="vmeta">30 000+ мест · футбол и концерт</span><span class="vgo">Открыть демо <i aria-hidden="true">↗</i></span></span>
+      </a>
+      <a class="venue venue-cta" href="#contact" data-reveal>
+        <span class="vbody"><span class="vtag">Ваша площадка</span><b>Покажем ваш объект в 3D</b><span class="vmeta">Пришлите план зала, арены или стадиона: соберём модель по схеме и покажем до договора.</span><span class="vgo">Оставить заявку <i aria-hidden="true">→</i></span></span>
+      </a>
     </div>
   </div>
 </section>
@@ -528,11 +587,24 @@ footer .sp{margin-left:auto}
   <div class="wrap">
     <div class="sec-head" data-reveal>
       <p class="eyebrow">Спорт и большие арены</p>
-      <h2 style="margin-top:14px">Хоккейные арены и футбольные стадионы</h2>
+      <h2 style="margin-top:14px">Спортивные залы, арены и стадионы</h2>
       <p class="lead" style="margin-top:16px">Тысячи мест на нескольких ярусах: болельщик видит лёд или поле с любого сектора, сравнивает углы, торцы и центр и выбирает место по цене. Один и тот же объект работает и на матче, и на концерте со сценой на льду или на поле.</p>
     </div>
     <div class="sport-grid">
       <article class="sport-card" data-reveal>
+        <a class="pic" href="demo/futsal.html" target="_blank" rel="noopener"><img src="img2/arena-futsal.jpg" width="1500" height="860" alt="3D-модель спортивного зала: площадка и трибуны, места по ценовым категориям" loading="lazy"></a>
+        <div class="body">
+          <h3>Спортивный зал</h3>
+          <div class="facts">
+            <div><b>около 1 000</b><span>мест в модели</span></div>
+            <div><b>3 трибуны</b><span>вокруг площадки</span></div>
+            <div><b>Игры и шоу</b><span>футзал, баскетбол, турниры</span></div>
+            <div><b>Реклама</b><span>борта и стены зала</span></div>
+          </div>
+          <a class="btn btn-gold" href="demo/futsal.html" target="_blank" rel="noopener">Открыть демо зала <span class="arr">↗</span></a>
+        </div>
+      </article>
+      <article class="sport-card" data-reveal style="--d:.08s">
         <a class="pic" href="demo/hockey.html" target="_blank" rel="noopener"><img src="img2/arena-hockey.jpg" width="1500" height="860" alt="3D-модель хоккейной арены: три яруса, лёд, медиакуб над площадкой, места по ценовым категориям" loading="lazy"></a>
         <div class="body">
           <h3>Хоккейная арена и ледовый дворец</h3>
@@ -559,7 +631,7 @@ footer .sp{margin-left:auto}
         </div>
       </article>
     </div>
-    <p class="note" style="margin-top:24px;color:var(--stage-muted)">Демо собраны по типовым схемам: нумерация секторов, цены и занятость условные. Для запуска нужна официальная схема рассадки вашей арены или стадиона. Стоимость арен и стадионов считаем индивидуально.</p>
+    <p class="note" style="margin-top:24px;color:var(--stage-muted)">Демо собраны по типовым схемам: нумерация секторов, цены и занятость условные. Для запуска нужна официальная схема рассадки вашего объекта. Стоимость по размеру площадки смотрите в тарифах.</p>
   </div>
 </section>
 
@@ -585,27 +657,45 @@ footer .sp{margin-left:auto}
   <div class="wrap">
     <div class="sec-head" data-reveal>
       <p class="eyebrow">Тарифы</p>
-      <h2>Разовая оплата за зал, без процента с билетов</h2>
-      <p class="lead">В любой тариф входят 3D-модель по вашему плану, выбор места с видом из кресла, интеграция с билетной системой, виджет на сайт и мобильная версия.</p>
+      <h2>Разовая оплата по размеру площадки, без процента с билетов</h2>
+      <p class="lead">В любой тариф входят 3D-модель по вашему плану, выбор места с видом из кресла, интеграция с билетной системой, виджет на сайт и мобильная версия. Сроки на шкале считаются до 12 недель.</p>
     </div>
     <div class="plans" id="plans" data-reveal>
       <article class="plan">
-        <h3>Камерный</h3><p class="size">до 300 мест</p>
-        <p class="price">150 000 <small>₽ за зал</small></p>
-        <div class="bar"><span>Срок: 1–2 недели</span><div class="track"><i style="--w:50%"></i></div></div>
-        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Камерный</h3><p class="size">до 300 мест · малые залы, кинозалы, ДК</p>
+        <p class="price">150 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 1–2 недели</span><div class="track"><i style="--w:17%"></i></div></div>
+        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
       </article>
       <article class="plan mid">
-        <h3>Средний</h3><p class="size">300–800 мест</p>
-        <p class="price">300 000 <small>₽ за зал</small></p>
-        <div class="bar"><span>Срок: 2–3 недели</span><div class="track"><i style="--w:75%"></i></div></div>
-        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Средний</h3><p class="size">300–800 мест · филармонии, театры</p>
+        <p class="price">300 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 2–3 недели</span><div class="track"><i style="--w:25%"></i></div></div>
+        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
       </article>
       <article class="plan">
-        <h3>Большой</h3><p class="size">от 800 мест</p>
-        <p class="price">490 000 <small>₽ за зал</small></p>
-        <div class="bar"><span>Срок: 3–4 недели</span><div class="track"><i style="--w:100%"></i></div></div>
-        <ul><li>3D-модель зала по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+        <h3>Большой</h3><p class="size">800–3 000 мест · ярусы, ложи, спортивные залы</p>
+        <p class="price">490 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 3–4 недели</span><div class="track"><i style="--w:33%"></i></div></div>
+        <ul><li>3D-модель по вашему плану</li><li>Выбор места и вид из кресла</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+      <article class="plan">
+        <h3>Дворец спорта</h3><p class="size">3–5 тыс. мест · одна конфигурация</p>
+        <p class="price">690 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 4–6 недель</span><div class="track"><i style="--w:50%"></i></div></div>
+        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+      <article class="plan">
+        <h3>Ледовая арена</h3><p class="size">5–15 тыс. мест · хоккей и концерт</p>
+        <p class="price">1 190 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 6–8 недель</span><div class="track"><i style="--w:67%"></i></div></div>
+        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
+      </article>
+      <article class="plan">
+        <h3>Стадион</h3><p class="size">от 15 тыс. мест · футбол и концерт</p>
+        <p class="price">1 890 000 <small>₽ за площадку</small></p>
+        <div class="bar"><span>Срок: 8–12 недель</span><div class="track"><i style="--w:100%"></i></div></div>
+        <ul><li>Секторы, ряды и места по вашей схеме</li><li>Вид из кресла, реклама на бортах и экранах</li><li>Интеграция с билетной системой</li></ul>
       </article>
     </div>
     <div class="addons" data-reveal>
@@ -614,27 +704,32 @@ footer .sp{margin-left:auto}
         <tr><td>Аналитика зала</td><td>+50 000 ₽</td></tr>
         <tr><td>Оплата в окне 3D-зала</td><td>+60 000 ₽</td></tr>
         <tr><td>Фирменный стиль и второй язык</td><td>+30 000 ₽</td></tr>
-        <tr><td>Реклама на стенах, допродажи</td><td>по запросу</td></tr>
+        <tr><td>Ещё одна конфигурация арены (матч или концерт)</td><td>+150 000 ₽</td></tr>
+        <tr><td>Абонементы и сезонные билеты</td><td>+120 000 ₽</td></tr>
+        <tr><td>Реклама на стенах и бортах, допродажи</td><td>по запросу</td></tr>
       </table>
       <div class="box"><b>Сопровождение: 6 месяцев в стоимости</b><p>Обновление афиши и схем, хостинг и поддержка первые 6 месяцев входят в цену. Дальнейшую абонентскую плату назовём в коммерческом предложении.</p></div>
     </div>
 
-    <p class="note" data-reveal style="margin:18px 0 0">Хоккейные арены, ледовые дворцы и стадионы от 3 000 мест считаем индивидуально: цена зависит от числа секторов и режимов (матч, концерт). Пришлите схему трибун, назовём стоимость и срок.</p>
+    <p class="note" data-reveal style="margin:18px 0 0">Тарифы дворцов спорта, арен и стадионов ориентировочные: точную сумму и срок назовём после схемы трибун. Для нескольких площадок и сетей считаем со скидкой.</p>
     <div class="calc" id="calc" data-reveal>
       <div>
         <h3>Прикиньте стоимость</h3>
-        <p class="sub">Ориентировочный расчёт: опции считаем за каждый зал, обслуживание первые 6 месяцев уже входит в цену. Точную сумму назовём в коммерческом предложении.</p>
+        <p class="sub">Ориентировочный расчёт: опции считаем за каждую площадку, обслуживание первые 6 месяцев уже входит в цену. Точную сумму назовём в коммерческом предложении.</p>
         <fieldset>
-          <legend>Размер зала</legend>
+          <legend>Тип площадки</legend>
           <div class="tiers" id="tiers">
             <label class="opt"><input type="radio" name="tier" value="150000"><span>Камерный</span><em>до 300 мест</em></label>
             <label class="opt"><input type="radio" name="tier" value="300000" checked><span>Средний</span><em>300–800 мест</em></label>
-            <label class="opt"><input type="radio" name="tier" value="490000"><span>Большой</span><em>от 800 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="490000"><span>Большой</span><em>800–3 000 мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="690000"><span>Дворец спорта</span><em>3–5 тыс. мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="1190000"><span>Ледовая арена</span><em>5–15 тыс. мест</em></label>
+            <label class="opt"><input type="radio" name="tier" value="1890000"><span>Стадион</span><em>от 15 тыс. мест</em></label>
           </div>
         </fieldset>
         <fieldset>
-          <legend>Количество залов</legend>
-          <div class="step2" role="group" aria-label="Количество залов"><button type="button" id="hm" aria-label="Меньше">−</button><output id="hn">1</output><button type="button" id="hp" aria-label="Больше">+</button></div>
+          <legend>Количество площадок</legend>
+          <div class="step2" role="group" aria-label="Количество площадок"><button type="button" id="hm" aria-label="Меньше">−</button><output id="hn">1</output><button type="button" id="hp" aria-label="Больше">+</button></div>
         </fieldset>
         <fieldset id="opts">
           <legend>Опции</legend>
@@ -642,6 +737,8 @@ footer .sp{margin-left:auto}
           <label class="opt"><input type="checkbox" value="50000" data-n="Аналитика"><span>Аналитика зала</span><em>+50 000 ₽</em></label>
           <label class="opt"><input type="checkbox" value="60000" data-n="Оплата в окне"><span>Оплата в окне 3D-зала</span><em>+60 000 ₽</em></label>
           <label class="opt"><input type="checkbox" value="30000" data-n="Стиль и 2 языка"><span>Фирменный стиль и второй язык</span><em>+30 000 ₽</em></label>
+          <label class="opt"><input type="checkbox" value="150000" data-n="Ещё одна конфигурация"><span>Ещё одна конфигурация арены</span><em>+150 000 ₽</em></label>
+          <label class="opt"><input type="checkbox" value="120000" data-n="Абонементы и сезонные билеты"><span>Абонементы и сезонные билеты</span><em>+120 000 ₽</em></label>
         </fieldset>
       </div>
       <div class="result" aria-live="polite">
@@ -886,8 +983,8 @@ footer .sp{margin-left:auto}
   function calc(){
     var tier=+($('input[name=tier]:checked').value), ops=$$('#opts input:checked');
     var per=tier+ops.reduce(function(a,o){return a+ +o.value},0), all=per*hn;
-    var tn={150000:'Камерный',300000:'Средний',490000:'Большой'}[tier];
-    $('#break').innerHTML='<li><span>Тариф «'+tn+'»</span><b>'+fmt(tier)+'</b></li>'+ops.map(function(o){return '<li><span>'+o.getAttribute('data-n')+'</span><b>+'+fmt(+o.value)+'</b></li>'}).join('')+'<li><span>Залов</span><b>× '+hn+'</b></li>';
+    var tn={150000:'Камерный',300000:'Средний',490000:'Большой',690000:'Дворец спорта',1190000:'Ледовая арена',1890000:'Стадион'}[tier];
+    $('#break').innerHTML='<li><span>Тариф «'+tn+'»</span><b>'+fmt(tier)+'</b></li>'+ops.map(function(o){return '<li><span>'+o.getAttribute('data-n')+'</span><b>+'+fmt(+o.value)+'</b></li>'}).join('')+'<li><span>Площадок</span><b>× '+hn+'</b></li>';
     calc.last={tn:tn,ops:ops.map(function(o){return o.getAttribute('data-n')}),all:all};
     var from=shown, t0=null; shown=all;
     if(reduce){tot.textContent=fmt(all);return}

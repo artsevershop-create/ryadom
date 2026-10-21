@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>Спортивный зал в 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: 3D hall fills the left, a fixed ticket panel sits on the right; on phones the hall is on top and the panel below. */
+:root{
+  --bg:#0b0a10;
+  --panel:#121119;
+  --panel-2:#1a1823;
+  --line:#2a2734;
+  --fg:#f2efe9;
+  --mute:#9d98a8;
+  --accent:#f0b94a;
+  --accent-ink:#241a05;
+  --ok:#8dff7a;
+  --bad:#ff6b6b;
+  --sold:#2c2c34;
+  --font-display:'Unbounded','Onest',system-ui,sans-serif;
+  --font-body:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 var(--font-body);overflow:hidden;
+  padding-left:max(0px,env(safe-area-inset-left,0px));padding-right:max(0px,env(safe-area-inset-right,0px))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#app{height:100%;display:grid;grid-template-columns:minmax(0,1fr) 372px}
+#view{position:relative;min-width:0;min-height:0;overflow:hidden;background:#07060a}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl:active{cursor:grabbing}
+#loading{position:absolute;inset:0;display:grid;place-items:center;background:#07060a;color:var(--mute);z-index:5;transition:opacity .4s}
+#loading.off{opacity:0;pointer-events:none}
+.chip{background:rgba(18,17,25,.82);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:7px 14px;font-weight:500;white-space:nowrap}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#toolbar{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;padding:2px;pointer-events:none}
+#toolbar::-webkit-scrollbar{display:none}
+#toolbar .chip{flex:0 0 auto;pointer-events:auto;padding:6px 12px}
+#panelToggle{position:absolute;top:12px;right:12px;z-index:3}
+#exitSeat{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:3}
+#seatBadge{position:absolute;top:56px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);padding:4px 12px;border-radius:999px;white-space:nowrap;z-index:2}
+#legend{position:absolute;top:12px;left:12px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;padding:7px 11px;max-width:calc(100% - 170px)}
+#legend span{display:inline-flex;align-items:center;gap:6px}
+#legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+#hint{width:100%;opacity:.8}
+#tip{position:absolute;z-index:4;pointer-events:none;background:rgba(12,11,17,.95);border:1px solid var(--line);border-radius:10px;padding:9px 12px;display:grid;gap:2px;min-width:180px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#tip b{font-weight:600}
+#tip span{color:var(--mute);font-size:12px}
+#tip em{font-style:normal;font-size:12px}
+#tip .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:6px}
+
+#panel{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border-left:1px solid var(--line)}
+#panel header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px 12px;border-bottom:1px solid var(--line)}
+.brand{font-family:var(--font-display);font-weight:700;font-size:13px;line-height:1.3;letter-spacing:.02em}
+.brand span{color:var(--accent);margin-left:3px}
+.seg{display:flex;background:var(--panel-2);border-radius:10px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--mute);padding:6px 12px;border-radius:8px;font-weight:500}
+.seg button.on{background:var(--bg);color:var(--fg)}
+#scroll{flex:1;min-height:0;overflow-y:auto;padding:4px 18px 16px}
+#scroll section{padding-top:16px}
+#scroll h2{margin:0 0 9px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--mute);font-weight:600}
+#events{display:grid;gap:8px}
+.ev{display:grid;gap:2px;text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ev:hover{border-color:#4a4558}
+.ev.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.ev .t{font-family:var(--font-display);font-weight:500;font-size:13px;line-height:1.3}
+.ev .s{color:var(--mute);font-size:12px}
+.ev .d{font-size:12px;color:var(--fg)}
+.cat{display:grid;grid-template-columns:14px 1fr auto;gap:2px 10px;align-items:center;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;padding:8px 8px}
+.cat:hover{background:var(--panel-2)}
+.cat.on{background:var(--panel-2);border-color:var(--line)}
+.cat i{width:12px;height:12px;border-radius:4px;grid-row:1 / 3}
+.cat .n{font-weight:500}
+.cat .p{font-variant-numeric:tabular-nums;font-weight:600}
+.cat .f{grid-column:2 / 4;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.hintline{font-size:12px;color:var(--mute);margin:6px 0 0}
+.finder{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.step{display:flex;align-items:center;background:var(--panel-2);border-radius:10px;border:1px solid var(--line)}
+.step button{width:34px;height:36px;border:0;background:transparent;font-size:18px}
+.step output{min-width:26px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:10px;padding:9px 14px;font-weight:600;background:var(--panel-2);border:1px solid var(--line)}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+#mySeats{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#mySeats li{display:grid;grid-template-columns:12px minmax(0,1fr) auto auto auto;gap:8px;align-items:center;background:var(--panel-2);border-radius:10px;padding:7px 8px 7px 10px}
+#mySeats li i{width:10px;height:10px;border-radius:3px}
+#mySeats .l{min-width:0;font-size:13px}
+#mySeats .l small{display:block;color:var(--mute)}
+#mySeats .pr{font-variant-numeric:tabular-nums;font-weight:600;font-size:13px}
+#mySeats button{border:0;background:transparent;color:var(--mute);padding:4px 6px;border-radius:6px;font-size:12px}
+#mySeats button:hover{color:var(--fg);background:var(--bg)}
+.empty{color:var(--mute);font-size:13px;margin:0}
+#panel footer{border-top:1px solid var(--line);padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));display:grid;gap:10px;background:var(--panel)}
+.tot{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.tot .cnt{color:var(--mute);font-size:13px}
+.tot .sum{font-family:var(--font-display);font-weight:700;font-size:20px;font-variant-numeric:tabular-nums}
+#hold{font-size:12px;color:var(--mute);min-height:17px;font-variant-numeric:tabular-nums}
+#pay{width:100%;padding:12px}
+#toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 16px;border-radius:10px;font-weight:500;z-index:30;max-width:calc(100% - 32px);box-shadow:0 8px 28px rgba(0,0,0,.5)}
+#modal{position:fixed;inset:0;background:rgba(5,4,8,.72);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:20;padding:16px}
+.sheet{position:relative;width:min(460px,100%);max-height:calc(100% - 8px);overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px}
+.sheet h3{margin:0 0 4px;font-family:var(--font-display);font-weight:700;font-size:17px;padding-right:28px}
+.sheet .sub{color:var(--mute);margin:0 0 14px}
+.x{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;border:0;background:var(--panel-2);font-size:18px;line-height:1}
+.sum-box{background:var(--panel-2);border-radius:12px;padding:12px;display:grid;gap:6px;margin-bottom:14px;font-size:13px}
+.sum-box div{display:flex;justify-content:space-between;gap:12px}
+.sum-box .mute{color:var(--mute)}
+.sum-box .total{border-top:1px solid var(--line);padding-top:8px;font-weight:700;font-size:15px}
+.field{display:grid;gap:4px;margin-bottom:10px}
+.field label{font-size:12px;color:var(--mute)}
+.field input{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+.field input:focus{outline:none;border-color:var(--accent)}
+.field input.err{border-color:var(--bad)}
+.pm{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px}
+.pm button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;font-weight:500}
+.pm button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.demo{font-size:12px;color:var(--mute);margin:12px 0 0}
+.done{text-align:center}
+.done canvas{background:#fff;border-radius:10px;padding:8px;margin:6px auto 10px;display:block;image-rendering:pixelated}
+.ok{width:46px;height:46px;border-radius:50%;background:var(--ok);color:#0b2a05;display:grid;place-items:center;font-size:24px;margin:0 auto 10px}
+@media (max-width:860px){
+  #app{grid-template-columns:minmax(0,1fr);grid-template-rows:46% minmax(0,1fr)}
+  #panel{border-left:0;border-top:1px solid var(--line)}
+  #legend #hint{display:none}
+  #legend{font-size:11px;padding:5px 9px}
+  #seatBadge{top:50px}
+}
+#app.nopanel{grid-template-columns:minmax(0,1fr) 0}
+#app.nopanel #panel{display:none}
+@media (max-width:860px){#app.nopanel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0}}
+@media (prefers-reduced-motion:reduce){#loading{transition:none}}
+</style>
+
+<div id="app">
+  <main id="view">
+    <canvas id="gl" aria-label="3D-схема зала"></canvas>
+    <div id="loading">Строим зал…</div>
+    <div id="legend">
+      <span><i style="background:linear-gradient(90deg,#F5A623,#D9486A,#4A78E0)"></i>Свободно: цвет по категории</span>
+      <span><i style="background:var(--ok)"></i>Выбрано</span>
+      <span><i style="background:linear-gradient(90deg,#8a6a3a,#8c4a5e,#4f6aa0)"></i>Занято: тот же цвет, приглушённый</span>
+      <span id="hint">Тяните — вращать · колесо — масштаб · клик по месту — выбрать · двойной клик — вид из кресла</span>
+    </div>
+    <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
+    <button id="exitSeat" class="chip" hidden>← Выйти из вида</button>
+    <div id="seatBadge" hidden></div>
+    <div id="tip" hidden></div>
+    <div id="toolbar" role="toolbar" aria-label="Ракурсы"></div>
+  </main>
+  <aside id="panel">
+    <header>
+      <div class="brand">Спортивный зал<span>3D</span></div>
+      <div class="seg" id="venueSeg" hidden>
+        <button data-v="concert" class="on">Концертный зал</button>
+        <button data-v="cinema">Кинозал</button>
+      </div>
+    </header>
+    <div id="scroll">
+      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Пример: примерная модель спортивного зала (футзал, баскетбол, волейбол и турниры, трибуны примерно на 1000 мест). В модели <span id="seatsTotal">—</span> мест. Расположение трибун, секторы, цены и даты условные; для запуска нужна официальная схема.</p></section>
+      <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
+      <section><h2>Подобрать места рядом</h2>
+        <div class="finder">
+          <div class="step"><button id="nMinus" aria-label="Меньше">−</button><output id="nVal">2</output><button id="nPlus" aria-label="Больше">+</button></div>
+          <button class="btn" id="bestBtn">Подобрать лучшие</button>
+        </div>
+      </section>
+      <section><h2>Ваши места</h2><ul id="mySeats"></ul></section>
+    </div>
+    <footer>
+      <div class="tot"><span class="cnt" id="cnt">Места не выбраны</span><span class="sum" id="sum">0 ₽</span></div>
+      <div id="hold"></div>
+      <button class="btn primary" id="pay" disabled>Перейти к оплате</button>
+    </footer>
+  </aside>
+</div>
+<div id="modal" hidden><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mTitle"><button class="x" id="mClose" aria-label="Закрыть">×</button><div id="mBody"></div></div></div>
+<div id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+var T=THREE;
+var $=function(s){return document.querySelector(s)};
+var fmt=function(n){return n.toLocaleString('ru-RU')+' ₽'};
+var esc=function(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var MAXSEL=8;
+
+/* ---------- Данные ---------- */
+var EVENTS=[
+ {title:'Хозяева · домашний матч',sub:'Футзал · чемпионат',date:'7 ноября, сб',time:'17:00',mode:'football',pal:['#f28c28','#1f4fb0','#2a1608'],seed:7,mult:1,sold:.5},
+ {title:'Хозяева · кубковый матч',sub:'Футзал · матч на вылет',date:'21 ноября, сб',time:'16:00',mode:'football',pal:['#f2c14e','#d9302c','#1a1206'],seed:21,mult:1.2,sold:.65},
+ {title:'Юношеский турнир U18',sub:'Юношеский футзал · вход по билетам',date:'5 декабря, сб',time:'12:00',mode:'football',pal:['#7bd88f','#1f4fb0','#10251a'],seed:5,mult:.6,sold:.3},
+ {title:'Новогодний праздник спорта',sub:'Шоу и мастер-классы · 0+',date:'26 декабря, сб',time:'14:00',mode:'football',pal:['#ff4d8d','#f2c14e','#2b1055'],seed:26,mult:.7,sold:.4}];
+var MODES={
+ football:{kind:'football',venue:'Спортивный зал',events:EVENTS,
+  cats:[
+   {name:'Главная трибуна, центр',price:500,color:'#F5A623'},
+   {name:'Главная трибуна, верхние ряды',price:400,color:'#EE7B30'},
+   {name:'Главная трибуна, у ворот',price:300,color:'#D9486A'},
+   {name:'Противоположная трибуна',price:250,color:'#4A78E0'}],
+  presets:[
+   {name:'Обзор',tgt:[0,2,0],th:.6,ph:.95,dist:62},
+   {name:'Центр',tgt:[0,1,0],th:0,ph:1.2,dist:28},
+   {name:'Угол',tgt:[0,1,0],th:.8,ph:1.12,dist:34},
+   {name:'За воротами',tgt:[0,1,0],th:1.5708,ph:1.25,dist:30},
+   {name:'Сверху',tgt:[0,0,0],th:0,ph:.1,dist:75}],
+  look:[0,0,0], sweet:[0,19]}
+};
+/* ---------- Состояние ---------- */
+var kind='football', evIdx=0, seats=[], sold=null, sel=[], filter=-1, hover=-1, bestN=2;
+var tourOn=false, tourT=null, tourI=0, holdEnd=0, holdTimer=null;
+var EV=function(){return EVENTS[evIdx]};
+var H=function(){return MODES[EVENTS[evIdx].mode]};
+var priceOf=function(s){return Math.round(H().cats[s.cat].price*EV().mult/50)*50};
+
+/* ---------- Three: сцена ---------- */
+var canvas=$('#gl');
+var renderer=new T.WebGLRenderer({canvas:canvas,antialias:true,logarithmicDepthBuffer:true});
+renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+var scene=new T.Scene();
+scene.background=new T.Color(0x07060a);
+scene.fog=new T.Fog(0x07060a,70,170);
+var camera=new T.PerspectiveCamera(50,1,.1,300);
+var hall=new T.Group(); scene.add(hall);
+var baseMesh,backMesh,glowMesh,rimMesh,sidePan=[],stageLights=[],beams=[],catCol=[],catDim=[],catSold=[];
+var SOLD=new T.Color(0x2c2c34), SEL=new T.Color(0x8dff7a), WHITE=new T.Color(0xffffff);
+
+scene.add(new T.HemisphereLight(0xc9c6ff,0x2a1420,.95));
+scene.add(new T.AmbientLight(0xffffff,.32));
+var warm=new T.PointLight(0xffe0b0,.9,160); warm.position.set(0,40,0); scene.add(warm);
+[[-30,34,0],[30,34,0]].forEach(function(p){var l=new T.PointLight(0xffffff,.6,140); l.position.set(p[0],p[1],p[2]); scene.add(l)});
+
+/* текстуры */
+function stripeTex(c1,c2){
+  var c=document.createElement('canvas'); c.width=64; c.height=16; var x=c.getContext('2d');
+  x.fillStyle=c1; x.fillRect(0,0,64,16);
+  for(var i=0;i<64;i+=8){x.fillStyle=c2; x.fillRect(i,0,3,16)}
+  var t=new T.CanvasTexture(c); t.wrapS=T.RepeatWrapping; t.wrapT=T.RepeatWrapping; return t;
+}
+var wallTex=stripeTex('#3d2619','#5a3b28');
+
+/* экран */
+var sc=document.createElement('canvas'); sc.width=1024; sc.height=512;
+var sx=sc.getContext('2d');
+var screenTex=new T.CanvasTexture(sc);
+function fitFont(txt,maxW,start,fam,w){
+  var s=start; for(;s>26;s-=4){sx.font=w+' '+s+'px '+fam; if(sx.measureText(txt).width<=maxW)break;} return s;
+}
+function drawScreen(t){
+  var ev=EV(), p=ev.pal, cn=H().kind==='cinema';
+  sx.globalCompositeOperation='source-over';
+  sx.fillStyle=p[2]; sx.fillRect(0,0,1024,512);
+  var g=sx.createRadialGradient(250+110*Math.sin(t*.5),180,10,250,200,560);
+  g.addColorStop(0,p[0]); g.addColorStop(1,'rgba(0,0,0,0)'); sx.globalAlpha=.85; sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  g=sx.createRadialGradient(780+100*Math.cos(t*.4),300,10,780,300,520);
+  g.addColorStop(0,p[1]); g.addColorStop(1,'rgba(0,0,0,0)'); sx.globalAlpha=.8; sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  sx.globalAlpha=1;
+  g=sx.createLinearGradient(0,0,0,512); g.addColorStop(0,'rgba(0,0,0,.25)'); g.addColorStop(1,'rgba(0,0,0,.55)'); sx.fillStyle=g; sx.fillRect(0,0,1024,512);
+  sx.textAlign='center'; sx.fillStyle='#fff';
+  var fam='Unbounded, Onest, sans-serif';
+  var fs=fitFont(ev.title,900,cn?84:78,fam,700);
+  sx.font='700 '+fs+'px '+fam; sx.shadowColor='rgba(0,0,0,.5)'; sx.shadowBlur=18;
+  sx.fillText(ev.title,512,cn?236:210);
+  sx.shadowBlur=0;
+  sx.font='500 32px Onest, sans-serif'; sx.globalAlpha=.9; sx.fillText(ev.sub,512,cn?290:262);
+  sx.font='600 28px Onest, sans-serif'; sx.globalAlpha=.8; sx.fillText(ev.date+' · '+ev.time,512,cn?336:308);
+  sx.globalAlpha=1;
+  if(H().kind==='football'){
+    sx.font='800 64px Onest, sans-serif'; sx.fillStyle='#fff'; sx.globalAlpha=.95; sx.fillText('0 : 0  ·  1 тайм',512,440); sx.globalAlpha=1;
+  } else if(!cn){
+    for(var i=0;i<56;i++){
+      var a=Math.sin(t*3+i*.5)*.5+.5, b=Math.sin(t*1.3+i*.21)*.5+.5;
+      var h=10+a*b*150; sx.fillStyle='rgba(255,255,255,.85)'; sx.fillRect(34+i*17.4,500-h,11,h);
+    }
+  } else {
+    sx.fillStyle='rgba(255,255,255,.14)';
+    sx.beginPath(); var rx=(t*60)%1400-200; sx.moveTo(rx,0); sx.lineTo(rx+90,0); sx.lineTo(rx-120,512); sx.lineTo(rx-210,512); sx.fill();
+  }
+  screenTex.needsUpdate=true;
+}
+
+/* геометрия-хелперы */
+function arcStrip(rin,rout,t0,t1,y,cx,cz){
+  var seg=48,pos=[],idx=[],i;
+  for(i=0;i<=seg;i++){var t=t0+(t1-t0)*i/seg,s=Math.sin(t),c=Math.cos(t);
+    pos.push(cx+rin*s,y,cz+rin*c,cx+rout*s,y,cz+rout*c);}
+  for(i=0;i<seg;i++){var a=i*2; idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  var g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function arcWall(r,t0,t1,y0,y1,cx,cz){
+  var seg=48,pos=[],idx=[],i;
+  for(i=0;i<=seg;i++){var t=t0+(t1-t0)*i/seg,s=Math.sin(t),c=Math.cos(t);
+    pos.push(cx+r*s,y0,cz+r*c,cx+r*s,y1,cz+r*c);}
+  for(i=0;i<seg;i++){var a=i*2; idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  var g=new T.BufferGeometry(); g.setAttribute('position',new T.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
+function Mat(c,o){return new T.MeshStandardMaterial(Object.assign({color:c,roughness:.9,side:T.DoubleSide},o||{}))}
+function add(geo,mat,x,y,z){var m=new T.Mesh(geo,mat); m.position.set(x||0,y||0,z||0); hall.add(m); return m}
+
+function clearHall(){
+  rimMesh=null; sidePan=[];
+  while(hall.children.length){
+    var o=hall.children.pop();
+    o.traverse(function(n){
+      if(n.geometry)n.geometry.dispose();
+      if(n.material&&n.material.dispose)n.material.dispose();
+    });
+  }
+  stageLights.forEach(function(l){scene.remove(l)}); stageLights=[]; beams=[];
+}
+
+/* ---------- Построение зала футзала ---------- */
+var PL=23,PW=13;
+function boxAt(w,h,d,mat,x,y,z,ry){var m=new T.Mesh(new T.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);if(ry)m.rotation.y=ry;hall.add(m);return m}
+function courtTex(){
+  var c=document.createElement('canvas');c.width=1380;c.height=780;var x=c.getContext('2d');
+  for(var i=0;i<46;i++){x.fillStyle=i%2?'#c98a4f':'#d1955a';x.fillRect(i*30,0,30,780)}
+  var sx=1380/(2*PL),sz=780/(2*PW),X=function(v){return (v+PL)*sx},Z=function(v){return (v+PW)*sz};
+  x.fillStyle='#1f4fb0';x.fillRect(X(-20),Z(-10),40*sx,20*sz);
+  x.fillStyle='#f28c28';[-1,1].forEach(function(s){var g=s*20;x.beginPath();x.moveTo(X(g),Z(-7.5));
+    for(var a=0;a<=12;a++){var t=-Math.PI/2+a/12*Math.PI/2;x.lineTo(X(g-s*6*Math.cos(t)),Z(-1.5+6*Math.sin(t)))}
+    for(a=0;a<=12;a++){t=a/12*Math.PI/2;x.lineTo(X(g-s*6*Math.cos(t)),Z(1.5+6*Math.sin(t)))}
+    x.lineTo(X(g),Z(7.5));x.closePath();x.fill()});
+  x.strokeStyle='#ffffff';x.lineWidth=5;
+  x.strokeRect(X(-20),Z(-10),40*sx,20*sz);
+  x.beginPath();x.moveTo(X(0),Z(-10));x.lineTo(X(0),Z(10));x.stroke();
+  x.beginPath();x.arc(X(0),Z(0),3*sx,0,7);x.stroke();
+  [-1,1].forEach(function(s){x.beginPath();x.arc(X(s*14),Z(0),4,0,7);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(X(s*10),Z(0),4,0,7);x.fill()});
+  x.fillStyle='rgba(255,255,255,.9)';x.font='800 64px Onest, sans-serif';x.textAlign='center';x.globalAlpha=.25;x.fillText('ХОЗЯЕВА',X(0)-0,Z(0)-110);x.globalAlpha=1;
+  var t=new T.CanvasTexture(c);t.anisotropy=8;return t;
+}
+function adTex(words,bg,fg){
+  var c=document.createElement('canvas');c.width=2048;c.height=64;var x=c.getContext('2d');
+  x.fillStyle=bg;x.fillRect(0,0,2048,64);x.fillStyle=fg;x.font='800 40px Onest, sans-serif';x.textBaseline='middle';
+  var px=20,i=0;while(px<2048){var w=words[i%words.length];x.fillText(w,px,34);px+=x.measureText(w).width+90;i++}
+  var t=new T.CanvasTexture(c);t.wrapS=T.RepeatWrapping;return t;
+}
+function stand(o){
+  var step=Mat(0x2a2530),riser=Mat(0x221e28);
+  for(var r=0;r<o.rows;r++){
+    var d=o.d0+r*o.dr,y=o.y0+r*o.rk,len=o.len;
+    var pos=function(u,dd){return o.side==='W'?[u,dd]:[-u,-dd]};
+    var c=pos(0,d+.2),cR=pos(0,d+o.dr-.25);
+    boxAt(len,.12,o.dr,step,c[0],y-.06,c[1]);
+    boxAt(len,o.rk,.12,riser,cR[0],y+o.rk/2,cR[1]);
+    var n=Math.floor(len/.52),secLen=len/o.secs;
+    for(var i=0;i<n;i++){
+      var u=-len/2+(i+.5)*len/n,si=Math.floor((u+len/2)/secLen),inSec=(u+len/2)-si*secLen;
+      if(inSec<.55||inSec>secLen-.55)continue;
+      var p=pos(u,d);
+      seats.push({x:p[0],y:y+.02,z:p[1],th:o.side==='W'?0:Math.PI,row:r+1,num:0,sec:o.sec0+Math.min(si,o.secs-1),tier:o.name,cat:o.cat(u,r)});
+    }
+  }
+}
+var cube=[];
+function buildHall(){
+  clearHall(); seats=[]; cube=[];
+  scene.background=new T.Color(0x0b0a10);
+  scene.fog.near=120; scene.fog.far=300; camera.near=.2; camera.far=600; camera.updateProjectionMatrix();
+  /* зал */
+  add(new T.PlaneGeometry(90,70).rotateX(-Math.PI/2),Mat(0x2a2f3a),0,-.4,0);
+  add(new T.BoxGeometry(80,20,62),Mat(0x23262f,{side:T.BackSide}),0,9.6,0);
+  for(var k=-3;k<=3;k++)boxAt(78,.35,.35,Mat(0x3a3f4a),0,19.2,k*8);
+  for(var a=-3;a<=3;a++)for(var b=-1;b<=1;b++){var lm=new T.Mesh(new T.BoxGeometry(3,.2,1.2),new T.MeshBasicMaterial({color:0xfff6dc}));lm.position.set(a*10,19,b*9);hall.add(lm)}
+  add(new T.PlaneGeometry(2*PL,2*PW).rotateX(-Math.PI/2),new T.MeshStandardMaterial({map:courtTex(),roughness:.45,metalness:.05}),0,0,0);
+  /* ворота 3x2 */
+  [-1,1].forEach(function(s){var gx=s*20,gm=Mat(0xffffff,{roughness:.4});
+    boxAt(.08,2,.08,gm,gx,1,-1.5);boxAt(.08,2,.08,gm,gx,1,1.5);boxAt(.08,.08,3.08,gm,gx,2,0);
+    boxAt(1,2,3,new T.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.2,side:T.DoubleSide}),gx+s*.5,1,0)});
+  /* LED-борта */
+  var bt=adTex(['ХОЗЯЕВА','ВАШ БРЕНД','ПАРТНЁР КЛУБА','РЕКЛАМА НА LED-БОРТАХ'],'#0b0a10','#f28c28');bt.repeat.set(2,1);
+  var adM=new T.MeshBasicMaterial({map:bt,side:T.DoubleSide});
+  [[0,PW-.3,40,Math.PI],[0,-PW+.3,40,0],[PL-.6,0,20,-Math.PI/2],[-PL+.6,0,20,Math.PI/2]].forEach(function(b){var m=new T.Mesh(new T.PlaneGeometry(b[2],.8),adM);m.position.set(b[0],.45,b[1]);m.rotation.y=b[3];hall.add(m)});
+  /* трибуны: главная (8 рядов) и противоположная (5 рядов), ~1000 мест */
+  stand({side:'W',len:44,d0:PW+2,rows:8,y0:.9,rk:.45,dr:.85,secs:4,sec0:1,name:'Главная трибуна',
+    cat:function(u,r){return Math.abs(u)>14?2:(r<4?0:1)}});
+  boxAt(46,.9,.25,Mat(0x14161f),0,.45,PW+1.75);
+  stand({side:'E',len:44,d0:PW+2,rows:5,y0:.9,rk:.45,dr:.85,secs:4,sec0:5,name:'Противоположная трибуна',
+    cat:function(){return 3}});
+  boxAt(46,.9,.25,Mat(0x14161f),0,.45,-PW-1.75);
+  /* табло на торцевых стенах */
+  [-1,1].forEach(function(s){var scrn=new T.Mesh(new T.PlaneGeometry(12,6),new T.MeshBasicMaterial({map:screenTex}));scrn.position.set(s*39.6,9,0);scrn.rotation.y=s>0?-Math.PI/2:Math.PI/2;hall.add(scrn);
+    boxAt(.4,6.6,12.6,Mat(0x0a090d),s*39.8,9,0)});
+  /* баннеры на стенах за трибунами */
+  var wt=adTex(['СПОРТИВНЫЙ ЗАЛ','ВАШ БРЕНД','СПОНСОР СЕЗОНА'],'#f28c28','#14161f');wt.repeat.set(1,1);
+  [1,-1].forEach(function(s){var m=new T.Mesh(new T.PlaneGeometry(60,2.4),new T.MeshBasicMaterial({map:wt,side:T.DoubleSide}));m.position.set(0,12,s*30.8);m.rotation.y=s>0?Math.PI:0;hall.add(m)});
+  var fl=new T.PointLight(0xfff2d8,.5,0);fl.position.set(0,18,0);scene.add(fl);stageLights.push(fl);
+  var cnt={};seats.forEach(function(s){var kk=s.sec+'_'+s.row;cnt[kk]=(cnt[kk]||0)+1;s.num=cnt[kk]});
+  var N=seats.length;
+  var baseGeo=new T.BoxGeometry(.46,.34,.44); baseGeo.translate(0,.17,0);
+  var backGeo=new T.BoxGeometry(.46,.46,.08); backGeo.translate(0,.56,.23);
+  var sm=new T.MeshStandardMaterial({roughness:.7,metalness:.05});
+  baseMesh=new T.InstancedMesh(baseGeo,sm,N); backMesh=new T.InstancedMesh(backGeo,sm,N);
+  baseMesh.frustumCulled=backMesh.frustumCulled=false;
+  var dd=new T.Object3D();
+  seats.forEach(function(s,i){dd.position.set(s.x,s.y,s.z);dd.rotation.set(0,s.th,0);dd.updateMatrix();baseMesh.setMatrixAt(i,dd.matrix);backMesh.setMatrixAt(i,dd.matrix)});
+  baseMesh.instanceMatrix.needsUpdate=backMesh.instanceMatrix.needsUpdate=true;
+  hall.add(baseMesh,backMesh);
+  glowMesh=new T.InstancedMesh(new T.SphereGeometry(.3,12,12),new T.MeshBasicMaterial({color:0x8dff7a}),MAXSEL);
+  glowMesh.frustumCulled=false; glowMesh.count=0; hall.add(glowMesh);
+  catCol=H().cats.map(function(c){return new T.Color(c.color)});
+  catDim=catCol.map(function(c){return c.clone().multiplyScalar(.22)});
+  catSold=catCol.map(function(c){return c.clone().lerp(SOLD,.6)});
+  applyEvent();
+  $('#seatsTotal').textContent=seats.length.toLocaleString('ru-RU');
+}
+
+/* занятые места и палитра события */
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function applyEvent(){
+  var ev=EV(), r=rng(ev.seed*7919), w=[1.3,1.2,1,.8,.6];
+  sold=new Uint8Array(seats.length);
+  /* занятость блоками: группы соседних мест покупают вместе */
+  var i=0;
+  while(i<seats.length){var s=seats[i],run=1+Math.floor(r()*4),p=Math.min(.92,ev.sold*w[s.cat]*.55),on=r()<p;
+    for(var k=0;k<run&&i<seats.length;k++,i++)sold[i]=on?1:0}
+  var c0=new T.Color(ev.pal[0]), c1=new T.Color(ev.pal[1]);
+  if(rimMesh)rimMesh.material.color.copy(c0);
+  beams.forEach(function(b,j){var c=j%2?c1:c0; b.material.color.copy(c); b.userData.lamp.material.color.copy(c)});
+  if(EV().mode==='concert'&&stageLights.length>2){stageLights[0].color.copy(c0); stageLights[1].color.copy(c1)}
+  drawScreen(0);
+  refreshColors();
+}
+
+function refreshColors(){
+  var tmp=new T.Color();
+  for(var i=0;i<seats.length;i++){
+    var s=seats[i],c;
+    if(sold[i])c=catSold[s.cat];
+    else if(sel.indexOf(i)>=0)c=SEL;
+    else c=(filter>=0&&s.cat!==filter)?catDim[s.cat]:catCol[s.cat];
+    tmp.copy(c);
+    if(i===hover&&!sold[i])tmp.lerp(WHITE,.4);
+    baseMesh.setColorAt(i,tmp);
+    tmp.multiplyScalar(.82); backMesh.setColorAt(i,tmp);
+  }
+  baseMesh.instanceColor.needsUpdate=backMesh.instanceColor.needsUpdate=true;
+  var d=new T.Object3D(); glowMesh.count=sel.length;
+  sel.forEach(function(i,k){var s=seats[i]; d.position.set(s.x,s.y+1.45,s.z); d.rotation.set(0,0,0); d.updateMatrix(); glowMesh.setMatrixAt(k,d.matrix)});
+  glowMesh.instanceMatrix.needsUpdate=true;
+}
+
+/* ---------- Камера ---------- */
+var cam={mode:'orbit',tgt:new T.Vector3(0,2,10),th:0,ph:1.15,dist:44,eye:new T.Vector3(),yaw:0,yaw0:0,pitch:0,fov:68,seatI:-1};
+var cur={pos:new T.Vector3(0,20,50),look:new T.Vector3(0,2,10),fov:50};
+function applyPreset(p){
+  cam.mode='orbit'; cam.tgt.set(p.tgt[0],p.tgt[1],p.tgt[2]); cam.th=p.th; cam.ph=p.ph; cam.dist=p.dist; onMode();
+}
+function viewFrom(i){
+  var s=seats[i], L=H().look;
+  cam.mode='seat'; cam.seatI=i;
+  cam.eye.set(s.x-Math.sin(s.th)*.0,s.y+1.2,s.z);
+  var dx=L[0]-cam.eye.x, dy=L[1]-cam.eye.y, dz=L[2]-cam.eye.z;
+  cam.yaw=cam.yaw0=Math.atan2(dx,-dz); cam.pitch=Math.atan2(dy,Math.hypot(dx,dz)); cam.fov=68;
+  stopTour(); onMode();
+}
+function onMode(){
+  var seat=cam.mode==='seat';
+  $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat;
+  if(seat){var s=seats[cam.seatI]; $('#seatBadge').textContent='Вид из кресла: '+seatLabel(s)+' · тяните, чтобы осмотреться'}
+}
+function desired(){
+  if(cam.mode==='orbit'){
+    var sp=Math.sin(cam.ph);
+    return {pos:new T.Vector3(sp*Math.sin(cam.th),Math.cos(cam.ph),sp*Math.cos(cam.th)).multiplyScalar(cam.dist).add(cam.tgt),look:cam.tgt.clone(),fov:50};
+  }
+  var cp=Math.cos(cam.pitch);
+  return {pos:cam.eye.clone(),look:cam.eye.clone().add(new T.Vector3(Math.sin(cam.yaw)*cp,Math.sin(cam.pitch),-Math.cos(cam.yaw)*cp)),fov:cam.fov};
+}
+function stepCam(dt){
+  var d=desired(), k=1-Math.exp(-dt*(cam.mode==='seat'?9:6));
+  cur.pos.lerp(d.pos,k); cur.look.lerp(d.look,k); cur.fov+=(d.fov-cur.fov)*k;
+  camera.position.copy(cur.pos); camera.lookAt(cur.look);
+  if(Math.abs(camera.fov-cur.fov)>.01){camera.fov=cur.fov; camera.updateProjectionMatrix()}
+}
+function rotateBy(dx,dy){
+  if(cam.mode==='orbit'){cam.th-=dx*.006; cam.ph=Math.max(.12,Math.min(1.5,cam.ph-dy*.006))}
+  else{cam.yaw=Math.max(cam.yaw0-1.3,Math.min(cam.yaw0+1.3,cam.yaw-dx*.004)); cam.pitch=Math.max(-.7,Math.min(.7,cam.pitch+dy*.004))}
+}
+function zoom(f){
+  if(cam.mode==='orbit')cam.dist=Math.max(8,Math.min(170,cam.dist*f));
+  else cam.fov=Math.max(34,Math.min(85,cam.fov*f));
+}
+
+/* ---------- Ввод ---------- */
+var raycaster=new T.Raycaster(), ndc=new T.Vector2();
+function pickAt(e){
+  var r=canvas.getBoundingClientRect();
+  ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
+  raycaster.setFromCamera(ndc,camera);
+  var h=raycaster.intersectObjects([baseMesh,backMesh],false)[0];
+  return h&&h.instanceId!==undefined?h.instanceId:-1;
+}
+var ptrs=new Map(), down=null, pinch0=0, hovBusy=false;
+function pdist(){var a=Array.from(ptrs.values());return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}
+canvas.addEventListener('pointerdown',function(e){
+  try{canvas.setPointerCapture(e.pointerId)}catch(_){}
+  ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); stopTour(); hideTip();
+  down={t:performance.now(),moved:0}; if(ptrs.size===2)pinch0=pdist();
+});
+canvas.addEventListener('pointermove',function(e){
+  var p=ptrs.get(e.pointerId);
+  if(p){
+    var dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX; p.y=e.clientY;
+    if(ptrs.size===2){var d=pdist(); if(pinch0)zoom(pinch0/d); pinch0=d; if(down)down.moved=99}
+    else{if(down)down.moved+=Math.abs(dx)+Math.abs(dy); rotateBy(dx,dy)}
+  } else if(e.pointerType==='mouse'&&!hovBusy){
+    hovBusy=true; var ev=e;
+    requestAnimationFrame(function(){hovBusy=false; hoverAt(ev)});
+  }
+});
+function endPtr(e,click){
+  ptrs.delete(e.pointerId); pinch0=0;
+  if(click&&down&&ptrs.size===0&&down.moved<6&&performance.now()-down.t<600){var i=pickAt(e); if(i>=0)toggleSeat(i)}
+  if(ptrs.size===0)down=null;
+}
+canvas.addEventListener('pointerup',function(e){endPtr(e,true)});
+canvas.addEventListener('pointercancel',function(e){endPtr(e,false)});
+canvas.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')setHover(-1)});
+canvas.addEventListener('dblclick',function(e){var i=pickAt(e); if(i>=0)viewFrom(i)});
+canvas.addEventListener('wheel',function(e){e.preventDefault(); stopTour(); zoom(Math.exp(e.deltaY*.0012))},{passive:false});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){if(!$('#modal').hidden)closeModal(); else if(cam.mode==='seat')exitSeat()}
+});
+function exitSeat(){applyPreset(H().presets[0])}
+$('#exitSeat').addEventListener('click',exitSeat);
+
+var tip=$('#tip');
+function setHover(i){if(i!==hover){hover=i; refreshColors(); if(i<0)hideTip()}}
+function hideTip(){tip.hidden=true}
+function hoverAt(e){
+  if(down)return;
+  var i=pickAt(e); setHover(i);
+  if(i<0){hideTip();return}
+  var s=seats[i], c=H().cats[s.cat], r=$('#view').getBoundingClientRect();
+  tip.innerHTML='<b>'+esc(seatLabel(s))+'</b><span><i class="sw" style="background:'+c.color+'"></i>'+esc(c.name)+' · '+fmt(priceOf(s))+'</span><em>'+
+    (sold[i]?'Место занято':sel.indexOf(i)>=0?'Выбрано · клик, чтобы снять':'Свободно · клик, чтобы выбрать')+'</em>';
+  tip.hidden=false;
+  var x=e.clientX-r.left+16, y=e.clientY-r.top+16;
+  x=Math.min(x,r.width-tip.offsetWidth-8); y=Math.min(y,r.height-tip.offsetHeight-60);
+  tip.style.left=Math.max(8,x)+'px'; tip.style.top=Math.max(8,y)+'px';
+}
+
+/* ---------- Выбор мест ---------- */
+function seatLabel(s){return s.sec?s.tier+' · сектор '+s.sec+' · ряд '+s.row+' · место '+s.num:'Партер · ряд '+s.row+' · место '+s.num}
+function toggleSeat(i){
+  if(sold[i]){toast('Это место уже занято');return}
+  var k=sel.indexOf(i);
+  if(k>=0)sel.splice(k,1);
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i)}
+  onSel();
+}
+function onSel(){
+  if(sel.length&&!holdEnd){holdEnd=Date.now()+10*60*1000}
+  if(!sel.length)holdEnd=0;
+  refreshColors(); renderCats(); renderSeats(); tickHold();
+}
+function tickHold(){
+  var el=$('#hold');
+  if(!holdEnd){el.textContent=''; return}
+  var left=holdEnd-Date.now();
+  if(left<=0){sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
+  var m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
+  el.textContent='Места удерживаются за вами ещё '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+setInterval(tickHold,1000);
+
+/* подбор лучших мест рядом */
+function bestSeats(){
+  var n=bestN, best=null, bs=1e9, sw=H().sweet;
+  for(var i=0;i+n<=seats.length;i++){
+    var ok=true,mx=0,mz=0,pen=0;
+    for(var k=0;k<n;k++){
+      var s=seats[i+k];
+      if(sold[i+k]||(filter>=0&&s.cat!==filter)){ok=false;break}
+      if(k>0){var p=seats[i+k-1]; if(p.row!==s.row||p.tier!==s.tier||p.sec!==s.sec||Math.hypot(p.x-s.x,p.z-s.z)>1.1){ok=false;break}}
+      mx+=s.x; mz+=s.z; if(s.tier==='Балкон')pen=8;
+    }
+    if(!ok)continue;
+    var sc2=Math.hypot(mx/n-sw[0],mz/n-sw[1])+pen;
+    if(sc2<bs){bs=sc2;best=i}
+  }
+  if(best===null){toast('Нет '+n+' свободных мест подряд'+(filter>=0?' в этой категории':'')); return}
+  sel=[]; for(var j=0;j<n;j++)sel.push(best+j);
+  holdEnd=0; onSel(); viewFrom(best+Math.floor(n/2));
+  toast('Подобрали '+n+' '+(n===1?'место':n<5?'места':'мест')+' рядом');
+}
+
+/* ---------- Панель ---------- */
+function renderEvents(){
+  $('#events').innerHTML=H().events.map(function(e,i){
+    return '<button class="ev'+(i===evIdx?' on':'')+'" data-i="'+i+'"><span class="t">'+esc(e.title)+'</span><span class="s">'+esc(e.sub)+'</span><span class="d">'+esc(e.date)+' · '+esc(e.time)+' · '+esc(H().venue)+'</span></button>';
+  }).join('');
+}
+function renderCats(){
+  var free=H().cats.map(function(){return 0});
+  seats.forEach(function(s,i){if(!sold[i])free[s.cat]++});
+  $('#cats').innerHTML=H().cats.map(function(c,i){
+    var pr=Math.round(c.price*EV().mult/50)*50;
+    return '<button class="cat'+(filter===i?' on':'')+'" data-c="'+i+'"><i style="background:'+c.color+'"></i><span class="n">'+esc(c.name)+'</span><span class="p">'+fmt(pr)+'</span><span class="f">свободно '+free[i]+'</span></button>';
+  }).join('');
+}
+function renderSeats(){
+  var ul=$('#mySeats'), total=0;
+  if(!sel.length)ul.innerHTML='<li style="display:block"><p class="empty">Нажмите на кресло в зале или подберите места рядом.</p></li>';
+  else ul.innerHTML=sel.map(function(i){
+    var s=seats[i], c=H().cats[s.cat]; total+=priceOf(s);
+    return '<li><i style="background:'+c.color+'"></i><span class="l">'+esc(seatLabel(s))+'<small>'+esc(c.name)+'</small></span><span class="pr">'+fmt(priceOf(s))+'</span><button data-v="'+i+'" title="Вид из кресла">Вид</button><button data-r="'+i+'" aria-label="Убрать место">✕</button></li>';
+  }).join('');
+  var n=sel.length;
+  $('#cnt').textContent=n?n+' '+(n===1?'место':n<5?'места':'мест'):'Места не выбраны';
+  $('#sum').textContent=fmt(total); $('#pay').disabled=!n;
+}
+function totalSel(){return sel.reduce(function(a,i){return a+priceOf(seats[i])},0)}
+
+$('#events').addEventListener('click',function(e){
+  var b=e.target.closest('.ev'); if(!b)return; var i=+b.dataset.i; if(i===evIdx)return;
+  var had=sel.length, pm=EV().mode; evIdx=i; sel=[]; holdEnd=0; filter=-1; hover=-1;
+  if(EV().mode!==pm){stopTour(); buildHall(); renderToolbar(); applyPreset(H().presets[0]); toast(EV().mode==='concert'?'Концертная конфигурация: сцена и партер на льду':'Хоккейная конфигурация');}
+  else applyEvent();
+  renderEvents(); renderCats(); renderSeats(); tickHold();
+  if(had)toast('Выбор сброшен: другое мероприятие');
+});
+$('#cats').addEventListener('click',function(e){
+  var b=e.target.closest('.cat'); if(!b)return; var c=+b.dataset.c; filter=filter===c?-1:c; refreshColors(); renderCats();
+});
+$('#mySeats').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b)return;
+  if(b.dataset.v)viewFrom(+b.dataset.v); else if(b.dataset.r)toggleSeat(+b.dataset.r);
+});
+$('#nMinus').onclick=function(){bestN=Math.max(1,bestN-1); $('#nVal').textContent=bestN};
+$('#nPlus').onclick=function(){bestN=Math.min(6,bestN+1); $('#nVal').textContent=bestN};
+$('#bestBtn').onclick=bestSeats;
+$('#venueSeg').addEventListener('click',function(e){
+  var b=e.target.closest('button'); if(!b||b.dataset.v===kind)return;
+  kind=b.dataset.v; evIdx=0; sel=[]; holdEnd=0; filter=-1; hover=-1; stopTour();
+  document.querySelectorAll('#venueSeg button').forEach(function(x){x.classList.toggle('on',x===b)});
+  buildHall(); renderAll(); applyPreset(H().presets[0]); tickHold();
+});
+
+/* панель ракурсов */
+function renderToolbar(){
+  var tb=$('#toolbar'); tb.innerHTML='';
+  H().presets.forEach(function(p){
+    var b=document.createElement('button'); b.className='chip'; b.textContent=p.name;
+    b.onclick=function(){stopTour(); applyPreset(p)}; tb.appendChild(b);
+  });
+  var t=document.createElement('button'); t.className='chip'+(tourOn?' on':''); t.id='tourBtn'; t.textContent='Автотур';
+  t.onclick=function(){tourOn?stopTour():startTour()}; tb.appendChild(t);
+  var v=document.createElement('button'); v.className='chip'; v.textContent='Вид из кресла';
+  v.onclick=function(){
+    var i=sel.length?sel[sel.length-1]:-1;
+    if(i<0){for(var k=0;k<seats.length;k++){if(!sold[k]&&Math.abs(seats[k].x)<2&&seats[k].row===6&&seats[k].z>0){i=k;break}}}
+    if(i<0){for(var k2=0;k2<seats.length;k2++)if(!sold[k2]){i=k2;break}}
+    if(i>=0)viewFrom(i);
+  };
+  tb.appendChild(v);
+}
+function startTour(){tourOn=true; tourI=0; var b=$('#tourBtn'); if(b)b.classList.add('on'); nextTour()}
+function nextTour(){
+  if(!tourOn)return; var P=H().presets; applyPreset(P[tourI%P.length]); tourI++; tourT=setTimeout(nextTour,3800);
+}
+function stopTour(){tourOn=false; clearTimeout(tourT); var b=$('#tourBtn'); if(b)b.classList.remove('on')}
+
+function renderAll(){renderToolbar(); renderEvents(); renderCats(); renderSeats()}
+
+/* ---------- Оплата (демо) ---------- */
+var pay={method:'card'};
+function openModal(){$('#modal').hidden=false}
+function closeModal(){$('#modal').hidden=true}
+$('#mClose').onclick=closeModal;
+$('#modal').addEventListener('pointerdown',function(e){if(e.target===this)closeModal()});
+$('#pay').onclick=function(){stopTour(); showForm(); openModal()};
+function summaryHTML(){
+  var ev=EV(), rows=sel.map(function(i){var s=seats[i]; return '<div><span>'+esc(seatLabel(s))+'</span><span>'+fmt(priceOf(s))+'</span></div>'}).join('');
+  return '<div class="sum-box"><div><span class="mute">'+esc(ev.title)+'</span><span>'+esc(ev.date)+', '+esc(ev.time)+'</span></div><div><span class="mute">'+esc(H().venue)+'</span></div>'+rows+'<div class="total"><span>Итого</span><span>'+fmt(totalSel())+'</span></div></div>';
+}
+function showForm(){
+  $('#mBody').innerHTML='<h3 id="mTitle">Оформление заказа</h3><p class="sub">Билеты придут после оплаты.</p>'+summaryHTML()+
+  '<div class="field"><label for="fName">Имя и фамилия</label><input id="fName" autocomplete="name" placeholder="Анна Петрова"></div>'+
+  '<div class="field"><label for="fPhone">Телефон</label><input id="fPhone" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00"></div>'+
+  '<div class="field"><label for="fMail">Почта (по желанию)</label><input id="fMail" inputmode="email" autocomplete="email" placeholder="name@mail.ru"></div>'+
+  '<div class="pm"><button type="button" data-m="card" class="'+(pay.method==='card'?'on':'')+'">Банковская карта</button><button type="button" data-m="sbp" class="'+(pay.method==='sbp'?'on':'')+'">СБП</button></div>'+
+  '<div class="row"><button class="btn" id="mBack">Назад</button><button class="btn primary" id="mPay">Оплатить '+fmt(totalSel())+'</button></div>'+
+  '<p class="demo">Демо-версия: деньги не списываются. В рабочем сервисе здесь подключается платёжный шлюз (например, ЮKassa или CloudPayments), а выбор мест проверяется на сервере.</p>';
+  $('#mBack').onclick=closeModal;
+  document.querySelectorAll('.pm button').forEach(function(b){b.onclick=function(){pay.method=b.dataset.m; document.querySelectorAll('.pm button').forEach(function(x){x.classList.toggle('on',x===b)})}});
+  $('#mPay').onclick=submitPay;
+  setTimeout(function(){var f=$('#fName'); if(f)f.focus()},30);
+}
+function submitPay(){
+  var n=$('#fName'), p=$('#fPhone'), bad=false;
+  [[n,n.value.trim().length<2],[p,p.value.replace(/\D/g,'').length<10]].forEach(function(a){a[0].classList.toggle('err',a[1]); if(a[1])bad=true});
+  if(bad){toast('Заполните имя и телефон'); return}
+  var btn=$('#mPay'); btn.disabled=true; btn.textContent='Проводим оплату…';
+  var name=n.value.trim();
+  setTimeout(function(){
+    var order=String(Math.floor(100000+Math.random()*900000)), picked=sel.slice(), sum=totalSel(), ev=EV();
+    picked.forEach(function(i){sold[i]=1});
+    var lines=picked.map(function(i){return '<div><span>'+esc(seatLabel(seats[i]))+'</span><span>'+fmt(priceOf(seats[i]))+'</span></div>'}).join('');
+    sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); tickHold();
+    $('#mBody').innerHTML='<div class="done"><div class="ok">✓</div><h3 id="mTitle" style="padding:0">Заказ № '+order+' оплачен</h3><p class="sub">'+esc(name)+', ждём вас: '+esc(ev.title)+', '+esc(ev.date)+' в '+esc(ev.time)+'.</p><canvas id="qr" width="168" height="168"></canvas><div class="sum-box" style="text-align:left">'+lines+'<div class="total"><span>Оплачено</span><span>'+fmt(sum)+'</span></div></div><button class="btn primary" id="mOk" style="width:100%">Готово</button><p class="demo">Это пример QR-кода. В рабочей версии билеты уходят на почту или в мессенджер, а на входе их сканируют.</p></div>';
+    drawQR($('#qr'),order); $('#mOk').onclick=closeModal;
+  },1100);
+}
+function drawQR(c,seed){
+  var x=c.getContext('2d'), n=21, s=8, r=rng(+seed);
+  x.fillStyle='#fff'; x.fillRect(0,0,168,168); x.fillStyle='#111';
+  function finder(ox,oy){x.fillRect(ox*s,oy*s,7*s,7*s); x.fillStyle='#fff'; x.fillRect((ox+1)*s,(oy+1)*s,5*s,5*s); x.fillStyle='#111'; x.fillRect((ox+2)*s,(oy+2)*s,3*s,3*s)}
+  for(var i=0;i<n;i++)for(var j=0;j<n;j++){
+    var inF=(i<8&&j<8)||(i>12&&j<8)||(i<8&&j>12);
+    if(!inF&&r()>.5)x.fillRect(i*s,j*s,s,s);
+  }
+  finder(0,0); finder(14,0); finder(0,14);
+}
+
+/* ---------- Уведомления ---------- */
+var toastT=null;
+function toast(m){var t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true},2600)}
+
+/* скрыть или показать правую панель */
+$('#panelToggle').addEventListener('click',function(){
+  var off=$('#app').classList.toggle('nopanel');
+  this.textContent=off?'◂ Показать панель':'Скрыть панель ▸'; this.setAttribute('aria-expanded',String(!off));
+});
+
+/* ---------- Размер и цикл ---------- */
+var view=$('#view');
+function resize(){
+  var w=view.clientWidth,h=view.clientHeight; if(!w||!h)return;
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+}
+if(window.ResizeObserver)new ResizeObserver(resize).observe(view); else window.addEventListener('resize',resize);
+resize();
+
+var clock=new T.Clock(), frame=0;
+function loop(){
+  requestAnimationFrame(loop);
+  var dt=Math.min(clock.getDelta(),.1), t=clock.elapsedTime;
+  frame++;
+  if(!reduce){
+    if(frame%3===0)drawScreen(t);
+    beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
+  }
+  stepCam(dt);
+  renderer.render(scene,camera);
+}
+
+buildHall(); renderAll(); applyPreset(H().presets[0]);
+cur.pos.set(0,26,60); cur.look.set(0,2,10);
+resize(); loop();
+setTimeout(function(){$('#loading').classList.add('off')},250);
+})();
+</script>
+
+
+
+</body>
+</html>
