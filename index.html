@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 </head>
 <body>
-<title>РЯДом: 3D-зал, который продаёт</title>
+<title>РЯДОМ: ваше пространство в 3D</title>
+<link rel="icon" type="image/svg+xml" href="img/mark.svg">
 <meta name="description" content="3D-схема зала, арены или стадиона для сайта: вид из кресла, выбор места и оплата в одном окне поверх вашей билетной системы. Филармонии, театры, кинотеатры, ДК, хоккейные арены и стадионы.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +67,7 @@ section{padding-block:clamp(64px,9vw,112px)}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--stage);border-bottom:1px solid var(--stage-line);color:var(--stage-ink)}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--stage)}
 .top .wrap{display:flex;align-items:center;gap:28px;height:64px}
+.logo img{display:block;height:auto}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:600;font-size:22px;letter-spacing:-.02em}
 .logo .ryad{color:var(--gold)}
 .logo svg .seat{fill:currentColor}
@@ -240,6 +242,14 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 @media (max-width:900px){.case-grid{grid-template-columns:minmax(0,1fr)}}
 
 /* для кого */
+.sport-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:36px}
+.sport-card{background:var(--stage-2);border:1px solid var(--stage-line);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto 1fr}
+.sport-card .pic{display:block;border-bottom:1px solid var(--stage-line)}
+.sport-card img{width:100%;height:auto;display:block}
+.sport-card .body{padding:26px 28px 30px;display:grid;gap:18px;align-content:start}
+.sport-card h3{font-family:var(--display);font-weight:600;font-size:24px;line-height:1.2;margin:0}
+.sport-card .facts{margin:0}
+@media (max-width:900px){.sport-grid{grid-template-columns:minmax(0,1fr)}}
 .who{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
 .who article{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:10px;align-content:start;transition:transform .25s,border-color .25s,box-shadow .25s}
 .who article:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:0 16px 34px -16px rgba(168,101,10,.4)}
@@ -345,10 +355,7 @@ footer .sp{margin-left:auto}
 <div class="progress" id="progress" aria-hidden="true"></div>
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="#top" aria-label="РЯДом — на главную">
-      <svg width="34" height="26" viewBox="0 0 56 40" aria-hidden="true"><g class="seat"><rect x="2" y="14" width="9" height="12" rx="2"/><rect x="13" y="14" width="9" height="12" rx="2"/><rect x="35" y="14" width="9" height="12" rx="2"/><rect x="46" y="14" width="9" height="12" rx="2"/></g><rect class="pick" x="24" y="10" width="9" height="16" rx="2" fill="#F0B94A"/><rect x="2" y="30" width="53" height="3" rx="1.5" fill="#A8650A"/></svg>
-      <span><span class="ryad">РЯД</span>ом</span>
-    </a>
+    <a class="logo" href="#top" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
     <nav class="nav" id="nav" aria-label="Разделы">
       <a href="#try">Попробовать</a><a href="#how">Как работает</a><a href="#features">Возможности</a><a href="#who">Для кого</a><a href="#sport">Спорт</a><a href="#price">Тарифы</a><a href="#faq">Вопросы</a>
     </nav>
@@ -360,12 +367,12 @@ footer .sp{margin-left:auto}
 <section class="hero" id="heroSec">
   <div class="wrap hero-grid">
     <div>
-      <p class="eyebrow" style="color:var(--gold);text-transform:none;letter-spacing:.03em;font-size:16px">РЯДом: 3D-зал, который продаёт</p>
+      <p class="eyebrow" style="color:var(--gold);text-transform:none;letter-spacing:.03em;font-size:16px">РЯДОМ: ваше пространство в 3D</p>
       <h1 style="margin-top:16px">Зритель видит сцену <em>со своего кресла</em> и&nbsp;покупает билет</h1>
       <p class="lead">«РЯДом» — 3D-схема вашего зала, арены или стадиона на сайте. Болельщик и зритель выбирают место, смотрят вид из кресла и оплачивают в том же окне. Билетную систему менять не нужно: мы работаем поверх неё.</p>
       <div class="cta">
         <a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть демо зала <span class="arr">↗</span></a>
-        <a class="btn btn-ghost" href="demo/arena.html" target="_blank" rel="noopener">Демо арены ↗</a>
+        <a class="btn btn-ghost" href="#sport">Арены и стадионы</a>
       </div>
       <p class="note">Демо собрано на реальном зале Ямальской филармонии. Работает в браузере, на телефоне тоже.</p>
     </div>
@@ -518,21 +525,41 @@ footer .sp{margin-left:auto}
 
 
 <section id="sport" class="case" style="border-top:1px solid var(--stage-line)">
-  <div class="wrap case-grid" style="grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)">
-    <div data-reveal>
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
       <p class="eyebrow">Спорт и большие арены</p>
-      <h2 style="margin-top:14px">Хоккейные арены, стадионы и ледовые дворцы</h2>
-      <p class="lead" style="margin-top:16px">Тысячи мест на трёх ярусах: болельщик видит лёд или поле с любого сектора, сравнивает углы, торцы и центр и выбирает место по цене. Один и тот же зал работает и на матче, и на концерте со сценой на льду.</p>
-      <div class="facts">
-        <div><b>12 000+</b><span>мест в демо-модели арены</span></div>
-        <div><b>3 яруса</b><span>и VIP-ложи</span></div>
-        <div><b>2 режима</b><span>хоккей и концерт на льду</span></div>
-        <div><b>Реклама</b><span>на бортах, LED-кольце и медиакубе</span></div>
-      </div>
-      <a class="btn btn-gold" href="demo/arena.html" target="_blank" rel="noopener">Открыть демо арены <span class="arr">↗</span></a>
-      <p class="note" style="margin-top:14px;color:var(--stage-muted)">Демо собрано по типовой схеме: нумерация секторов и цены условные. Для запуска нужна официальная схема рассадки вашей арены или стадиона.</p>
+      <h2 style="margin-top:14px">Хоккейные арены и футбольные стадионы</h2>
+      <p class="lead" style="margin-top:16px">Тысячи мест на нескольких ярусах: болельщик видит лёд или поле с любого сектора, сравнивает углы, торцы и центр и выбирает место по цене. Один и тот же объект работает и на матче, и на концерте со сценой на льду или на поле.</p>
     </div>
-    <div class="img" data-reveal style="--d:.12s"><img src="img2/arena-hockey.jpg" width="1500" height="860" alt="3D-модель хоккейной арены: три яруса, лёд, медиакуб над площадкой, места раскрашены по ценовым категориям" loading="lazy"></div>
+    <div class="sport-grid">
+      <article class="sport-card" data-reveal>
+        <a class="pic" href="demo/hockey.html" target="_blank" rel="noopener"><img src="img2/arena-hockey.jpg" width="1500" height="860" alt="3D-модель хоккейной арены: три яруса, лёд, медиакуб над площадкой, места по ценовым категориям" loading="lazy"></a>
+        <div class="body">
+          <h3>Хоккейная арена и ледовый дворец</h3>
+          <div class="facts">
+            <div><b>12 000+</b><span>мест в модели</span></div>
+            <div><b>3 яруса</b><span>и VIP-ложи</span></div>
+            <div><b>2 режима</b><span>хоккей и концерт на льду</span></div>
+            <div><b>Реклама</b><span>борта, LED-кольцо, медиакуб</span></div>
+          </div>
+          <a class="btn btn-gold" href="demo/hockey.html" target="_blank" rel="noopener">Открыть демо арены <span class="arr">↗</span></a>
+        </div>
+      </article>
+      <article class="sport-card" data-reveal style="--d:.12s">
+        <a class="pic" href="demo/stadium.html" target="_blank" rel="noopener"><img src="img2/arena-stadium.jpg" width="1500" height="860" alt="3D-модель футбольного стадиона: две основные трибуны с козырьком, трибуны за воротами, места по ценовым категориям" loading="lazy"></a>
+        <div class="body">
+          <h3>Футбольный стадион</h3>
+          <div class="facts">
+            <div><b>30 000+</b><span>мест в модели</span></div>
+            <div><b>2 яруса</b><span>и трибуны за воротами</span></div>
+            <div><b>2 режима</b><span>футбол и концерт на поле</span></div>
+            <div><b>Реклама</b><span>LED-борта и большие экраны</span></div>
+          </div>
+          <a class="btn btn-gold" href="demo/stadium.html" target="_blank" rel="noopener">Открыть демо стадиона <span class="arr">↗</span></a>
+        </div>
+      </article>
+    </div>
+    <p class="note" style="margin-top:24px;color:var(--stage-muted)">Демо собраны по типовым схемам: нумерация секторов, цены и занятость условные. Для запуска нужна официальная схема рассадки вашей арены или стадиона. Стоимость арен и стадионов считаем индивидуально.</p>
   </div>
 </section>
 
@@ -547,7 +574,7 @@ footer .sp{margin-left:auto}
       <article data-reveal style="--d:.1s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><h3>Кинотеатры</h3><p>Быстрый выбор в небольших залах и реклама фильмов на стенах. Отдельная модель для каждого зала.</p><p class="fit">Тариф «Камерный» за зал</p></article>
       <article data-reveal style="--d:.2s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 21V8l8-4 8 4v13M4 13h16M9 21v-4h6v4"/></svg></div><h3>ДК и площадки</h3><p>Один зал под концерты, спектакли и собрания. Разные схемы рассадки в одной модели.</p><p class="fit">Тариф «Камерный», запуск за 1–2 недели</p></article>
       <article data-reveal style="--d:.3s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><ellipse cx="12" cy="12" rx="9" ry="5.5"/><ellipse cx="12" cy="12" rx="4" ry="2"/></svg></div><h3>Хоккейные арены и ледовые дворцы</h3><p>Три яруса, углы и торцы, VIP-ложи. Болельщик видит лёд и экран-куб, а арена продаёт рекламу на бортах и LED-кольце.</p><p class="fit">Демо готово · расчёт по схеме арены</p></article>
-      <article data-reveal style="--d:.4s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 18c0-6 4-10 9-10s9 4 9 10M7 18v-3M12 18v-5M17 18v-3"/></svg></div><h3>Стадионы и спорткомплексы</h3><p>Трибуны и сектора: болельщик выбирает сектор, ряд и место и видит поле со своего кресла. Модель трибун строим по схеме вашего стадиона.</p><p class="fit">Индивидуальный расчёт</p></article>
+      <article data-reveal style="--d:.4s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 18c0-6 4-10 9-10s9 4 9 10M7 18v-3M12 18v-5M17 18v-3"/></svg></div><h3>Футбольные стадионы</h3><p>Основные трибуны, сектора за воротами, временные трибуны: болельщик выбирает сектор, ряд и место и видит поле со своего кресла.</p><p class="fit">Демо готово · расчёт по схеме стадиона</p></article>
       <article data-reveal style="--d:.5s"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8a2 2 0 0 0 0 4v4a2 2 0 0 1 2 2h14a2 2 0 0 1 2-2v-4a2 2 0 0 0 0-4V6H3z"/><path d="M13 6v14" stroke-dasharray="2 2"/></svg></div><h3>Билетные операторы</h3><p>3D как модуль для ваших площадок. Подключаем один раз и разворачиваем на всех залах.</p><p class="fit">Партнёрские условия</p></article>
     </div>
     <div class="integr" data-reveal><b>Работаем с:</b><span class="chip">Quick Tickets</span><span class="chip">вашей билетной системой по API</span><span class="chip">картами «Мир» и СБП</span><span class="chip">картой жителя Ямала «Морошка»</span></div>
@@ -633,7 +660,7 @@ footer .sp{margin-left:auto}
     <div class="sec-head" data-reveal><p class="eyebrow">Вопросы</p><h2>Что обычно спрашивают директора</h2></div>
     <div class="faq" data-reveal>
       <details open><summary>Придётся менять билетную систему?</summary><p>Нет. «РЯДом» работает поверх неё: цены и занятость мест берём из вашей системы, туда же уходит заказ. Касса, отчёты, возвраты и Пушкинская карта остаются как есть.</p></details>
-      <details><summary>Подходит ли это для стадионов и хоккейных арен?</summary><p>Да. В демо арены три яруса, 12 000+ мест, хоккейный и концертный режимы, VIP-ложи, реклама на бортах и LED-кольце. Для вашего стадиона мы строим модель по официальной схеме трибун: сектора, ряды и нумерация как в билетной системе. Стоимость арен и стадионов считаем отдельно, после того как увидим схему.</p></details>
+      <details><summary>Подходит ли это для стадионов и хоккейных арен?</summary><p>Да. Есть два готовых демо: хоккейная арена (три яруса, 12 000+ мест, VIP-ложи, реклама на бортах и LED-кольце) и футбольный стадион (основные трибуны с козырьком, трибуны за воротами, временные трибуны). Оба работают в режиме матча и концерта. Для вашего объекта мы строим модель по официальной схеме трибун: сектора, ряды и нумерация как в билетной системе. Стоимость арен и стадионов считаем отдельно, после того как увидим схему.</p></details>
       <details><summary>Что нужно от площадки?</summary><p>Схема рассадки (лучше в векторе), фотографии зала, правила ценовых категорий и контакт технической поддержки вашей билетной системы. Ещё нужен один сотрудник, который будет согласовывать работу.</p></details>
       <details><summary>Будет ли работать на телефоне?</summary><p>Да. Зал открывается в обычном браузере, без приложений. На телефоне панель выбора уходит под схему, управление пальцами: потянуть, чтобы повернуть зал, свести пальцы, чтобы приблизить.</p></details>
       <details><summary>Вы работаете с Quick Tickets?</summary><p>Сейчас демо ведёт зрителя на страницу сеанса в Quick Tickets с номерами выбранных мест. Синхронизацию занятости и передачу заказа подключаем по договорённости с Quick Tickets. Открытого API у них нет, поэтому сроки зависят от оператора.</p></details>
@@ -675,7 +702,7 @@ footer .sp{margin-left:auto}
 
 <footer>
   <div class="wrap">
-    <a class="logo" href="#top"><svg width="28" height="20" viewBox="0 0 56 40" aria-hidden="true"><g fill="currentColor"><rect x="2" y="14" width="9" height="12" rx="2"/><rect x="13" y="14" width="9" height="12" rx="2"/><rect x="35" y="14" width="9" height="12" rx="2"/><rect x="46" y="14" width="9" height="12" rx="2"/></g><rect x="24" y="10" width="9" height="16" rx="2" fill="#F0B94A"/><rect x="2" y="30" width="53" height="3" rx="1.5" fill="#A8650A"/></svg><span><span class="ryad" style="color:var(--gold)">РЯД</span>ом</span></a>
+    <a class="logo" href="#top" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="140" height="auto"></a>
     <span>3D-зал, который продаёт</span>
     <span class="sp">[Название компании] · ИНН [ИНН]</span>
     <span>© <span id="yr">2026</span></span>

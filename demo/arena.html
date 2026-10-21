@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 </head>
 <body>
-<title>Арена в 3D</title>
+<title>Хоккейная арена в 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
@@ -164,7 +164,7 @@ button{cursor:pointer}
   </main>
   <aside id="panel">
     <header>
-      <div class="brand">Арена<span>3D</span></div>
+      <div class="brand">Хоккейная арена<span>3D</span></div>
       <div class="seg" id="venueSeg" hidden>
         <button data-v="concert" class="on">Концертный зал</button>
         <button data-v="cinema">Кинозал</button>
@@ -209,7 +209,7 @@ var EVENTS=[
  {title:'Бременские музыканты на льду',sub:'Новогоднее шоу на льду · 0+',date:'18 декабря, пт',time:'18:30',mode:'hockey',pal:['#7bd88f','#f2c14e','#10251a'],seed:18,mult:.9,sold:.35},
  {title:'Большой новогодний концерт',sub:'Сцена на льду · 6+',date:'27 декабря, вс',time:'19:00',mode:'concert',pal:['#ff4d8d','#f2c14e','#2b1055'],seed:27,mult:1,sold:.4}];
 var MODES={
- hockey:{kind:'hockey',venue:'Многофункциональная арена',events:EVENTS,
+ hockey:{kind:'hockey',venue:'Хоккейная арена',events:EVENTS,
   cats:[
    {name:'Нижний ярус, центр',price:3500,color:'#F5A623'},
    {name:'Нижний ярус, углы и торцы',price:2200,color:'#EE7B30'},
@@ -223,7 +223,7 @@ var MODES={
    {name:'За воротами',tgt:[0,2,0],th:1.5708,ph:1.0,dist:40},
    {name:'Сверху',tgt:[0,0,0],th:0,ph:.1,dist:150}],
   look:[0,0,0], sweet:[0,24]},
- concert:{kind:'concert',venue:'Многофункциональная арена',events:EVENTS,
+ concert:{kind:'concert',venue:'Хоккейная арена',events:EVENTS,
   cats:[
    {name:'Партер на льду',price:7500,color:'#F5A623'},
    {name:'Нижний ярус',price:5500,color:'#EE7B30'},
@@ -246,7 +246,7 @@ var priceOf=function(s){return Math.round(H().cats[s.cat].price*EV().mult/50)*50
 
 /* ---------- Three: сцена ---------- */
 var canvas=$('#gl');
-var renderer=new T.WebGLRenderer({canvas:canvas,antialias:true});
+var renderer=new T.WebGLRenderer({canvas:canvas,antialias:true,logarithmicDepthBuffer:true});
 renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
 var scene=new T.Scene();
 scene.background=new T.Color(0x07060a);
@@ -389,9 +389,9 @@ var cube=[];
 function buildHall(){
   clearHall(); seats=[]; cube=[];
   var md=EV().mode;
-  scene.fog.near=160; scene.fog.far=420; camera.far=700; camera.updateProjectionMatrix();
+  scene.fog.near=160; scene.fog.far=420; camera.far=700; camera.near=.3; camera.updateProjectionMatrix();
   /* пол, стены, крыша */
-  add(new T.PlaneGeometry(260,200).rotateX(-Math.PI/2),Mat(0x15131a),0,-.06,0);
+  add(new T.PlaneGeometry(260,200).rotateX(-Math.PI/2),Mat(0x15131a),0,-.6,0);
   add(new T.BoxGeometry(170,48,130),Mat(0x1b1922,{side:T.BackSide}),0,23.9,0);
   for(var k=-3;k<=3;k++){add(new T.BoxGeometry(150,.4,.4),Mat(0x2b2833),0,46,k*16)}
   /* лёд, борта, стекло */
@@ -403,7 +403,7 @@ function buildHall(){
     sh.moveTo(s[0]*HW,s[1]*HH);sh.lineTo(s[0]*HW,cz);
     for(var a=0;a<=16;a++){var t=a/16*Math.PI/2;sh.lineTo(cx+s[0]*RR*Math.cos(t),cz+s[1]*RR*Math.sin(t))}
     sh.lineTo(s[0]*HW,s[1]*HH);
-    var g=new T.ShapeGeometry(sh);g.rotateX(Math.PI/2);var m=new T.Mesh(g,Mat(0x15131a));m.position.y=.01;hall.add(m);
+    var g=new T.ShapeGeometry(sh);g.rotateX(Math.PI/2);var m=new T.Mesh(g,Mat(0x15131a));m.position.y=.06;hall.add(m);
   });
   ringStrip(0,0,0,1.15,Mat(0xf4f4f2,{roughness:.6}));
   ringStrip(0,.25,1.15,1.15,Mat(0xffd24a));
