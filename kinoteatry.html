@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>3D-схема кинозала: выбор места и вид на экран до покупки билета | РЯДом</title>
+<meta name="description" content="Зритель выбирает место в кинозале на 3D-схеме и видит экран из своего кресла. Диваны, VIP-ряды, реклама фильмов на стенах. Каждый зал отдельно, цена от 79 000 ₽, без комиссии с билетов.">
+<link rel="icon" type="image/svg+xml" href="img/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+h2{font-size:clamp(28px,3.6vw,46px)}
+.pg-hero{background:var(--stage);color:var(--stage-ink);padding-block:clamp(56px,8vw,112px);position:relative;overflow:hidden}
+.pg-hero::before{content:"";position:absolute;width:900px;height:900px;right:-260px;top:-360px;background:radial-gradient(closest-side,rgba(240,185,74,.22),transparent)}
+.pg-hero .eyebrow{color:var(--gold)}
+.pg-hero .lead{color:var(--stage-muted);margin-top:22px}
+.pg-hero .mega{margin-top:14px;max-width:18ch}
+.pg-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.pg-cta .btn-ghost{color:var(--stage-ink)}
+.pg-facts{display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,48px);margin-top:40px}
+.pg-facts b{display:block;font:600 clamp(28px,4vw,48px)/1 var(--display);color:var(--gold)}
+.pg-facts span{font-size:14px;color:var(--stage-muted)}
+.pg-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(24px,5vw,64px);align-items:center}
+.pg-prob{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:12px}
+.pg-prob li{display:flex;gap:12px;color:var(--muted);font-size:18px}
+.pg-prob li::before{content:"?";flex:none;width:28px;height:28px;border-radius:50%;background:var(--panel-2);color:var(--gold-ink);display:grid;place-items:center;font-weight:700}
+.pg-shot{border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 36px 70px -40px rgba(20,22,31,.5);aspect-ratio:16/10;background:var(--stage)}
+.pg-shot img{width:100%;height:100%;object-fit:cover;object-position:left center}
+.pg-shot.crop img{width:138%;max-width:none}
+.pg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.pg-grid article{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:grid;gap:8px;transition:transform .25s,border-color .25s}
+.pg-grid article:hover{transform:translateY(-4px);border-color:var(--gold)}
+.pg-grid h3{font-family:var(--display);font-size:20px;font-weight:600}
+.pg-grid p{color:var(--muted)}
+.pg-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.pg-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:s}
+.pg-steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:8px}
+.pg-steps li::before{content:"0" counter(s);font:600 14px var(--display);color:var(--gold-ink)}
+.pg-steps b{font-family:var(--display);font-weight:600}
+.pg-steps span{color:var(--muted);font-size:15px}
+.pg-band{background:var(--stage);color:var(--stage-ink);border-radius:24px;padding:clamp(26px,4vw,48px);display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between}
+.pg-band h2{font-size:clamp(26px,3.4vw,44px);max-width:20ch}
+.pg-band p{color:var(--stage-muted);margin-top:10px}
+.pg-links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;margin-top:6px}
+@media (max-width:860px){.pg-two{grid-template-columns:minmax(0,1fr)}.pg-grid{grid-template-columns:minmax(0,1fr)}.pg-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
+    <nav class="nav" aria-label="Разделы"><a href="index.html#venues">Площадки</a><a href="index.html#benefits">Выгоды</a><a href="index.html#price">Тарифы</a><a href="index.html#faq">FAQ</a></nav>
+    <a class="btn btn-gold" href="index.html?seg=kino#contact" style="white-space:nowrap">Получить КП</a>
+  </div>
+</header>
+<main>
+<section class="pg-hero">
+  <div class="wrap">
+    <p class="eyebrow">РЯДом для кинотеатров</p>
+    <h1 class="mega">Пусть зритель увидит экран до покупки билета</h1>
+    <p class="lead">Диваны, комфорт-ряды и обычные места в 3D с видом на экран. Зритель понимает, за что доплачивает, и чаще берёт места подороже.</p>
+    <div class="pg-cta"><a class="btn btn-gold" href="demo/cinema.html" target="_blank" rel="noopener">Открыть демо кинозала <span class="arr">↗</span></a><a class="btn btn-ghost" href="index.html?seg=kino#contact">Получить коммерческое предложение</a></div>
+    <div class="pg-facts"><div><b>до 300</b><span>мест в зале</span></div><div><b>1–2</b><span>недели до запуска</span></div><div><b>каждый зал</b><span>отдельной моделью</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap pg-two">
+    <div data-reveal>
+      <p class="eyebrow">Почему плоская схема мешает продажам</p>
+      <h2 style="margin-top:12px">Квадратик не показывает, что увидит зритель</h2>
+      <ul class="pg-prob"><li>Диваны и дорогие ряды выглядят на схеме как квадрат другого цвета.</li><li>Зритель не понимает, за что доплачивает, и берёт стандарт.</li><li>Рекламные места есть в фойе, но не в момент покупки билета.</li></ul>
+    </div>
+    <div class="pg-shot" data-reveal style="--d:.1s"><img src="img/k-cinema.jpg" width="1500" height="860" alt="Кинотеатры: 3D-модель зала" loading="lazy"></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Возможности</p><h2>Что вы получаете</h2></div>
+    <div class="pg-grid"><article data-reveal style="--d:0s"><h3>Вид на экран с любого места</h3><p>Зритель видит экран, углы и расстояние до него из своего кресла.</p></article><article data-reveal style="--d:0.08s"><h3>Диваны и VIP понятны</h3><p>Категории показаны цветом и типом кресла, разница между местами видна сразу.</p></article><article data-reveal style="--d:0.16s"><h3>Реклама фильмов на стенах</h3><p>Афиши сеансов и баннеры партнёров внутри 3D-зала.</p></article><article data-reveal style="--d:0.24s"><h3>Допродажи бара</h3><p>Попкорн, напитки и парковка предлагаются на шаге выбора мест (подключаем по запросу).</p></article></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Стоимость</p><h2>Создание один раз, обслуживание по подписке</h2><p class="lead">Без комиссии с билетов. Цена за один зал при наличии пригодных планов и схем рассадки.</p></div>
+    <div class="pg-plans" data-reveal><article class="plan"><h3>Малый зал</h3><p class="size">до 300 мест</p><p class="price">79 000 <small>₽ создание, разово</small></p><p class="sub2">+ подписка 36 000 ₽ в год · <b>первый год 115 000 ₽</b></p><div class="bar"><span>Срок: 1–2 недели</span></div><ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li></ul></article></div>
+    <p class="note" style="margin-top:18px">Каждый зал считаем отдельно. Пример: кинотеатр с тремя залами до 300 мест — создание 3 × 79 000 = 237 000 ₽, подписка 3 × 36 000 = 108 000 ₽, первый год 345 000 ₽.</p>
+    <div class="pg-links"><a href="index.html#price">Все тарифы и калькулятор</a></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Как это происходит</p><h2>От схемы до продаж за несколько недель</h2></div>
+    <ol class="pg-steps" data-reveal><li><b>Присылаете схему</b><span>План зала, фото и правила категорий.</span></li><li><b>Строим 3D-зал</b><span>Ряды, входы, сцена или поле. Вы согласуете нумерацию.</span></li><li><b>Подключаем</b><span>Виджет на сайт, переход к покупке в вашей кассе.</span></li><li><b>Запуск</b><span>Проверка на реальном событии, инструкция для сотрудников.</span></li></ol>
+  </div>
+</section>
+
+<section style="padding-top:0" id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">FAQ</p><h2>Часто задаваемые вопросы</h2></div>
+    <div class="faq" data-reveal><details open><summary>Нужна ли отдельная модель для каждого зала?</summary><p>Да, каждый зал строим по его плану. Геометрия залов часто похожа, поэтому присылайте схемы сразу всех залов: оценим общий объём.</p></details><details><summary>Работает ли это с нашей кассой?</summary><p>Расписание, цены и занятость берём из вашей билетной системы, заказ уходит в неё. Менять систему не нужно.</p></details><details><summary>Что нужно прислать?</summary><p>Схемы залов с нумерацией мест, фото экрана, рядов и диванов, логотип и фирменные цвета.</p></details></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="pg-band" data-reveal>
+      <div><h2>Покажем ваш зал в 3D до подписания договора</h2><p>Пришлите схему рассадки. Назовём срок и стоимость.</p></div>
+      <div style="display:grid;gap:12px;justify-items:start"><a class="btn btn-gold" href="index.html?seg=kino#contact">Получить коммерческое предложение <span class="arr">→</span></a><span style="color:var(--stage-muted);font-size:15px">+7 909 676-98-98 · artsevershop@gmail.com</span></div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ" width="140" height="auto"></a>
+    <span>3D-пространство, которое продаёт</span>
+    <span class="sp">ООО «Северный Характер»</span>
+    <span class="pg-links" style="flex-basis:100%"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="sport.html">Спорт и арены</a><a href="doma-kultury.html">ДК и площадки</a></span>
+  </div>
+</footer>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window){
+    document.documentElement.classList.add('js');
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)});
+  }
+})();
+</script>
+</body>
+</html>

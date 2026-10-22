@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://artsevershop-create.github.io/ryadom/sitemap.xml
