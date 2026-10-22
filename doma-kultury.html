@@ -51,7 +51,7 @@ h2{font-size:clamp(28px,3.6vw,46px)}
   <div class="wrap">
     <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
     <nav class="nav" aria-label="Разделы"><a href="index.html#venues">Площадки</a><a href="index.html#benefits">Выгоды</a><a href="index.html#price">Тарифы</a><a href="index.html#faq">FAQ</a></nav>
-    <a class="btn btn-gold" href="index.html?seg=dk#contact" style="white-space:nowrap">Получить КП</a>
+    <a class="btn btn-gold" href="#contact" style="white-space:nowrap">Получить КП</a>
   </div>
 </header>
 <main>
@@ -60,7 +60,7 @@ h2{font-size:clamp(28px,3.6vw,46px)}
     <p class="eyebrow">РЯДом для домов культуры и городских площадок</p>
     <h1 class="mega">Зал вашего ДК в 3D на сайте за 1–2 недели</h1>
     <p class="lead">Один зал принимает концерты, спектакли и собрания, а зрители покупают билеты по плоской схеме или в кассе. 3D показывает зал, входы и вид со всех мест.</p>
-    <div class="pg-cta"><a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть пример зала <span class="arr">↗</span></a><a class="btn btn-ghost" href="index.html?seg=dk#contact">Получить коммерческое предложение</a></div>
+    <div class="pg-cta"><a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть пример зала <span class="arr">↗</span></a><a class="btn btn-ghost" href="#contact">Получить коммерческое предложение</a></div>
     <div class="pg-facts"><div><b>1–2</b><span>недели до запуска</span></div><div><b>от 79 000 ₽</b><span>создание, разово</span></div><div><b>36 000 ₽</b><span>подписка в год</span></div></div>
   </div>
 </section>
@@ -106,11 +106,18 @@ h2{font-size:clamp(28px,3.6vw,46px)}
   </div>
 </section>
 
-<section style="padding-top:0">
+<section style="padding-top:0" id="contact">
   <div class="wrap">
-    <div class="pg-band" data-reveal>
-      <div><h2>Покажем ваш зал в 3D до подписания договора</h2><p>Пришлите схему рассадки. Назовём срок и стоимость.</p></div>
-      <div style="display:grid;gap:12px;justify-items:start"><a class="btn btn-gold" href="index.html?seg=dk#contact">Получить коммерческое предложение <span class="arr">→</span></a><span style="color:var(--stage-muted);font-size:15px">+7 909 676-98-98 · artsevershop@gmail.com</span></div>
+    <div class="pg-band" data-reveal style="align-items:flex-start">
+      <div style="flex:1;min-width:260px"><h2>Покажем ваш зал в 3D до подписания договора</h2><p>Оставьте контакты, и сразу откроется коммерческое предложение. Мы свяжемся и назовём срок и стоимость.</p><p style="margin-top:12px">+7 909 676-98-98 · artsevershop@gmail.com</p></div>
+      <form id="lead" novalidate style="flex:1;min-width:300px;display:grid;gap:12px;background:var(--panel);color:var(--ink);border-radius:18px;padding:22px">
+        <div class="two"><div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div><div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div></div>
+        <div class="two"><div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div><div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div></div>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+        <button class="btn btn-gold" type="submit" style="justify-self:start">Получить коммерческое предложение</button>
+        <p class="fine">Нажимая кнопку, вы соглашаетесь на обработку контактных данных для ответа на заявку.</p>
+        <div id="sent" hidden></div>
+      </form>
     </div>
   </div>
 </section>
@@ -123,6 +130,8 @@ h2{font-size:clamp(28px,3.6vw,46px)}
     <span class="pg-links" style="flex-basis:100%"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="sport.html">Спорт и арены</a><a href="doma-kultury.html">ДК и площадки</a></span>
   </div>
 </footer>
+<script src="config.js"></script>
+<script src="lead.js"></script>
 <script>
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;

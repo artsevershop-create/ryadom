@@ -959,6 +959,7 @@ footer a{color:inherit}
       </div>
       <div class="field"><label for="fSize">Мест в зале</label><select id="fSize" name="size"><option>до 300</option><option selected>300–800</option><option>800–3000</option><option>3000–10000</option><option>от 10 000</option><option>несколько залов</option></select></div>
       <div class="field"><label for="fMsg">Билетная система и вопросы</label><textarea id="fMsg" name="msg" rows="3" placeholder="Какая у вас билетная система, к какому сроку хотите запуститься"></textarea></div>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
       <button class="btn btn-gold" type="submit" style="justify-self:start">Получить коммерческое предложение</button>
       <p class="fine">После отправки формы коммерческое предложение откроется на этой странице. Нажимая кнопку, вы соглашаетесь на обработку контактных данных для ответа на заявку.</p>
       <div id="sent" hidden></div>
@@ -979,6 +980,7 @@ footer a{color:inherit}
   </div>
 </footer>
 
+<script src="config.js"></script>
 <script>
 (function(){
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1183,7 +1185,7 @@ footer a{color:inherit}
 
   /* ---------- заявка и коммерческое предложение ---------- */
   /* Куда отправлять заявки: адрес обработчика (бот, CRM). Пока пусто — заявку можно отправить письмом из окна после отправки формы. */
-  var ENDPOINT='';
+  var ENDPOINT=window.RYADOM_ENDPOINT||'';
   var KP='kp/ryadom-kp.pdf';
   var f=$('#lead'), out=$('#sent');
   function check(id,eid,ok,msg){var e=document.getElementById(id),er=document.getElementById(eid);er.textContent=ok?'':msg;e.setAttribute('aria-invalid',ok?'false':'true');return ok}
@@ -1191,7 +1193,7 @@ footer a{color:inherit}
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   f.addEventListener('submit',function(e){
     e.preventDefault();
-    var v={name:f.name.value.trim(),phone:f.phone.value.trim(),org:f.org.value.trim(),email:f.email.value.trim(),size:f.size.value,msg:f.msg.value.trim()};
+    var v={name:f.name.value.trim(),phone:f.phone.value.trim(),org:f.org.value.trim(),email:f.email.value.trim(),size:f.size.value,msg:f.msg.value.trim(),page:'index',website:(f.website&&f.website.value)||''};
     var ok=check('fName','eName',v.name.length>1,'Напишите, как к вам обращаться')&
            check('fPhone','ePhone',v.phone.replace(/\D/g,'').length>=10,'Укажите телефон с кодом города')&
            check('fOrg','eOrg',v.org.length>1,'Укажите площадку')&
@@ -1206,7 +1208,7 @@ footer a{color:inherit}
       out.scrollIntoView({behavior:reduce?'auto':'smooth',block:'nearest'});
     }
     if(!ENDPOINT){show(false);return}
-    fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v)})
+    fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v),signal:(window.AbortController?(function(){var c=new AbortController();setTimeout(function(){c.abort()},8000);return c.signal})():undefined)})
       .then(function(r){if(!r.ok)throw 0;show(true);f.reset()})
       .catch(function(){show(false)});
   });
