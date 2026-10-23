@@ -25,7 +25,7 @@
     if(!EP){show(false);return}
     var ctl=window.AbortController?new AbortController():null, t=setTimeout(function(){ctl&&ctl.abort()},8000);
     fetch(EP,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v),signal:ctl&&ctl.signal})
-      .then(function(r){clearTimeout(t);if(!r.ok)throw 0;show(true);f.reset()})
-      .catch(function(){clearTimeout(t);show(false)});
+      .then(function(r){clearTimeout(t);if(!r.ok)throw 0;show(true);f.reset();window.ryadomGoal&&ryadomGoal('lead_sent',{page:v.page})})
+      .catch(function(){clearTimeout(t);show(false);window.ryadomGoal&&ryadomGoal('lead_fallback',{page:v.page})});
   });
 })();

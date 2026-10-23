@@ -8,6 +8,8 @@
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#0E0D13">
+<script src="/config.js"></script>
+<script src="/metrika.js" defer></script>
 </head>
 <body>
 <title>РЯДОМ: ваше пространство в 3D</title>
@@ -1209,8 +1211,8 @@ footer a{color:inherit}
     }
     if(!ENDPOINT){show(false);return}
     fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(v),signal:(window.AbortController?(function(){var c=new AbortController();setTimeout(function(){c.abort()},8000);return c.signal})():undefined)})
-      .then(function(r){if(!r.ok)throw 0;show(true);f.reset()})
-      .catch(function(){show(false)});
+      .then(function(r){if(!r.ok)throw 0;show(true);f.reset();window.ryadomGoal&&ryadomGoal('lead_sent',{page:'index'})})
+      .catch(function(){show(false);window.ryadomGoal&&ryadomGoal('lead_fallback',{page:'index'})});
   });
 
   /* предзаполнение формы со страниц сегментов */
