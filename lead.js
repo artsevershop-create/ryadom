@@ -5,14 +5,16 @@
   var $=function(id){return document.getElementById(id)};
   function check(id,ok,msg){var e=$(id),er=$('e'+id.slice(1));er.textContent=ok?'':msg;e.setAttribute('aria-invalid',ok?'false':'true');return ok}
   ['fName','fPhone','fOrg','fEmail'].forEach(function(id){$(id).addEventListener('input',function(){$('e'+id.slice(1)).textContent=''})});
+  $('fConsent').addEventListener('change',function(){$('eConsent').textContent=''});
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   f.addEventListener('submit',function(e){
     e.preventDefault();
-    var v={name:f.name.value.trim(),phone:f.phone.value.trim(),org:f.org.value.trim(),email:f.email.value.trim(),size:'',msg:'',page:location.pathname.replace(/^.*\//,'').replace('.html','')||'index',website:f.website.value};
+    var v={name:f.name.value.trim(),phone:f.phone.value.trim(),org:f.org.value.trim(),email:f.email.value.trim(),size:'',msg:'',page:location.pathname.replace(/^.*\//,'').replace('.html','')||'index',consent:true,website:f.website.value};
     var ok=check('fName',v.name.length>1,'Напишите, как к вам обращаться')&
            check('fPhone',v.phone.replace(/\D/g,'').length>=10,'Укажите телефон с кодом города')&
            check('fOrg',v.org.length>1,'Укажите площадку')&
-           check('fEmail',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email),'Укажите почту, например name@company.ru');
+           check('fEmail',/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email),'Укажите почту, например name@company.ru')&
+           check('fConsent',f.consent.checked,'Нужно согласие на обработку данных');
     if(!ok)return;
     var text='Заявка «РЯДом»\nИмя: '+v.name+'\nТелефон: '+v.phone+'\nПочта: '+v.email+'\nПлощадка: '+v.org+'\nСтраница: '+v.page;
     function show(sent){

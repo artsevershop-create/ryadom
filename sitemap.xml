@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>http://3dryad.ru/</loc></url>
+  <url><loc>http://3dryad.ru/consent.html</loc></url>
   <url><loc>http://3dryad.ru/doma-kultury.html</loc></url>
   <url><loc>http://3dryad.ru/kinoteatry.html</loc></url>
+  <url><loc>http://3dryad.ru/privacy.html</loc></url>
   <url><loc>http://3dryad.ru/sport.html</loc></url>
   <url><loc>http://3dryad.ru/teatry.html</loc></url>
 </urlset>

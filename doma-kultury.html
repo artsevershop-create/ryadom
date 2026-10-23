@@ -115,8 +115,9 @@ h2{font-size:clamp(28px,3.6vw,46px)}
         <div class="two"><div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div><div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div></div>
         <div class="two"><div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div><div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div></div>
         <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+        <label class="consent" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--muted);cursor:pointer"><input type="checkbox" id="fConsent" name="consent" style="width:18px;height:18px;margin-top:2px;flex:none"><span>Даю <a href="consent.html" target="_blank" rel="noopener" style="text-decoration:underline">согласие на обработку персональных данных</a> и ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="text-decoration:underline">Политикой обработки</a></span></label><span class="err" id="eConsent" style="font-size:13px;color:#C2410C"></span>
         <button class="btn btn-gold" type="submit" style="justify-self:start">Получить коммерческое предложение</button>
-        <p class="fine">Нажимая кнопку, вы соглашаетесь на обработку контактных данных для ответа на заявку.</p>
+        <p class="fine">Согласие можно отозвать письмом на info@3dryad.ru.</p>
         <div id="sent" hidden></div>
       </form>
     </div>
@@ -128,6 +129,7 @@ h2{font-size:clamp(28px,3.6vw,46px)}
     <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ" width="140" height="auto"></a>
     <span>3D-пространство, которое продаёт</span>
     <span class="sp">ООО «Северный Характер»</span>
+    <a href="privacy.html" style="text-decoration:underline">Политика обработки персональных данных</a>
     <span class="pg-links" style="flex-basis:100%"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="sport.html">Спорт и арены</a><a href="doma-kultury.html">ДК и площадки</a></span>
   </div>
 </footer>
