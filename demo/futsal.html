@@ -12,7 +12,8 @@
 <script src="/metrika.js" defer></script>
 </head>
 <body>
-<title>Спортивный зал в 3D</title>
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Факел-Арена в 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
@@ -51,13 +52,12 @@ button{cursor:pointer}
 .chip{background:rgba(18,17,25,.82);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:7px 14px;font-weight:500;white-space:nowrap}
 .chip:hover{border-color:var(--accent)}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-#toolbar{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;gap:6px 8px;justify-content:center;padding:2px;pointer-events:none}
+#toolbar{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:safe center;overflow-x:auto;padding:2px;scrollbar-width:none}
 #toolbar::-webkit-scrollbar{display:none}
-#toolbar .chip{flex:0 0 auto;pointer-events:auto;padding:6px 12px}
-#panelToggle{position:absolute;top:12px;right:12px;z-index:3}
+#toolbar .chip{flex:0 0 auto}
 #exitSeat{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:3}
 #seatBadge{position:absolute;top:56px;left:50%;transform:translateX(-50%);font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);padding:4px 12px;border-radius:999px;white-space:nowrap;z-index:2}
-#legend{position:absolute;top:12px;left:12px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;padding:7px 11px;max-width:calc(100% - 170px)}
+#legend{position:absolute;top:12px;left:12px;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--mute);background:rgba(18,17,25,.7);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:10px;padding:7px 11px;max-width:calc(100% - 24px)}
 #legend span{display:inline-flex;align-items:center;gap:6px}
 #legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 #hint{width:100%;opacity:.8}
@@ -147,9 +147,8 @@ button{cursor:pointer}
   #legend{font-size:11px;padding:5px 9px}
   #seatBadge{top:50px}
 }
-#app.nopanel{grid-template-columns:minmax(0,1fr) 0}
-#app.nopanel #panel{display:none}
-@media (max-width:860px){#app.nopanel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0}}
+#score{position:absolute;right:12px;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:2;display:grid;gap:1px;justify-items:end;font-weight:600;font-variant-numeric:tabular-nums;pointer-events:none}
+#score small{font-weight:400;font-size:11px;color:var(--mute)}
 @media (prefers-reduced-motion:reduce){#loading{transition:none}}
 </style>
 
@@ -159,26 +158,26 @@ button{cursor:pointer}
     <div id="loading">Строим зал…</div>
     <div id="legend">
       <span><i style="background:linear-gradient(90deg,#F5A623,#D9486A,#4A78E0)"></i>Свободно: цвет по категории</span>
-      <span><i style="background:var(--ok)"></i>Выбрано</span>
-      <span><i style="background:linear-gradient(90deg,#8a6a3a,#8c4a5e,#4f6aa0)"></i>Занято: тот же цвет, приглушённый</span>
+      <span><i style="background:var(--ok)"></i>Ваши места</span>
+      <span><i style="background:#8E929A"></i>Занято: серый зритель</span>
       <span id="hint">Тяните — вращать · колесо — масштаб · клик по месту — выбрать · двойной клик — вид из кресла</span>
     </div>
-    <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
     <button id="exitSeat" class="chip" hidden>← Выйти из вида</button>
     <div id="seatBadge" hidden></div>
     <div id="tip" hidden></div>
+    <div id="score" class="chip"><div>БЕЛЫЕ <b id="scoreTxt">0 : 0</b> СИНИЕ · <span id="scoreMin">0′</span></div><small>демо-игра</small></div>
     <div id="toolbar" role="toolbar" aria-label="Ракурсы"></div>
   </main>
   <aside id="panel">
     <header>
-      <div class="brand">Спортивный зал<span>3D</span></div>
+      <div class="brand">Факел-Арена<span>3D</span></div>
       <div class="seg" id="venueSeg" hidden>
         <button data-v="concert" class="on">Концертный зал</button>
         <button data-v="cinema">Кинозал</button>
       </div>
     </header>
     <div id="scroll">
-      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Пример: примерная модель спортивного зала (футзал, баскетбол, волейбол и турниры, трибуны примерно на 1000 мест). В модели <span id="seatsTotal">—</span> мест. Расположение трибун, секторы, цены и даты условные; для запуска нужна официальная схема.</p></section>
+      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Пример: примерная модель зала МФК «Факел Ямал» в Новом Уренгое по открытым данным (трибуны примерно на 1000 мест, открыт в марте 2026). В модели <span id="seatsTotal">—</span> мест. Расположение трибун, секторы, цены и даты условные; для запуска нужна официальная схема. Игра на поле и зрители в сцене условные.</p></section>
       <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
       <section><h2>Подобрать места рядом</h2>
         <div class="finder">
@@ -200,6 +199,312 @@ button{cursor:pointer}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+/* РЯДом: общее ядро демо. Зрители, игроки, матч, ограничение камеры. Один файл, без внешних библиотек (кроме three.js r128 страницы).
+   Подключается в каждое демо перед основным скриптом: var RC=...; */
+var RC=(function(T){
+'use strict';
+var U={uT:{value:0},uMotion:{value:1},uMode:{value:3},uBeat:{value:0},uApplause:{value:0},uHands:{value:0},uCheerT:{value:-1},uGoal:{value:new T.Vector2(0,0)}};
+var clamp=function(v,a,b){return v<a?a:v>b?b:v};
+function rngS(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ---------- геометрия человека ---------- */
+/* части: 0 корпус, 1 голова, 2 руки, 3 левая нога, 4 правая нога */
+function part(list,g,x,y,z,col,pt){
+  if(g.index)g=g.toNonIndexed(); g.translate(x,y,z);
+  var p=g.attributes.position.array,n=g.attributes.normal.array;
+  list.push({p:p,n:n,c:col,t:pt});
+}
+function merge(list){
+  var N=0,i,k;for(i=0;i<list.length;i++)N+=list[i].p.length;
+  var P=new Float32Array(N),Nn=new Float32Array(N),C=new Float32Array(N),A=new Float32Array(N/3),o=0,a=0;
+  list.forEach(function(e){
+    P.set(e.p,o);Nn.set(e.n,o);
+    for(k=0;k<e.p.length;k+=3){C[o+k]=e.c[0];C[o+k+1]=e.c[1];C[o+k+2]=e.c[2];A[a++]=e.t}
+    o+=e.p.length;
+  });
+  var g=new T.BufferGeometry();
+  g.setAttribute('position',new T.BufferAttribute(P,3));g.setAttribute('normal',new T.BufferAttribute(Nn,3));
+  g.setAttribute('color',new T.BufferAttribute(C,3));g.setAttribute('aPart',new T.BufferAttribute(A,1));
+  return g;
+}
+var rgb=function(h){var c=new T.Color(h);return [c.r,c.g,c.b]};
+var BX=function(w,h,d){return new T.BoxGeometry(w,h,d)};
+/* сидящий человек лицом к -z; начало координат на полу под сиденьем (сиденье 0,34 м); около 130 треугольников */
+function seatedGeo(){
+  var L=[],w=[1,1,1],hd=[1.08,1.08,1.08];
+  part(L,BX(.14,.12,.4),-.1,.4,-.15,w,0);part(L,BX(.14,.12,.4),.1,.4,-.15,w,0);
+  part(L,BX(.12,.4,.12),-.1,.2,-.36,w,0);part(L,BX(.12,.4,.12),.1,.2,-.36,w,0);
+  part(L,BX(.36,.46,.2),0,.66,.02,w,0);
+  part(L,new T.IcosahedronGeometry(.115,0),0,1.03,0,hd,1);
+  part(L,BX(.08,.28,.08),-.23,.7,0,w,2);part(L,BX(.08,.28,.08),.23,.7,0,w,2);
+  part(L,BX(.08,.08,.26),-.23,.56,-.14,w,2);part(L,BX(.08,.08,.26),.23,.56,-.14,w,2);
+  return merge(L);
+}
+/* стоящий игрок/музыкант: pal={shirt,short,sock,skin}; рост около 1,75 м */
+function standGeo(pal){
+  var L=[],sh=rgb(pal.shirt),so=rgb(pal.sock||pal.short),sk=rgb(pal.skin||'#d9b99b'),sr=rgb(pal.short);
+  part(L,BX(.13,.34,.13),-.09,.17,0,so,3);part(L,BX(.13,.34,.13),.09,.17,0,so,4);
+  part(L,BX(.15,.26,.15),-.09,.47,0,sr,3);part(L,BX(.15,.26,.15),.09,.47,0,sr,4);
+  part(L,BX(.15,.2,.15),-.09,.7,0,sr,3);part(L,BX(.15,.2,.15),.09,.7,0,sr,4);
+  part(L,BX(.38,.52,.22),0,1.1,0,sh,0);
+  part(L,new T.IcosahedronGeometry(.12,0),0,1.57,0,sk,1);
+  part(L,BX(.09,.5,.09),-.255,1.13,0,sh,2);part(L,BX(.09,.5,.09),.255,1.13,0,sh,2);
+  return merge(L);
+}
+
+/* ---------- материалы с анимацией в шейдере ---------- */
+var HEAD='attribute float aPart;attribute vec4 aA;uniform float uT,uMotion,uMode,uBeat,uApplause,uHands,uCheerT;uniform vec2 uGoal;'+
+ 'vec3 rotX(vec3 p,vec3 pv,float a){vec3 d=p-pv;float c=cos(a),s=sin(a);return vec3(p.x,pv.y+d.y*c-d.z*s,pv.z+d.y*s+d.z*c);}'+
+ 'vec3 rotY(vec3 p,vec3 pv,float a){vec3 d=p-pv;float c=cos(a),s=sin(a);return vec3(pv.x+d.x*c+d.z*s,p.y,pv.z-d.x*s+d.z*c);}';
+var SEATED=HEAD+
+ 'vec3 rcPose(vec3 p){'+
+ ' float ph=aA.x,rn=aA.y,m=uMotion,k=clamp((uT-aA.z)/.3,0.,1.);'+
+ ' float d=length(instanceMatrix[3].xz-uGoal);float w=uCheerT-d*.045;'+
+ ' float c=(uCheerT>=0.&&w>0.&&w<2.2)?sin(w/2.2*3.1416):0.;c=clamp(c*1.5,0.,1.)*step(rn,.93)*m;'+
+ ' float sway=0.;'+
+ ' if(uMode>2.5)sway=sin(uT*.8+ph)*.012;else if(uMode>.5&&uMode<1.5)sway=sin(uT*3.2+ph*.15)*.05*uBeat+sin(uT*.8+ph)*.01;else if(uMode<.5)sway=sin(uT*.7+ph)*.008;'+
+ ' p.y+=sin(uT*1.7+ph)*.006*m*step(.3,p.y)+c*.1;'+
+ ' p.x+=(sway*m)*max(p.y-.4,0.)*2.;'+
+ ' if(aPart>.5&&aPart<1.5&&uMode<1.5||(aPart>.5&&aPart<1.5&&uMode>2.5)){p=rotY(p,vec3(0.,.95,0.),sin(uT*.4+ph*3.)*.5*rn*m);}'+
+ ' if(aPart>1.5&&aPart<2.5){float a=c*2.7+uApplause*(.9+.25*sin(uT*9.+ph))*m+uHands*(1.2+.9*sin(uT*2.2+ph))*step(.45,rn)*m;if(a>0.)p=rotX(p,vec3(0.,.84,0.),a);}'+
+ ' return p*k;}';
+var RUN=HEAD+
+ 'attribute vec4 aM;'+
+ 'vec3 rcPose(vec3 p){'+
+ ' float sp=aM.x,ph=aM.y,ce=aM.z,s=sin(ph),amp=.95*sp;'+
+ ' if(aPart>2.5&&aPart<3.5)p=rotX(p,vec3(0.,.84,0.),s*amp);'+
+ ' else if(aPart>3.5&&aPart<4.5)p=rotX(p,vec3(0.,.84,0.),-s*amp);'+
+ ' else if(aPart>1.5&&aPart<2.5){float sd=p.x>0.?1.:-1.;float a=mix(sd*s*amp*.8,2.7+.3*sin(uT*10.+sd),ce);p=rotX(p,vec3(0.,1.37,0.),a);}'+
+ ' p.y+=abs(s)*.03*sp+ce*abs(sin(uT*9.))*.12;'+
+ ' if(aPart<1.5)p=rotX(p,vec3(0.,.9,0.),-.16*sp);'+
+ ' return p;}';
+function figMat(src,shade){
+  var m=new T.MeshStandardMaterial({roughness:.85,metalness:0,vertexColors:true});
+  m.onBeforeCompile=function(sh){
+    for(var k in U)sh.uniforms[k]=U[k];
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\n'+src).replace('#include <begin_vertex>','vec3 transformed=rcPose(vec3(position));');
+  };
+  m.customProgramCacheKey=function(){return src===SEATED?'rcSeat':'rcRun'};
+  return m;
+}
+function instAttr(mesh,name,n,fill){
+  var a=new T.InstancedBufferAttribute(new Float32Array(mesh.count*n),n);if(fill)fill(a.array);mesh.geometry.setAttribute(name,a);return a;
+}
+
+/* ---------- зрители ---------- */
+var GRAY=['#8E929A','#999DA5','#A2A6AD','#A9ADB4'];
+function Crowd(group,seats){
+  var self=this,N=seats.length;
+  self.geo=seatedGeo();self.mat=figMat(SEATED);
+  self.mesh=new T.InstancedMesh(self.geo,self.mat,N);self.mesh.frustumCulled=false;
+  self.aA=instAttr(self.mesh,'aA',4,function(a){var r=rngS(4242);for(var i=0;i<N;i++){a[i*4]=r()*6.283;a[i*4+1]=r();a[i*4+2]=-100;a[i*4+3]=0}});
+  self.seats=seats;self.N=N;self.vis=new Uint8Array(N);self.hide=-1;
+  self.gray=[];var rr=rngS(777);for(var i=0;i<N;i++)self.gray.push(new T.Color(GRAY[Math.floor(rr()*GRAY.length)]));
+  self.mat4=new T.Matrix4();self.zero=new T.Matrix4().makeScale(0,0,0);
+  self.mesh.instanceColor=new T.InstancedBufferAttribute(new Float32Array(N*3),3);
+  group.add(self.mesh);
+}
+/* sold: Uint8Array; sel: массив индексов; вызывается только при событиях (выбор, оплата, смена события) */
+Crowd.prototype.layout=function(sold,sel){
+  var self=this,d=new T.Object3D(),r=rngS(99),i,s,on;
+  for(i=0;i<self.N;i++){
+    s=self.seats[i];var h=1+(r()-.5)*.16,wd=1+(r()-.5)*.12;r();
+    on=(sold[i]||sel.indexOf(i)>=0)&&i!==self.hide;
+    if(!on){self.mesh.setMatrixAt(i,self.zero);self.vis[i]=0;continue}
+    d.position.set(s.x,s.y,s.z);d.rotation.set(0,s.th,0);d.scale.set(wd,h,wd);d.updateMatrix();
+    self.mesh.setMatrixAt(i,d.matrix);self.vis[i]=1;
+  }
+  self.mesh.instanceMatrix.needsUpdate=true;
+};
+Crowd.prototype.born=function(i,t){this.aA.array[i*4+2]=t;this.aA.needsUpdate=true};
+Crowd.prototype.reset=function(i){this.aA.array[i*4+2]=-100;this.aA.needsUpdate=true};
+/* fn(i)→THREE.Color итоговый цвет фигуры (серый, зелёный, затемнённый, светлее при наведении) */
+Crowd.prototype.recolor=function(fn){
+  var a=this.mesh.instanceColor.array,c;
+  for(var i=0;i<this.N;i++){if(!this.vis[i])continue;c=fn(i);a[i*3]=c.r;a[i*3+1]=c.g;a[i*3+2]=c.b}
+  this.mesh.instanceColor.needsUpdate=true;
+};
+
+/* ---------- матч ---------- */
+/* cfg: L,W (половины поля, м), nF (полевых в команде), speed (м/с), accel, goalHalf, shotR (дистанция удара), form(n)→[[x,z]…] для команды, атакующей +x,
+   cols:{a:{shirt,short,sock},b:{…},gk,ref}, ballR, scoreToReset, shotEvery (с между ударами в среднем), maxShift */
+function createMatch(group,cfg){
+  var L=cfg.L,W=cfg.W,V=cfg.speed,AC=cfg.accel||6,GH=cfg.goalHalf||1.5,R=cfg.ballR||.12;
+  var rnd=rngS(31337),P=[],M={score:[0,0],clock:0,paused:false,phase:'play',since:0,t:0,onGoal:null};
+  function mk(team,role,hx,hz,pal){P.push({team:team,role:role,hx:hx,hz:hz,x:hx,z:hz,vx:0,vz:0,ang:team===0?-Math.PI/2:Math.PI/2,ph:rnd()*6,sp:0,ce:0,pal:pal})}
+  var form=cfg.form(cfg.nF);
+  [0,1].forEach(function(t){
+    var d=t===0?1:-1,pal=t===0?cfg.cols.a:cfg.cols.b;
+    mk(t,'gk',-d*(L-1.2),0,cfg.cols.gk);
+    form.forEach(function(f){mk(t,'f',f[0]*d,f[1]*d,pal)});
+  });
+  mk(2,'ref',0,-W+1,cfg.cols.ref);
+  var NP=P.length;
+  /* меши по палитрам */
+  var groups={};P.forEach(function(p,i){var k=p.pal.shirt+p.pal.short;(groups[k]=groups[k]||{pal:p.pal,ids:[]}).ids.push(i)});
+  var meshes=[],dummy=new T.Object3D();
+  Object.keys(groups).forEach(function(k){
+    var g=groups[k],geo=standGeo(g.pal),mat=figMat(RUN),mesh=new T.InstancedMesh(geo,mat,g.ids.length);
+    mesh.frustumCulled=false;g.mesh=mesh;g.aM=instAttr(mesh,'aM',4);group.add(mesh);meshes.push(mesh);
+    g.ids.forEach(function(id,j){P[id].g=g;P[id].j=j});
+  });
+  /* мяч и тени */
+  var ball=new T.Mesh(new T.SphereGeometry(R,14,10),new T.MeshStandardMaterial({color:0xf4f4f4,roughness:.5}));group.add(ball);
+  var shad=new T.InstancedMesh(new T.CircleGeometry(.5,14).rotateX(-Math.PI/2),new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.28,depthWrite:false}),NP+1);
+  shad.frustumCulled=false;group.add(shad);
+  var B={x:0,z:0,y:R,vx:0,vz:0},owner=-1,mode='carry',act=1,tackle=1,target=-1,shot=null,pass=null,goalDir=0,endT=0;
+  function dirOf(t){return t===0?1:-1}
+  function dist(ax,az,bx,bz){return Math.hypot(ax-bx,az-bz)}
+  function nearest(team,x,z,notGk,ex){var b=-1,bd=1e9;for(var i=0;i<NP;i++){var p=P[i];if(p.team!==team||(notGk&&p.role==='gk')||i===ex)continue;var d=dist(p.x,p.z,x,z);if(d<bd){bd=d;b=i}}return b}
+  function kickoff(first){
+    P.forEach(function(p){p.x=p.hx;p.z=p.hz;p.vx=p.vz=0;p.ce=0});
+    var t=first?0:(goalDir>0?1:0);   /* вводит команда, которой забили */
+    var f=nearest(t,0,0,true);owner=f;mode='carry';act=1.4;B.x=P[f].x;B.z=0;M.phase='play';
+    P[f].x=-dirOf(t)*.6;P[f].z=0;
+  }
+  function decide(o){
+    var p=P[o],d=dirOf(p.team),gx=d*L,toGoal=dist(p.x,p.z,gx,0);
+    var cd=M.since<35?.05:M.since>170?.9:.17;
+    if(toGoal<cfg.shotR&&rnd()<.7){
+      var scored=rnd()<cd||M.since>200;
+      var gz=(rnd()<.5?-1:1)*(GH*.55+rnd()*GH*.35);
+      var gk=-1;for(var i=0;i<NP;i++)if(P[i].team!==p.team&&P[i].role==='gk')gk=i;
+      shot={from:o,x0:p.x,z0:p.z,gx:gx,gz:gz,sc:scored,t:0,T:Math.max(.35,toGoal/(cfg.shotSpeed||19)),gk:gk,d:d};
+      P[gk].tz=scored?(gz>0?-GH*.8:GH*.8):gz;
+      mode='shot';owner=-1;return;
+    }
+    /* пас вперёд ближайшему своему; перехват с вероятностью 25% */
+    var best=-1,bs=1e9;
+    for(var j=0;j<NP;j++){var q=P[j];if(q.team!==p.team||q.role!=='f'||j===o)continue;
+      var fw=(q.x-p.x)*d,dd=dist(p.x,p.z,q.x,q.z);if(dd<3||dd>16)continue;
+      var sc=dd-fw*.6+rnd()*5;if(sc<bs){bs=sc;best=j}}
+    if(best<0){act=.5+rnd()*.5;return}
+    var tg=best;
+    if(rnd()<.25){var op=nearest(1-p.team,(p.x+P[best].x)/2,(p.z+P[best].z)/2,true);if(op>=0)tg=op}
+    pass={from:o,to:tg,want:best};mode='pass';owner=-1;target=tg;
+  }
+  function stepBall(dt){
+    var i,p;
+    if(mode==='carry'){
+      p=P[owner];var d=dirOf(p.team);B.x=p.x+d*.55;B.z=p.z;B.y=R;B.vx=B.vz=0;
+      act-=dt;tackle-=dt;
+      if(act<=0)decide(owner);
+      if(tackle<=0){tackle=.6+rnd()*.5;var op=nearest(1-p.team,B.x,B.z,true);
+        if(op>=0&&dist(P[op].x,P[op].z,B.x,B.z)<1.2&&rnd()<.2){owner=op;act=.8+rnd()}}
+    }else if(mode==='pass'){
+      var q=P[pass.to],dx=q.x-B.x,dz=q.z-B.z,dd=Math.hypot(dx,dz),sp=cfg.passSpeed||12;
+      if(dd<.7){owner=pass.to;mode='carry';act=.5+rnd()*1.1;tackle=.8}
+      else{B.x+=dx/dd*sp*dt;B.z+=dz/dd*sp*dt;B.y=R+Math.min(.25,dd*.03)}
+    }else if(mode==='shot'){
+      shot.t+=dt;var k=Math.min(1,shot.t/shot.T);
+      B.x=shot.x0+(shot.gx-shot.x0)*k;B.z=shot.z0+(shot.gz-shot.z0)*k;B.y=R+Math.sin(k*3.14)*.35;
+      if(k>=1){
+        if(shot.sc){M.score[shot.d>0?0:1]++;goalDir=shot.d;M.phase='goal';M.t=3.2;M.since=0;
+          if(M.onGoal)M.onGoal(shot.d,shot.gx);
+          mode='net';B.vx=shot.d*3;B.vz=0}
+        else{owner=shot.gk;mode='carry';act=.9+rnd()*.5;tackle=2}
+      }
+    }else if(mode==='net'){B.x=clamp(B.x+B.vx*dt,-L-1.4,L+1.4);B.vx*=.9}
+  }
+  function steer(p,tx,tz,vmax,dt){
+    var dx=tx-p.x,dz=tz-p.z,dd=Math.hypot(dx,dz),v=Math.min(vmax,dd*3.2);
+    var wx=dd>.05?dx/dd*v:0,wz=dd>.05?dz/dd*v:0,k=Math.min(1,dt*AC);
+    p.vx+=(wx-p.vx)*k;p.vz+=(wz-p.vz)*k;
+  }
+  function stepPlayers(dt){
+    var i,p,d,tx,tz,bl=owner>=0?P[owner]:null,teamBall=bl?bl.team:(pass?P[pass.from].team:(shot?P[shot.from].team:0));
+    var chaser=nearest(1-teamBall,B.x,B.z,true),recv=mode==='pass'?pass.to:-1;
+    for(i=0;i<NP;i++){
+      p=P[i];d=dirOf(p.team);
+      if(M.phase==='goal'){
+        if(p.role==='ref'){tx=p.x;tz=p.z}
+        else if(p.team===(goalDir>0?0:1)&&p.role==='f'){tx=goalDir*(L-4);tz=(p.hz>=0?1:-1)*(W-3);p.ce=1}
+        else{tx=p.hx*.6;tz=p.hz;p.ce=0}
+        steer(p,tx,tz,V*.9,dt);continue;
+      }
+      if(i===owner&&mode==='carry'){
+        tx=p.x+d*7;tz=clamp(p.z*.85+Math.sin(M.clock*1.1+i)*3,-W+1,W-1);
+        steer(p,tx,tz,V*.78,dt);continue;
+      }
+      if(p.role==='gk'){
+        tx=-d*(L-1.2);tz=clamp(B.z*.25,-GH*.9,GH*.9);
+        if(mode==='shot'&&shot.gk===i)tz=p.tz;
+        steer(p,tx,tz,V*.8,dt);continue;
+      }
+      if(p.role==='ref'){
+        tx=clamp(B.x*.75,-L+4,L-4);tz=clamp(B.z+(B.z>0?-3.6:3.6),-W+.5,W-.5);
+        steer(p,tx,tz,V*.65,dt);continue;
+      }
+      if(i===recv||(i===chaser&&p.team!==teamBall)||(mode==='carry'&&i!==owner&&p.team!==teamBall&&dist(p.x,p.z,B.x,B.z)<5)){
+        tx=B.x;tz=B.z;steer(p,tx,tz,V*(i===recv?.95:.85),dt);continue;
+      }
+      var shiftX=clamp(B.x*.45,-cfg.maxShift,cfg.maxShift)+(p.team===teamBall?d*3:-d*1.5),shiftZ=clamp(B.z*.3,-4,4);
+      tx=clamp(p.hx+shiftX,-L+1,L-1);tz=clamp(p.hz+shiftZ,-W+1,W-1);
+      steer(p,tx,tz,V*.7,dt);
+    }
+    /* расталкиваем, чтобы не проходили друг сквозь друга */
+    var j,q,ax,az,dd;
+    for(i=0;i<NP;i++)for(j=i+1;j<NP;j++){
+      p=P[i];q=P[j];ax=q.x-p.x;az=q.z-p.z;dd=Math.hypot(ax,az);
+      if(dd<.8&&dd>.001){var f=(.8-dd)*.5/dd;p.x-=ax*f;p.z-=az*f;q.x+=ax*f;q.z+=az*f}
+    }
+    for(i=0;i<NP;i++){
+      p=P[i];p.x=clamp(p.x+p.vx*dt,-L+.3,L-.3);p.z=clamp(p.z+p.vz*dt,-W+.3,W-.3);
+      var spd=Math.hypot(p.vx,p.vz);
+      if(spd>.4){var ta=Math.atan2(-p.vx,-p.vz),da=ta-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));p.ang+=da*Math.min(1,dt*9)}
+      p.sp+=(Math.min(1,spd/V)-p.sp)*Math.min(1,dt*8);p.ph+=dt*(spd*2.4+.5);
+    }
+  }
+  M.update=function(dt,still){
+    if(M.paused||still)return;
+    dt=Math.min(dt,.05);M.clock+=dt;
+    if(M.phase==='goal'){M.t-=dt;stepBall(dt);stepPlayers(dt);if(M.t<=0){
+      if(M.score[0]>=cfg.scoreToReset||M.score[1]>=cfg.scoreToReset){M.score[0]=M.score[1]=0}
+      kickoff(false)}}
+    else{M.since+=dt;stepBall(dt);stepPlayers(dt)}
+    M.draw();
+  };
+  M.draw=function(){
+    var i,p,d=dummy;
+    for(i=0;i<NP;i++){
+      p=P[i];d.position.set(p.x,0,p.z);d.rotation.set(0,p.ang,0);d.scale.set(1,1,1);d.updateMatrix();
+      p.g.mesh.setMatrixAt(p.j,d.matrix);
+      var a=p.g.aM.array,o=p.j*4;a[o]=p.sp;a[o+1]=p.ph;a[o+2]=p.ce;
+      d.position.set(p.x,.03,p.z);d.rotation.set(0,0,0);d.updateMatrix();shad.setMatrixAt(i,d.matrix);
+    }
+    d.position.set(B.x,.03,B.z);d.scale.set(.35,1,.35);d.updateMatrix();shad.setMatrixAt(NP,d.matrix);
+    meshes.forEach(function(m){m.instanceMatrix.needsUpdate=true});
+    for(var k in groups)groups[k].aM.needsUpdate=true;
+    shad.instanceMatrix.needsUpdate=true;
+    ball.position.set(B.x,B.y,B.z);
+  };
+  /* минута матча: 1 минута = 3 секунды; два тайма по half минут */
+  M.minute=function(half){return Math.floor(M.clock/3)%(half*2)};
+  M.groups=meshes.concat([ball,shad]);
+  M.restart=function(){M.score[0]=M.score[1]=0;M.since=0;kickoff(true)};
+  M.players=P;M.ball=B;
+  kickoff(true);M.draw();
+  return M;
+}
+
+/* ---------- камера ---------- */
+/* bounds: {x,z,top} границы внутри зала; floorH(x,z) высота пола или ступени; roof — массив мешей потолка (скрываются при виде сверху) */
+function clampCamera(camera,mode,bd,floorH,roof){
+  if(mode==='seat')return;
+  var p=camera.position,top=p.y>bd.top+.5;
+  if(roof)roof.forEach(function(r){r.visible=!top});
+  if(top)return;                                   /* ракурс «Сверху»: потолок скрыт, ограничения только по высоте пола */
+  p.x=clamp(p.x,-bd.x,bd.x);p.z=clamp(p.z,-bd.z,bd.z);
+  var mn=floorH(p.x,p.z)+1.6;
+  if(p.y<mn)p.y=mn;
+  if(p.y>bd.top)p.y=bd.top;
+}
+
+return {U:U,clamp:clamp,Crowd:Crowd,createMatch:createMatch,clampCamera:clampCamera,rngS:rngS,seatedGeo:seatedGeo,standGeo:standGeo,figMat:figMat,RUN:RUN};
+})(THREE);
+
+</script>
+<script>
 (function(){
 'use strict';
 var T=THREE;
@@ -211,19 +516,19 @@ var MAXSEL=8;
 
 /* ---------- Данные ---------- */
 var EVENTS=[
- {title:'Хозяева · домашний матч',sub:'Футзал · чемпионат',date:'7 ноября, сб',time:'17:00',mode:'football',pal:['#f28c28','#1f4fb0','#2a1608'],seed:7,mult:1,sold:.5},
- {title:'Хозяева · кубковый матч',sub:'Футзал · матч на вылет',date:'21 ноября, сб',time:'16:00',mode:'football',pal:['#f2c14e','#d9302c','#1a1206'],seed:21,mult:1.2,sold:.65},
- {title:'Юношеский турнир U18',sub:'Юношеский футзал · вход по билетам',date:'5 декабря, сб',time:'12:00',mode:'football',pal:['#7bd88f','#1f4fb0','#10251a'],seed:5,mult:.6,sold:.3},
+ {title:'Факел Ямал · домашний матч',sub:'Футзал · Высшая лига',date:'7 ноября, сб',time:'17:00',mode:'football',pal:['#f28c28','#1f4fb0','#2a1608'],seed:7,mult:1,sold:.5},
+ {title:'Факел Ямал · кубковый матч',sub:'Футзал · матч на вылет',date:'21 ноября, сб',time:'16:00',mode:'football',pal:['#f2c14e','#d9302c','#1a1206'],seed:21,mult:1.2,sold:.65},
+ {title:'Турнир ЮФЛ Футзал U18',sub:'Юношеский футзал · вход по билетам',date:'5 декабря, сб',time:'12:00',mode:'football',pal:['#7bd88f','#1f4fb0','#10251a'],seed:5,mult:.6,sold:.3},
  {title:'Новогодний праздник спорта',sub:'Шоу и мастер-классы · 0+',date:'26 декабря, сб',time:'14:00',mode:'football',pal:['#ff4d8d','#f2c14e','#2b1055'],seed:26,mult:.7,sold:.4}];
 var MODES={
- football:{kind:'football',venue:'Спортивный зал',events:EVENTS,
+ football:{kind:'football',venue:'Факел-Арена, Новый Уренгой',events:EVENTS,
   cats:[
    {name:'Главная трибуна, центр',price:500,color:'#F5A623'},
    {name:'Главная трибуна, верхние ряды',price:400,color:'#EE7B30'},
    {name:'Главная трибуна, у ворот',price:300,color:'#D9486A'},
    {name:'Противоположная трибуна',price:250,color:'#4A78E0'}],
   presets:[
-   {name:'Обзор',tgt:[0,2,0],th:.6,ph:.95,dist:62},
+   {name:'Обзор',tgt:[0,2,0],th:.6,ph:.95,dist:27},
    {name:'Центр',tgt:[0,1,0],th:0,ph:1.2,dist:28},
    {name:'Угол',tgt:[0,1,0],th:.8,ph:1.12,dist:34},
    {name:'За воротами',tgt:[0,1,0],th:1.5708,ph:1.25,dist:30},
@@ -247,6 +552,7 @@ scene.fog=new T.Fog(0x07060a,70,170);
 var camera=new T.PerspectiveCamera(50,1,.1,300);
 var hall=new T.Group(); scene.add(hall);
 var baseMesh,backMesh,glowMesh,rimMesh,sidePan=[],stageLights=[],beams=[],catCol=[],catDim=[],catSold=[];
+var crowd=null,match=null,roofObjs=[],paused=!!reduce,showCrowd=true,cheerT=-1,SOLDC=new T.Color(0x5e626b),SOLDD=new T.Color(0x5e626b).multiplyScalar(.22);
 var SOLD=new T.Color(0x2c2c34), SEL=new T.Color(0x8dff7a), WHITE=new T.Color(0xffffff);
 
 scene.add(new T.HemisphereLight(0xc9c6ff,0x2a1420,.95));
@@ -290,7 +596,7 @@ function drawScreen(t){
   sx.font='600 28px Onest, sans-serif'; sx.globalAlpha=.8; sx.fillText(ev.date+' · '+ev.time,512,cn?336:308);
   sx.globalAlpha=1;
   if(H().kind==='football'){
-    sx.font='800 64px Onest, sans-serif'; sx.fillStyle='#fff'; sx.globalAlpha=.95; sx.fillText('0 : 0  ·  1 тайм',512,440); sx.globalAlpha=1;
+    sx.font='800 64px Onest, sans-serif'; sx.fillStyle='#fff'; sx.globalAlpha=.95; sx.fillText((match?match.score[0]+' : '+match.score[1]:'0 : 0')+'  ·  '+(match&&match.minute(20)>=20?'2':'1')+' тайм',512,440); sx.globalAlpha=1;
   } else if(!cn){
     for(var i=0;i<56;i++){
       var a=Math.sin(t*3+i*.5)*.5+.5, b=Math.sin(t*1.3+i*.21)*.5+.5;
@@ -322,7 +628,7 @@ function Mat(c,o){return new T.MeshStandardMaterial(Object.assign({color:c,rough
 function add(geo,mat,x,y,z){var m=new T.Mesh(geo,mat); m.position.set(x||0,y||0,z||0); hall.add(m); return m}
 
 function clearHall(){
-  rimMesh=null; sidePan=[];
+  rimMesh=null; sidePan=[]; roofObjs=[]; crowd=null; match=null;
   while(hall.children.length){
     var o=hall.children.pop();
     o.traverse(function(n){
@@ -350,7 +656,7 @@ function courtTex(){
   x.beginPath();x.moveTo(X(0),Z(-10));x.lineTo(X(0),Z(10));x.stroke();
   x.beginPath();x.arc(X(0),Z(0),3*sx,0,7);x.stroke();
   [-1,1].forEach(function(s){x.beginPath();x.arc(X(s*14),Z(0),4,0,7);x.fillStyle='#fff';x.fill();x.beginPath();x.arc(X(s*10),Z(0),4,0,7);x.fill()});
-  x.fillStyle='rgba(255,255,255,.9)';x.font='800 64px Onest, sans-serif';x.textAlign='center';x.globalAlpha=.25;x.fillText('ХОЗЯЕВА',X(0)-0,Z(0)-110);x.globalAlpha=1;
+  x.fillStyle='rgba(255,255,255,.9)';x.font='800 64px Onest, sans-serif';x.textAlign='center';x.globalAlpha=.25;x.fillText('ФАКЕЛ ЯМАЛ',X(0)-0,Z(0)-110);x.globalAlpha=1;
   var t=new T.CanvasTexture(c);t.anisotropy=8;return t;
 }
 function adTex(words,bg,fg){
@@ -384,15 +690,15 @@ function buildHall(){
   /* зал */
   add(new T.PlaneGeometry(90,70).rotateX(-Math.PI/2),Mat(0x2a2f3a),0,-.4,0);
   add(new T.BoxGeometry(80,20,62),Mat(0x23262f,{side:T.BackSide}),0,9.6,0);
-  for(var k=-3;k<=3;k++)boxAt(78,.35,.35,Mat(0x3a3f4a),0,19.2,k*8);
-  for(var a=-3;a<=3;a++)for(var b=-1;b<=1;b++){var lm=new T.Mesh(new T.BoxGeometry(3,.2,1.2),new T.MeshBasicMaterial({color:0xfff6dc}));lm.position.set(a*10,19,b*9);hall.add(lm)}
+  for(var k=-3;k<=3;k++)roofObjs.push(boxAt(78,.35,.35,Mat(0x3a3f4a),0,19.2,k*8));
+  for(var a=-3;a<=3;a++)for(var b=-1;b<=1;b++){var lm=new T.Mesh(new T.BoxGeometry(3,.2,1.2),new T.MeshBasicMaterial({color:0xfff6dc}));lm.position.set(a*10,19,b*9);hall.add(lm);roofObjs.push(lm)}
   add(new T.PlaneGeometry(2*PL,2*PW).rotateX(-Math.PI/2),new T.MeshStandardMaterial({map:courtTex(),roughness:.45,metalness:.05}),0,0,0);
   /* ворота 3x2 */
   [-1,1].forEach(function(s){var gx=s*20,gm=Mat(0xffffff,{roughness:.4});
     boxAt(.08,2,.08,gm,gx,1,-1.5);boxAt(.08,2,.08,gm,gx,1,1.5);boxAt(.08,.08,3.08,gm,gx,2,0);
     boxAt(1,2,3,new T.MeshStandardMaterial({color:0xffffff,transparent:true,opacity:.2,side:T.DoubleSide}),gx+s*.5,1,0)});
   /* LED-борта */
-  var bt=adTex(['ХОЗЯЕВА','ВАШ БРЕНД','ПАРТНЁР КЛУБА','РЕКЛАМА НА LED-БОРТАХ'],'#0b0a10','#f28c28');bt.repeat.set(2,1);
+  var bt=adTex(['ФАКЕЛ ЯМАЛ','ВАШ БРЕНД','ПАРТНЁР КЛУБА','РЕКЛАМА НА LED-БОРТАХ'],'#0b0a10','#f28c28');bt.repeat.set(2,1);
   var adM=new T.MeshBasicMaterial({map:bt,side:T.DoubleSide});
   [[0,PW-.3,40,Math.PI],[0,-PW+.3,40,0],[PL-.6,0,20,-Math.PI/2],[-PL+.6,0,20,Math.PI/2]].forEach(function(b){var m=new T.Mesh(new T.PlaneGeometry(b[2],.8),adM);m.position.set(b[0],.45,b[1]);m.rotation.y=b[3];hall.add(m)});
   /* трибуны: главная (8 рядов) и противоположная (5 рядов), ~1000 мест */
@@ -406,7 +712,7 @@ function buildHall(){
   [-1,1].forEach(function(s){var scrn=new T.Mesh(new T.PlaneGeometry(12,6),new T.MeshBasicMaterial({map:screenTex}));scrn.position.set(s*39.6,9,0);scrn.rotation.y=s>0?-Math.PI/2:Math.PI/2;hall.add(scrn);
     boxAt(.4,6.6,12.6,Mat(0x0a090d),s*39.8,9,0)});
   /* баннеры на стенах за трибунами */
-  var wt=adTex(['СПОРТИВНЫЙ ЗАЛ','ВАШ БРЕНД','СПОНСОР СЕЗОНА'],'#f28c28','#14161f');wt.repeat.set(1,1);
+  var wt=adTex(['ФАКЕЛ-АРЕНА · НОВЫЙ УРЕНГОЙ','ВАШ БРЕНД','СПОНСОР СЕЗОНА'],'#f28c28','#14161f');wt.repeat.set(1,1);
   [1,-1].forEach(function(s){var m=new T.Mesh(new T.PlaneGeometry(60,2.4),new T.MeshBasicMaterial({map:wt,side:T.DoubleSide}));m.position.set(0,12,s*30.8);m.rotation.y=s>0?Math.PI:0;hall.add(m)});
   var fl=new T.PointLight(0xfff2d8,.5,0);fl.position.set(0,18,0);scene.add(fl);stageLights.push(fl);
   var cnt={};seats.forEach(function(s){var kk=s.sec+'_'+s.row;cnt[kk]=(cnt[kk]||0)+1;s.num=cnt[kk]});
@@ -424,7 +730,14 @@ function buildHall(){
   glowMesh.frustumCulled=false; glowMesh.count=0; hall.add(glowMesh);
   catCol=H().cats.map(function(c){return new T.Color(c.color)});
   catDim=catCol.map(function(c){return c.clone().multiplyScalar(.22)});
-  catSold=catCol.map(function(c){return c.clone().lerp(SOLD,.6)});
+  catSold=catCol.map(function(){return SOLDC});
+  crowd=new RC.Crowd(hall,seats); crowd.mesh.visible=showCrowd;
+  RC.U.uMode.value=3;
+  match=RC.createMatch(hall,{L:20,W:10,nF:4,speed:4.4,accel:7,goalHalf:1.5,shotR:11,maxShift:8,scoreToReset:5,passSpeed:12,shotSpeed:19,ballR:.13,
+    form:function(){return [[-10,0],[-3,-6],[-3,6],[7,0]]},
+    cols:{a:{shirt:'#F2F2F2',short:'#F2F2F2',sock:'#D0D3D8'},b:{shirt:'#2F5BD3',short:'#2F5BD3',sock:'#1C3A8A'},gk:{shirt:'#8A8D94',short:'#4a4d54',sock:'#4a4d54'},ref:{shirt:'#E6CC1F',short:'#222222',sock:'#222222'}}});
+  match.paused=paused;
+  match.onGoal=function(dir,gx){RC.U.uGoal.value.set(gx,0); cheerT=0};
   applyEvent();
   $('#seatsTotal').textContent=seats.length.toLocaleString('ru-RU');
 }
@@ -443,22 +756,30 @@ function applyEvent(){
   beams.forEach(function(b,j){var c=j%2?c1:c0; b.material.color.copy(c); b.userData.lamp.material.color.copy(c)});
   if(EV().mode==='concert'&&stageLights.length>2){stageLights[0].color.copy(c0); stageLights[1].color.copy(c1)}
   drawScreen(0);
+  syncCrowd();
   refreshColors();
 }
+function syncCrowd(){if(crowd)crowd.layout(sold,sel)}
 
 function refreshColors(){
   var tmp=new T.Color();
   for(var i=0;i<seats.length;i++){
     var s=seats[i],c;
-    if(sold[i])c=catSold[s.cat];
+    if(sold[i])c=(filter>=0&&s.cat!==filter)?SOLDD:SOLDC;
     else if(sel.indexOf(i)>=0)c=SEL;
     else c=(filter>=0&&s.cat!==filter)?catDim[s.cat]:catCol[s.cat];
     tmp.copy(c);
-    if(i===hover&&!sold[i])tmp.lerp(WHITE,.4);
+    if(i===hover)tmp.lerp(WHITE,.35);
     baseMesh.setColorAt(i,tmp);
     tmp.multiplyScalar(.82); backMesh.setColorAt(i,tmp);
   }
   baseMesh.instanceColor.needsUpdate=backMesh.instanceColor.needsUpdate=true;
+  if(crowd)crowd.recolor(function(i){
+    var s=seats[i]; tmp.copy(sel.indexOf(i)>=0?SEL:crowd.gray[i]); if(sel.indexOf(i)<0)tmp.multiplyScalar(.58);
+    if(filter>=0&&s.cat!==filter&&sel.indexOf(i)<0)tmp.multiplyScalar(.22);
+    if(i===hover)tmp.lerp(WHITE,.35);
+    return tmp;
+  });
   var d=new T.Object3D(); glowMesh.count=sel.length;
   sel.forEach(function(i,k){var s=seats[i]; d.position.set(s.x,s.y+1.45,s.z); d.rotation.set(0,0,0); d.updateMatrix(); glowMesh.setMatrixAt(k,d.matrix)});
   glowMesh.instanceMatrix.needsUpdate=true;
@@ -480,6 +801,7 @@ function viewFrom(i){
 }
 function onMode(){
   var seat=cam.mode==='seat';
+  if(crowd){var nh=seat?cam.seatI:-1; if(nh!==crowd.hide){crowd.hide=nh; syncCrowd()}}
   $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat;
   if(seat){var s=seats[cam.seatI]; $('#seatBadge').textContent='Вид из кресла: '+seatLabel(s)+' · тяните, чтобы осмотреться'}
 }
@@ -494,8 +816,20 @@ function desired(){
 function stepCam(dt){
   var d=desired(), k=1-Math.exp(-dt*(cam.mode==='seat'?9:6));
   cur.pos.lerp(d.pos,k); cur.look.lerp(d.look,k); cur.fov+=(d.fov-cur.fov)*k;
-  camera.position.copy(cur.pos); camera.lookAt(cur.look);
+  camera.position.copy(cur.pos);
+  camera.position.y+=Math.min(10,Math.max(0,cur.pos.distanceTo(d.pos)-6)*.35);      /* перелёт идёт дугой над трибунами */
+  RC.clampCamera(camera,cam.mode,{x:38.8,z:30.3,top:18.4},floorH,roofObjs);
+  camera.lookAt(cur.look);
   if(Math.abs(camera.fov-cur.fov)>.01){camera.fov=cur.fov; camera.updateProjectionMatrix()}
+}
+/* высота пола или ступени трибуны под камерой (трибуны: главная 8 рядов при z>0, противоположная 5 рядов при z<0) */
+function floorH(x,z){
+  if(Math.abs(x)>22.5)return 0;
+  var a=Math.abs(z)-(PW+2);
+  if(a<-.4)return 0;
+  if(a<0)return .9;
+  var r=Math.floor(a/.85),rows=z>0?8:5;
+  return .9+Math.min(r,rows-1)*.45+.1;
 }
 function rotateBy(dx,dy){
   if(cam.mode==='orbit'){cam.th-=dx*.006; cam.ph=Math.max(.12,Math.min(1.5,cam.ph-dy*.006))}
@@ -512,7 +846,7 @@ function pickAt(e){
   var r=canvas.getBoundingClientRect();
   ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
   raycaster.setFromCamera(ndc,camera);
-  var h=raycaster.intersectObjects([baseMesh,backMesh],false)[0];
+  var h=raycaster.intersectObjects(crowd&&showCrowd&&crowd.N<3000?[baseMesh,backMesh,crowd.mesh]:[baseMesh,backMesh],false)[0];
   return h&&h.instanceId!==undefined?h.instanceId:-1;
 }
 var ptrs=new Map(), down=null, pinch0=0, hovBusy=false;
@@ -570,20 +904,20 @@ function seatLabel(s){return s.sec?s.tier+' · сектор '+s.sec+' · ряд 
 function toggleSeat(i){
   if(sold[i]){toast('Это место уже занято');return}
   var k=sel.indexOf(i);
-  if(k>=0)sel.splice(k,1);
-  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i)}
+  if(k>=0){sel.splice(k,1); if(crowd)crowd.reset(i)}
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime)}
   onSel();
 }
 function onSel(){
   if(sel.length&&!holdEnd){holdEnd=Date.now()+10*60*1000}
   if(!sel.length)holdEnd=0;
-  refreshColors(); renderCats(); renderSeats(); tickHold();
+  syncCrowd(); refreshColors(); renderCats(); renderSeats(); tickHold();
 }
 function tickHold(){
   var el=$('#hold');
   if(!holdEnd){el.textContent=''; return}
   var left=holdEnd-Date.now();
-  if(left<=0){sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
+  if(left<=0){sel=[]; holdEnd=0; syncCrowd(); refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
   var m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
   el.textContent='Места удерживаются за вами ещё '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
@@ -605,7 +939,7 @@ function bestSeats(){
     if(sc2<bs){bs=sc2;best=i}
   }
   if(best===null){toast('Нет '+n+' свободных мест подряд'+(filter>=0?' в этой категории':'')); return}
-  sel=[]; for(var j=0;j<n;j++)sel.push(best+j);
+  sel=[]; for(var j=0;j<n;j++){sel.push(best+j); if(crowd)crowd.born(best+j,clock.elapsedTime)}
   holdEnd=0; onSel(); viewFrom(best+Math.floor(n/2));
   toast('Подобрали '+n+' '+(n===1?'место':n<5?'места':'мест')+' рядом');
 }
@@ -679,6 +1013,12 @@ function renderToolbar(){
     if(i>=0)viewFrom(i);
   };
   tb.appendChild(v);
+  var cb=document.createElement('button'); cb.className='chip'+(showCrowd?' on':''); cb.textContent='Зрители';
+  cb.onclick=function(){showCrowd=!showCrowd; cb.classList.toggle('on',showCrowd); if(crowd)crowd.mesh.visible=showCrowd};
+  tb.appendChild(cb);
+  var pb=document.createElement('button'); pb.className='chip'+(paused?' on':''); pb.textContent='Пауза';
+  pb.onclick=function(){paused=!paused; pb.classList.toggle('on',paused); if(match)match.paused=paused};
+  tb.appendChild(pb);
 }
 function startTour(){tourOn=true; tourI=0; var b=$('#tourBtn'); if(b)b.classList.add('on'); nextTour()}
 function nextTour(){
@@ -722,7 +1062,7 @@ function submitPay(){
     var order=String(Math.floor(100000+Math.random()*900000)), picked=sel.slice(), sum=totalSel(), ev=EV();
     picked.forEach(function(i){sold[i]=1});
     var lines=picked.map(function(i){return '<div><span>'+esc(seatLabel(seats[i]))+'</span><span>'+fmt(priceOf(seats[i]))+'</span></div>'}).join('');
-    sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); tickHold();
+    sel=[]; holdEnd=0; syncCrowd(); refreshColors(); renderCats(); renderSeats(); tickHold();
     $('#mBody').innerHTML='<div class="done"><div class="ok">✓</div><h3 id="mTitle" style="padding:0">Заказ № '+order+' оплачен</h3><p class="sub">'+esc(name)+', ждём вас: '+esc(ev.title)+', '+esc(ev.date)+' в '+esc(ev.time)+'.</p><canvas id="qr" width="168" height="168"></canvas><div class="sum-box" style="text-align:left">'+lines+'<div class="total"><span>Оплачено</span><span>'+fmt(sum)+'</span></div></div><button class="btn primary" id="mOk" style="width:100%">Готово</button><p class="demo">Это пример QR-кода. В рабочей версии билеты уходят на почту или в мессенджер, а на входе их сканируют.</p></div>';
     drawQR($('#qr'),order); $('#mOk').onclick=closeModal;
   },1100);
@@ -742,12 +1082,6 @@ function drawQR(c,seed){
 var toastT=null;
 function toast(m){var t=$('#toast'); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true},2600)}
 
-/* скрыть или показать правую панель */
-$('#panelToggle').addEventListener('click',function(){
-  var off=$('#app').classList.toggle('nopanel');
-  this.textContent=off?'◂ Показать панель':'Скрыть панель ▸'; this.setAttribute('aria-expanded',String(!off));
-});
-
 /* ---------- Размер и цикл ---------- */
 var view=$('#view');
 function resize(){
@@ -762,6 +1096,11 @@ function loop(){
   requestAnimationFrame(loop);
   var dt=Math.min(clock.getDelta(),.1), t=clock.elapsedTime;
   frame++;
+  RC.U.uT.value=t; RC.U.uMotion.value=(paused||reduce)?0:1;
+  if(match){match.paused=paused||document.hidden; match.update(dt,false)}
+  if(cheerT>=0&&!paused){cheerT+=dt; if(cheerT>3.6)cheerT=-1}
+  RC.U.uCheerT.value=cheerT;
+  if(match&&frame%8===0){$('#scoreTxt').textContent=match.score[0]+' : '+match.score[1]; $('#scoreMin').textContent=match.minute(20)+'′'}
   if(!reduce){
     if(frame%3===0)drawScreen(t);
     beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
@@ -777,7 +1116,6 @@ setTimeout(function(){$('#loading').classList.add('off')},250);
 })();
 </script>
 
-
-
+</body></html>
 </body>
 </html>

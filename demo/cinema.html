@@ -159,8 +159,8 @@ button{cursor:pointer}
     <div id="loading">Строим зал…</div>
     <div id="legend">
       <span><i style="background:linear-gradient(90deg,#F5A623,#D9486A,#4A78E0)"></i>Свободно: цвет по категории</span>
-      <span><i style="background:var(--ok)"></i>Выбрано</span>
-      <span><i style="background:linear-gradient(90deg,#8a6a3a,#8c4a5e,#4f6aa0)"></i>Занято: тот же цвет, приглушённый</span>
+      <span><i style="background:var(--ok)"></i>Ваши места</span>
+      <span><i style="background:#8E929A"></i>Занято: серый зритель</span>
       <span id="hint">Тяните — вращать · колесо — масштаб · клик по месту — выбрать · двойной клик — вид из кресла</span>
     </div>
     <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
@@ -178,7 +178,7 @@ button{cursor:pointer}
       </div>
     </header>
     <div id="scroll">
-      <section><h2>Мероприятие</h2><div id="events"></div></section>
+      <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Фильм на экране, выступление и зрители в сцене условные.</p></section>
       <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
       <section><h2>Подобрать места рядом</h2>
         <div class="finder">
@@ -199,6 +199,404 @@ button{cursor:pointer}
 <div id="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* РЯДом: общее ядро демо. Зрители, игроки, матч, ограничение камеры. Один файл, без внешних библиотек (кроме three.js r128 страницы).
+   Подключается в каждое демо перед основным скриптом: var RC=...; */
+var RC=(function(T){
+'use strict';
+var U={uT:{value:0},uMotion:{value:1},uMode:{value:3},uBeat:{value:0},uApplause:{value:0},uHands:{value:0},uCheerT:{value:-1},uGoal:{value:new T.Vector2(0,0)},uCull:{value:0},uWave:{value:.045}};
+var clamp=function(v,a,b){return v<a?a:v>b?b:v};
+function rngS(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+/* ---------- геометрия человека ---------- */
+/* части: 0 корпус, 1 голова, 2 руки, 3 левая нога, 4 правая нога */
+function part(list,g,x,y,z,col,pt){
+  if(g.index)g=g.toNonIndexed(); g.translate(x,y,z);
+  var p=g.attributes.position.array,n=g.attributes.normal.array;
+  list.push({p:p,n:n,c:col,t:pt});
+}
+function merge(list){
+  var N=0,i,k;for(i=0;i<list.length;i++)N+=list[i].p.length;
+  var P=new Float32Array(N),Nn=new Float32Array(N),C=new Float32Array(N),A=new Float32Array(N/3),o=0,a=0;
+  list.forEach(function(e){
+    P.set(e.p,o);Nn.set(e.n,o);
+    for(k=0;k<e.p.length;k+=3){C[o+k]=e.c[0];C[o+k+1]=e.c[1];C[o+k+2]=e.c[2];A[a++]=e.t}
+    o+=e.p.length;
+  });
+  var g=new T.BufferGeometry();
+  g.setAttribute('position',new T.BufferAttribute(P,3));g.setAttribute('normal',new T.BufferAttribute(Nn,3));
+  g.setAttribute('color',new T.BufferAttribute(C,3));g.setAttribute('aPart',new T.BufferAttribute(A,1));
+  return g;
+}
+var rgb=function(h){var c=new T.Color(h);return [c.r,c.g,c.b]};
+var BX=function(w,h,d){return new T.BoxGeometry(w,h,d)};
+/* сидящий человек лицом к -z; начало координат на полу под сиденьем (сиденье 0,34 м); около 130 треугольников */
+function seatedGeo(){
+  var L=[],w=[1,1,1],hd=[1.08,1.08,1.08];
+  part(L,BX(.14,.12,.4),-.1,.4,-.15,w,0);part(L,BX(.14,.12,.4),.1,.4,-.15,w,0);
+  part(L,BX(.12,.4,.12),-.1,.2,-.36,w,0);part(L,BX(.12,.4,.12),.1,.2,-.36,w,0);
+  part(L,BX(.36,.46,.2),0,.66,.02,w,0);
+  part(L,new T.IcosahedronGeometry(.115,0),0,1.03,0,hd,1);
+  part(L,BX(.08,.28,.08),-.23,.7,0,w,2);part(L,BX(.08,.28,.08),.23,.7,0,w,2);
+  part(L,BX(.08,.08,.26),-.23,.56,-.14,w,2);part(L,BX(.08,.08,.26),.23,.56,-.14,w,2);
+  return merge(L);
+}
+/* упрощённый зритель для дальних ярусов и телефонов: около 50 треугольников */
+function seatedGeoLow(){
+  var L=[],w=[1,1,1],hd=[1.08,1.08,1.08];
+  part(L,BX(.34,.12,.4),0,.4,-.15,w,0);part(L,BX(.3,.4,.12),0,.2,-.36,w,0);
+  part(L,BX(.36,.46,.2),0,.66,.02,w,0);part(L,new T.TetrahedronGeometry(.15,0),0,1.03,0,hd,1);
+  part(L,BX(.58,.08,.08),0,.8,0,w,2);
+  return merge(L);
+}
+function seatedGeoUltra(){
+  var L=[],w=[1,1,1],hd=[1.08,1.08,1.08];
+  part(L,BX(.36,.5,.3),0,.62,-.04,w,0);part(L,new T.TetrahedronGeometry(.15,0),0,1.03,0,hd,1);part(L,BX(.58,.08,.08),0,.8,0,w,2);
+  return merge(L);
+}
+/* стоящий игрок/музыкант: pal={shirt,short,sock,skin}; рост около 1,75 м */
+function standGeo(pal){
+  var L=[],sh=rgb(pal.shirt),so=rgb(pal.sock||pal.short),sk=rgb(pal.skin||'#d9b99b'),sr=rgb(pal.short);
+  part(L,BX(.13,.34,.13),-.09,.17,0,so,3);part(L,BX(.13,.34,.13),.09,.17,0,so,4);
+  part(L,BX(.15,.26,.15),-.09,.47,0,sr,3);part(L,BX(.15,.26,.15),.09,.47,0,sr,4);
+  part(L,BX(.15,.2,.15),-.09,.7,0,sr,3);part(L,BX(.15,.2,.15),.09,.7,0,sr,4);
+  part(L,BX(.38,.52,.22),0,1.1,0,sh,0);
+  part(L,new T.IcosahedronGeometry(.12,0),0,1.57,0,sk,1);
+  part(L,BX(.09,.5,.09),-.255,1.13,0,sh,2);part(L,BX(.09,.5,.09),.255,1.13,0,sh,2);
+  if(pal.stick){var st=BX(.04,.04,1.5);st.rotateX(-.75);part(L,st,.27,.62,-.5,rgb('#2a2a2a'),0)}
+  return merge(L);
+}
+
+/* ---------- материалы с анимацией в шейдере ---------- */
+var HEAD='attribute float aPart;attribute vec4 aA;uniform float uT,uMotion,uMode,uBeat,uApplause,uHands,uCheerT,uCull,uWave;uniform vec2 uGoal;'+
+ 'vec3 rotX(vec3 p,vec3 pv,float a){vec3 d=p-pv;float c=cos(a),s=sin(a);return vec3(p.x,pv.y+d.y*c-d.z*s,pv.z+d.y*s+d.z*c);}'+
+ 'vec3 rotY(vec3 p,vec3 pv,float a){vec3 d=p-pv;float c=cos(a),s=sin(a);return vec3(pv.x+d.x*c+d.z*s,p.y,pv.z-d.x*s+d.z*c);}';
+var SEATED=HEAD+
+ 'vec3 rcPose(vec3 p){'+
+ ' float ph=aA.x,rn=aA.y,m=uMotion,k=clamp((uT-aA.z)/.3,0.,1.),pit=aA.w;'+
+' if(uCull>0.)m*=1.-smoothstep(uCull-8.,uCull,distance(cameraPosition,instanceMatrix[3].xyz));'+
+ ' float d=length(instanceMatrix[3].xz-uGoal);float w=uCheerT-d*uWave;'+
+ ' float c=(uCheerT>=0.&&w>0.&&w<2.2)?sin(w/2.2*3.1416):0.;c=clamp(c*1.5,0.,1.)*step(rn,.93)*m;'+
+ ' float sway=0.;'+
+ ' if(uMode>2.5)sway=sin(uT*.8+ph)*.012;else if(uMode>.5&&uMode<1.5)sway=(sin(uT*3.2+ph*.15)*.05*uBeat+sin(uT*.8+ph)*.01)*(1.+pit*.9);else if(uMode<.5)sway=sin(uT*.7+ph)*.008;'+
+ ' p.y+=sin(uT*1.7+ph)*.006*m*step(.3,p.y)+c*.1;'+
+ ' p.x+=(sway*m)*max(p.y-.4,0.)*2.;'+
+ ' if(aPart>.5&&aPart<1.5&&uMode<1.5||(aPart>.5&&aPart<1.5&&uMode>2.5)){p=rotY(p,vec3(0.,.95,0.),sin(uT*.4+ph*3.)*.5*rn*m);}'+
+ ' if(aPart>1.5&&aPart<2.5){float a=c*2.7+uApplause*(.9+.25*sin(uT*9.+ph))*m+uHands*pit*(1.2+.9*sin(uT*2.2+ph))*step(.45,rn)*m;if(a>0.)p=rotX(p,vec3(0.,.84,0.),a);}'+
+ ' return p*k;}';
+var RUN=HEAD+
+ 'attribute vec4 aM;'+
+ 'vec3 rcPose(vec3 p){'+
+ ' float sp=aM.x,ph=aM.y,ce=aM.z,s=sin(ph),amp=.95*sp;'+
+ ' if(aPart>2.5&&aPart<3.5)p=rotX(p,vec3(0.,.84,0.),s*amp);'+
+ ' else if(aPart>3.5&&aPart<4.5)p=rotX(p,vec3(0.,.84,0.),-s*amp);'+
+ ' else if(aPart>1.5&&aPart<2.5){float sd=p.x>0.?1.:-1.;float a=mix(sd*s*amp*.8,2.7+.3*sin(uT*10.+sd),ce);p=rotX(p,vec3(0.,1.37,0.),a);}'+
+ ' p.y+=abs(s)*.03*sp+ce*abs(sin(uT*9.))*.12;'+
+ ' if(aPart<1.5)p=rotX(p,vec3(0.,.9,0.),-.16*sp);'+
+ ' return p;}';
+function figMat(src,shade){
+  var m=new T.MeshStandardMaterial({roughness:.85,metalness:0,vertexColors:true});
+  m.onBeforeCompile=function(sh){
+    for(var k in U)sh.uniforms[k]=U[k];
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\n'+src).replace('#include <begin_vertex>','vec3 transformed=rcPose(vec3(position));');
+  };
+  m.customProgramCacheKey=function(){return src===SEATED?'rcSeat':'rcRun'};
+  return m;
+}
+function instAttr(mesh,name,n,fill){
+  var a=new T.InstancedBufferAttribute(new Float32Array(mesh.count*n),n);if(fill)fill(a.array);mesh.geometry.setAttribute(name,a);return a;
+}
+
+/* ---------- зрители ---------- */
+var GRAY=['#8E929A','#999DA5','#A2A6AD','#A9ADB4'];
+/* opt.lod(i)→0 полная, 1 упрощённая, 2 минимальная фигура; opt.pit(i)→true: зритель партера (в концерте поднимает руки).
+   В буфер попадают только занятые и выбранные места, так что стадион на 30 000 мест рисует не все фигуры. */
+function Crowd(group,seats,opt){
+  opt=opt||{};
+  var self=this,N=seats.length,i,lists=[[],[],[]];
+  for(i=0;i<N;i++)lists[opt.lod?opt.lod(i):0].push(i);
+  self.seats=seats;self.N=N;self.hide=-1;self.parts=[];
+  self.mat=figMat(SEATED);
+  self.ph=new Float32Array(N);self.rn=new Float32Array(N);self.hs=new Float32Array(N);self.ws=new Float32Array(N);self.birth=new Float32Array(N).fill(-100);self.pit=new Uint8Array(N);
+  self.gray=[];var r=rngS(4242),rr=rngS(777);
+  for(i=0;i<N;i++){self.ph[i]=r()*6.283;self.rn[i]=r();self.hs[i]=1+(r()-.5)*.16;self.ws[i]=1+(r()-.5)*.12;self.pit[i]=opt.pit&&opt.pit(i)?1:0;self.gray.push(new T.Color(GRAY[Math.floor(rr()*GRAY.length)]))}
+  [seatedGeo,seatedGeoLow,seatedGeoUltra].forEach(function(gf,w){
+    var idx=lists[w];if(!idx.length)return;
+    var mesh=new T.InstancedMesh(gf(),self.mat,idx.length);mesh.frustumCulled=false;mesh.count=0;
+    var aA=instAttr(mesh,'aA',4);
+    mesh.instanceColor=new T.InstancedBufferAttribute(new Float32Array(idx.length*3),3);
+    group.add(mesh);
+    self.parts.push({mesh:mesh,idx:idx,aA:aA,order:new Int32Array(idx.length),pos:new Map()});
+  });
+  self.mesh=self.parts[0].mesh;self.meshes=self.parts.map(function(q){return q.mesh});
+}
+Crowd.prototype.setVisible=function(v){this.meshes.forEach(function(m){m.visible=v})};
+/* sold: Uint8Array; sel: массив индексов; вызывается только при событиях (выбор, оплата, смена события) */
+Crowd.prototype.layout=function(sold,sel){
+  var self=this,d=new T.Object3D(),sset={};
+  sel.forEach(function(i){sset[i]=1});
+  self.parts.forEach(function(q){
+    var k=0,a=q.aA.array;q.pos.clear();
+    for(var j=0;j<q.idx.length;j++){
+      var i=q.idx[j];
+      if(!((sold[i]||sset[i])&&i!==self.hide))continue;
+      var s=self.seats[i];
+      d.position.set(s.x,s.y,s.z);d.rotation.set(0,s.th,0);d.scale.set(self.ws[i],self.hs[i],self.ws[i]);d.updateMatrix();
+      q.mesh.setMatrixAt(k,d.matrix);
+      a[k*4]=self.ph[i];a[k*4+1]=self.rn[i];a[k*4+2]=self.birth[i];a[k*4+3]=self.pit[i];
+      q.order[k]=i;q.pos.set(i,k);k++;
+    }
+    q.mesh.count=k;q.mesh.instanceMatrix.needsUpdate=true;q.aA.needsUpdate=true;
+  });
+};
+Crowd.prototype.born=function(i,t){
+  this.birth[i]=t;
+  this.parts.forEach(function(q){var k=q.pos.get(i);if(k!==undefined){q.aA.array[k*4+2]=t;q.aA.needsUpdate=true}});
+};
+Crowd.prototype.reset=function(i){this.born(i,-100)};
+/* fn(i)→THREE.Color итоговый цвет фигуры (серый, зелёный, затемнённый, светлее при наведении) */
+Crowd.prototype.recolor=function(fn){
+  this.parts.forEach(function(q){
+    var a=q.mesh.instanceColor.array,c,n=q.mesh.count;
+    for(var k=0;k<n;k++){c=fn(q.order[k]);a[k*3]=c.r;a[k*3+1]=c.g;a[k*3+2]=c.b}
+    q.mesh.instanceColor.needsUpdate=true;
+  });
+};
+
+/* ---------- матч ---------- */
+/* cfg: L,W (половины поля, м), nF (полевых в команде), speed (м/с), accel, goalHalf, shotR (дистанция удара), form(n)→[[x,z]…] для команды, атакующей +x,
+   cols:{a:{shirt,short,sock},b:{…},gk,ref}, ballR, scoreToReset, shotEvery (с между ударами в среднем), maxShift */
+function createMatch(group,cfg){
+  var L=cfg.L,W=cfg.W,V=cfg.speed,AC=cfg.accel||6,GH=cfg.goalHalf||1.5,R=cfg.ballR||.12,BX_=cfg.bx||L,BZ_=cfg.bz||W,RR=cfg.rr||0,STR=cfg.stride||1,CAD=cfg.cad||2.4,NREF=cfg.nRef||1;
+  var rnd=rngS(31337),P=[],M={score:[0,0],clock:0,paused:false,phase:'play',since:0,t:0,onGoal:null};
+  function mk(team,role,hx,hz,pal){P.push({team:team,role:role,hx:hx,hz:hz,x:hx,z:hz,vx:0,vz:0,ang:team===0?-Math.PI/2:Math.PI/2,ph:rnd()*6,sp:0,ce:0,pal:pal})}
+  var form=cfg.form(cfg.nF);
+  [0,1].forEach(function(t){
+    var d=t===0?1:-1,pal=t===0?cfg.cols.a:cfg.cols.b;
+    mk(t,'gk',-d*(L-1.2),0,cfg.cols.gk);
+    form.forEach(function(f){mk(t,'f',f[0]*d,f[1]*d,pal)});
+  });
+  for(var rf=0;rf<NREF;rf++){mk(2,'ref',0,cfg.linesmen&&rf>0?(rf===1?-1:1)*(W+1.3):(rf?W-1:-W+1),cfg.cols.ref);P[P.length-1].rid=rf}
+  var NP=P.length;
+  /* меши по палитрам */
+  var groups={};P.forEach(function(p,i){var k=p.pal.shirt+p.pal.short;(groups[k]=groups[k]||{pal:p.pal,ids:[]}).ids.push(i)});
+  var meshes=[],dummy=new T.Object3D();
+  Object.keys(groups).forEach(function(k){
+    var g=groups[k],geo=standGeo(g.pal),mat=figMat(RUN),mesh=new T.InstancedMesh(geo,mat,g.ids.length);
+    mesh.frustumCulled=false;g.mesh=mesh;g.aM=instAttr(mesh,'aM',4);group.add(mesh);meshes.push(mesh);
+    g.ids.forEach(function(id,j){P[id].g=g;P[id].j=j});
+  });
+  /* мяч и тени */
+  var ball=cfg.puck?new T.Mesh(new T.CylinderGeometry(.15,.15,.07,14),new T.MeshStandardMaterial({color:0x111111,roughness:.6})):new T.Mesh(new T.SphereGeometry(R,14,10),new T.MeshStandardMaterial({color:0xf4f4f4,roughness:.5}));group.add(ball);
+  var shad=new T.InstancedMesh(new T.CircleGeometry(.5,14).rotateX(-Math.PI/2),new T.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.28,depthWrite:false}),NP+1);
+  shad.frustumCulled=false;group.add(shad);
+  var B={x:0,z:0,y:R,vx:0,vz:0},owner=-1,mode='carry',act=1,tackle=1,target=-1,shot=null,pass=null,goalDir=0,endT=0;
+  function dirOf(t){return t===0?1:-1}
+  function dist(ax,az,bx,bz){return Math.hypot(ax-bx,az-bz)}
+  function nearest(team,x,z,notGk,ex){var b=-1,bd=1e9;for(var i=0;i<NP;i++){var p=P[i];if(p.team!==team||(notGk&&p.role==='gk')||i===ex)continue;var d=dist(p.x,p.z,x,z);if(d<bd){bd=d;b=i}}return b}
+  function kickoff(first){
+    P.forEach(function(p){p.x=p.hx;p.z=p.hz;p.vx=p.vz=0;p.ce=0});
+    var t=first?0:(goalDir>0?1:0);   /* вводит команда, которой забили */
+    var f=nearest(t,0,0,true);owner=f;mode='carry';act=1.4;B.x=P[f].x;B.z=0;M.phase='play';
+    P[f].x=-dirOf(t)*.6;P[f].z=0;
+  }
+  function decide(o){
+    var p=P[o],d=dirOf(p.team),gx=d*L,toGoal=dist(p.x,p.z,gx,0);
+    var cd=M.since<35?.05:M.since>170?.9:(cfg.goalP||.17);
+    if(toGoal<cfg.shotR&&rnd()<.7){
+      var scored=rnd()<cd||M.since>200;
+      var gz=(rnd()<.5?-1:1)*(GH*.55+rnd()*GH*.35);
+      var gk=-1;for(var i=0;i<NP;i++)if(P[i].team!==p.team&&P[i].role==='gk')gk=i;
+      shot={from:o,x0:p.x,z0:p.z,gx:gx,gz:gz,sc:scored,t:0,T:Math.max(.35,toGoal/(cfg.shotSpeed||19)),gk:gk,d:d};
+      P[gk].tz=scored?(gz>0?-GH*.8:GH*.8):gz;
+      mode='shot';owner=-1;return;
+    }
+    /* пас вперёд ближайшему своему; перехват с вероятностью 25% */
+    var best=-1,bs=1e9;
+    for(var j=0;j<NP;j++){var q=P[j];if(q.team!==p.team||q.role!=='f'||j===o)continue;
+      var fw=(q.x-p.x)*d,dd=dist(p.x,p.z,q.x,q.z);if(dd<3||dd>(cfg.passMax||16))continue;
+      var sc=dd-fw*.6+rnd()*5;if(sc<bs){bs=sc;best=j}}
+    if(best<0){act=.5+rnd()*.5;return}
+    var tg=best;
+    if(rnd()<.25){var op=nearest(1-p.team,(p.x+P[best].x)/2,(p.z+P[best].z)/2,true);if(op>=0)tg=op}
+    pass={from:o,to:tg,want:best};mode='pass';owner=-1;target=tg;
+  }
+  function stepBall(dt){
+    var i,p;
+    if(mode==='carry'){
+      p=P[owner];var d=dirOf(p.team);B.x=p.x+d*.55;B.z=p.z;B.y=R;B.vx=B.vz=0;
+      act-=dt;tackle-=dt;
+      if(act<=0)decide(owner);
+      if(tackle<=0){tackle=.6+rnd()*.5;var op=nearest(1-p.team,B.x,B.z,true);
+        if(op>=0&&dist(P[op].x,P[op].z,B.x,B.z)<1.2&&rnd()<.2){owner=op;act=.8+rnd()}}
+    }else if(mode==='pass'){
+      var q=P[pass.to],dx=q.x-B.x,dz=q.z-B.z,dd=Math.hypot(dx,dz),sp=cfg.passSpeed||12;
+      if(dd<.7){owner=pass.to;mode='carry';act=.5+rnd()*1.1;tackle=.8}
+      else{B.x+=dx/dd*sp*dt;B.z+=dz/dd*sp*dt;B.y=R+Math.min(.25,dd*.03)}
+    }else if(mode==='shot'){
+      shot.t+=dt;var k=Math.min(1,shot.t/shot.T);
+      B.x=shot.x0+(shot.gx-shot.x0)*k;B.z=shot.z0+(shot.gz-shot.z0)*k;B.y=R+Math.sin(k*3.14)*.35;
+      if(k>=1){
+        if(shot.sc){M.score[shot.d>0?0:1]++;goalDir=shot.d;M.phase='goal';M.t=3.2;M.since=0;
+          if(M.onGoal)M.onGoal(shot.d,shot.gx);
+          mode='net';B.vx=shot.d*3;B.vz=0}
+        else{owner=shot.gk;mode='carry';act=.9+rnd()*.5;tackle=2}
+      }
+    }else if(mode==='net'){B.x=clamp(B.x+B.vx*dt,-L-1.4,L+1.4);B.vx*=.9}
+  }
+  function steer(p,tx,tz,vmax,dt){
+    var dx=tx-p.x,dz=tz-p.z,dd=Math.hypot(dx,dz),v=Math.min(vmax,dd*3.2);
+    var wx=dd>.05?dx/dd*v:0,wz=dd>.05?dz/dd*v:0,k=Math.min(1,dt*AC);
+    p.vx+=(wx-p.vx)*k;p.vz+=(wz-p.vz)*k;
+  }
+  function stepPlayers(dt){
+    var i,p,d,tx,tz,bl=owner>=0?P[owner]:null,teamBall=bl?bl.team:(pass?P[pass.from].team:(shot?P[shot.from].team:0));
+    var chaser=nearest(1-teamBall,B.x,B.z,true),recv=mode==='pass'?pass.to:-1;
+    for(i=0;i<NP;i++){
+      p=P[i];d=dirOf(p.team);
+      if(M.phase==='goal'){
+        if(p.role==='ref'){tx=p.x;tz=p.z}
+        else if(p.team===(goalDir>0?0:1)&&p.role==='f'){tx=goalDir*(L-4);tz=(p.hz>=0?1:-1)*(W-3);p.ce=1}
+        else{tx=p.hx*.6;tz=p.hz;p.ce=0}
+        steer(p,tx,tz,V*.9,dt);continue;
+      }
+      if(i===owner&&mode==='carry'){
+        tx=p.x+d*7;tz=clamp(p.z*.85+Math.sin(M.clock*1.1+i)*3,-W+1,W-1);
+        steer(p,tx,tz,V*.78,dt);continue;
+      }
+      if(p.role==='gk'){
+        tx=-d*(L-1.2);tz=clamp(B.z*.25,-GH*.9,GH*.9);
+        if(mode==='shot'&&shot.gk===i)tz=p.tz;
+        steer(p,tx,tz,V*.8,dt);continue;
+      }
+      if(p.role==='ref'){
+        if(cfg.linesmen&&p.rid>0){tx=clamp(B.x,-L+6,L-6);tz=(p.rid===1?-1:1)*(W+1.3);steer(p,tx,tz,V*.7,dt);continue}
+        var rs=p.rid?-1:1;tx=clamp(B.x*.75+(NREF>1?(p.rid?9:-9):0),-L+4,L-4);tz=clamp(B.z+(B.z>0?-3.6:3.6)*rs,-W+.5,W-.5);
+        steer(p,tx,tz,V*.65,dt);continue;
+      }
+      if(i===recv||(i===chaser&&p.team!==teamBall)||(mode==='carry'&&i!==owner&&p.team!==teamBall&&dist(p.x,p.z,B.x,B.z)<5)){
+        tx=B.x;tz=B.z;steer(p,tx,tz,V*(i===recv?.95:.85),dt);continue;
+      }
+      var shiftX=clamp(B.x*.45,-cfg.maxShift,cfg.maxShift)+(p.team===teamBall?d*3:-d*1.5),shiftZ=clamp(B.z*.3,-4,4);
+      tx=clamp(p.hx+shiftX,-L+1,L-1);tz=clamp(p.hz+shiftZ,-W+1,W-1);
+      steer(p,tx,tz,V*.7,dt);
+    }
+    /* расталкиваем, чтобы не проходили друг сквозь друга */
+    var j,q,ax,az,dd;
+    for(i=0;i<NP;i++)for(j=i+1;j<NP;j++){
+      p=P[i];q=P[j];ax=q.x-p.x;az=q.z-p.z;dd=Math.hypot(ax,az);
+      if(dd<.8&&dd>.001){var f=(.8-dd)*.5/dd;p.x-=ax*f;p.z-=az*f;q.x+=ax*f;q.z+=az*f}
+    }
+    for(i=0;i<NP;i++){
+      p=P[i];p.x=clamp(p.x+p.vx*dt,-BX_+.3,BX_-.3);p.z=clamp(p.z+p.vz*dt,-BZ_+.3,BZ_-.3);
+      if(RR){var cx=BX_-RR,cz=BZ_-RR,ax2=Math.abs(p.x)-cx,az2=Math.abs(p.z)-cz;
+        if(ax2>0&&az2>0){var dc=Math.hypot(ax2,az2),mx=RR-.5;if(dc>mx){p.x=Math.sign(p.x)*(cx+ax2*mx/dc);p.z=Math.sign(p.z)*(cz+az2*mx/dc)}}}
+      var spd=Math.hypot(p.vx,p.vz);
+      if(spd>.4){var ta=Math.atan2(-p.vx,-p.vz),da=ta-p.ang;da=Math.atan2(Math.sin(da),Math.cos(da));p.ang+=da*Math.min(1,dt*9)}
+      p.sp+=(Math.min(1,spd/V)*STR-p.sp)*Math.min(1,dt*8);p.ph+=dt*(spd*CAD+.5);
+    }
+  }
+  M.update=function(dt,still){
+    if(M.paused||still)return;
+    dt=Math.min(dt,.05);M.clock+=dt;
+    if(M.phase==='goal'){M.t-=dt;stepBall(dt);stepPlayers(dt);if(M.t<=0){
+      if(M.score[0]>=cfg.scoreToReset||M.score[1]>=cfg.scoreToReset){M.score[0]=M.score[1]=0}
+      kickoff(false)}}
+    else{M.since+=dt;stepBall(dt);stepPlayers(dt)}
+    M.draw();
+  };
+  M.draw=function(){
+    var i,p,d=dummy;
+    for(i=0;i<NP;i++){
+      p=P[i];d.position.set(p.x,0,p.z);d.rotation.set(0,p.ang,0);d.scale.set(1,1,1);d.updateMatrix();
+      p.g.mesh.setMatrixAt(p.j,d.matrix);
+      var a=p.g.aM.array,o=p.j*4;a[o]=p.sp;a[o+1]=p.ph;a[o+2]=p.ce;
+      d.position.set(p.x,.03,p.z);d.rotation.set(0,0,0);d.updateMatrix();shad.setMatrixAt(i,d.matrix);
+    }
+    d.position.set(B.x,.03,B.z);d.scale.set(.35,1,.35);d.updateMatrix();shad.setMatrixAt(NP,d.matrix);
+    meshes.forEach(function(m){m.instanceMatrix.needsUpdate=true});
+    for(var k in groups)groups[k].aM.needsUpdate=true;
+    shad.instanceMatrix.needsUpdate=true;
+    ball.position.set(B.x,B.y,B.z);
+  };
+  /* минута матча: 1 минута = 3 секунды; два тайма по half минут */
+  M.minute=function(half){return Math.floor(M.clock/3)%(half*2)};
+  M.groups=meshes.concat([ball,shad]);
+  M.restart=function(){M.score[0]=M.score[1]=0;M.since=0;kickoff(true)};
+  M.players=P;M.ball=B;
+  kickoff(true);M.draw();
+  return M;
+}
+
+/* ---------- группа на сцене ---------- */
+/* members: [{x,y,z,ang,lead}], pal как у игроков; силуэты темнее сцены, без сходства с артистами */
+function createBand(group,members,pal){
+  var geo=standGeo(pal),mesh=new T.InstancedMesh(geo,figMat(RUN),members.length),d=new T.Object3D(),B={mesh:mesh};
+  mesh.frustumCulled=false;var aM=instAttr(mesh,'aM',4);
+  members.forEach(function(m,i){d.position.set(m.x,m.y,m.z);d.rotation.set(0,m.ang,0);d.scale.set(1,1,1);d.updateMatrix();mesh.setMatrixAt(i,d.matrix)});
+  mesh.instanceMatrix.needsUpdate=true;group.add(mesh);
+  B.update=function(t,beat){
+    var a=aM.array;
+    for(var i=0;i<members.length;i++){a[i*4]=.08+beat*.2;a[i*4+1]=t*(2.2+beat*2)+i*1.7;a[i*4+2]=members[i].lead?(Math.sin(t*.5+i)>.2?1:0):0}
+    aM.needsUpdate=true;
+  };
+  return B;
+}
+
+/* ---------- слияние статики ---------- */
+/* объединяет обычные меши группы с одинаковым простым материалом (цвет, шероховатость, сторона) в один: сотни вызовов отрисовки превращаются в десяток.
+   Меши с текстурами, прозрачностью, свечением и инстансы остаются как есть. Группа должна стоять в начале координат без поворота. */
+function mergeStatic(group){
+  var buckets={};
+  group.children.slice().forEach(function(o){
+    if(!o.isMesh||o.isInstancedMesh)return;
+    var m=o.material;
+    if(!m||!m.isMeshStandardMaterial||m.map||m.transparent||(m.emissive&&m.emissive.getHex()))return;
+    if(!o.geometry||!o.geometry.attributes.position||!o.geometry.attributes.normal)return;
+    var k=m.color.getHex()+'_'+m.roughness+'_'+m.metalness+'_'+m.side+'_'+(m.flatShading?1:0);
+    (buckets[k]=buckets[k]||{mat:m,list:[]}).list.push(o);
+  });
+  Object.keys(buckets).forEach(function(k){
+    var b=buckets[k];if(b.list.length<3)return;
+    var pos=[],nor=[],n=0,i;
+    b.list.forEach(function(o){
+      o.updateMatrix();
+      var g=o.geometry.index?o.geometry.toNonIndexed():o.geometry.clone();
+      g.applyMatrix4(o.matrix);
+      pos.push(g.attributes.position.array);nor.push(g.attributes.normal.array);n+=g.attributes.position.array.length;
+      group.remove(o);o.geometry.dispose();
+    });
+    var P=new Float32Array(n),N=new Float32Array(n),off=0;
+    for(i=0;i<pos.length;i++){P.set(pos[i],off);N.set(nor[i],off);off+=pos[i].length}
+    var g2=new T.BufferGeometry();g2.setAttribute('position',new T.BufferAttribute(P,3));g2.setAttribute('normal',new T.BufferAttribute(N,3));
+    var mesh=new T.Mesh(g2,b.mat);mesh.frustumCulled=false;group.add(mesh);
+  });
+}
+
+/* ---------- камера ---------- */
+/* bounds: {x,z,top} границы внутри зала; floorH(x,z) высота пола или ступени; roof — массив мешей потолка (скрываются при виде сверху) */
+function clampCamera(camera,mode,bd,floorH,roof,boxes){
+  if(mode==='seat')return;
+  var p=camera.position,top=p.y>bd.top+.5;
+  if(roof)roof.forEach(function(r){r.visible=!top});
+  if(top)return;                                   /* ракурс «Сверху»: потолок скрыт, ограничения только по высоте пола */
+  p.x=clamp(p.x,-bd.x,bd.x);p.z=clamp(p.z,bd.z0!==undefined?bd.z0:-bd.z,bd.z1!==undefined?bd.z1:bd.z);
+  var mn=floorH(p.x,p.z)+1.6;
+  if(p.y<mn)p.y=mn;
+  if(p.y>bd.top)p.y=bd.top;
+  /* невидимые коллайдеры сцены, экранов и медиакуба: камера выталкивается по оси наименьшего проникновения */
+  if(boxes)boxes.forEach(function(b){
+    var m=.9,dx0=p.x-(b.x0-m),dx1=(b.x1+m)-p.x,dy0=p.y-(b.y0-m),dy1=(b.y1+m)-p.y,dz0=p.z-(b.z0-m),dz1=(b.z1+m)-p.z;
+    if(dx0<=0||dx1<=0||dy0<=0||dy1<=0||dz0<=0||dz1<=0)return;
+    var mn=Math.min(dx0,dx1,dy0,dy1,dz0,dz1);
+    if(mn===dx0)p.x=b.x0-m;else if(mn===dx1)p.x=b.x1+m;else if(mn===dy0)p.y=b.y0-m;else if(mn===dy1)p.y=b.y1+m;else if(mn===dz0)p.z=b.z0-m;else p.z=b.z1+m;
+  });
+}
+
+return {U:U,clamp:clamp,Crowd:Crowd,createMatch:createMatch,createBand:createBand,mergeStatic:mergeStatic,clampCamera:clampCamera,seatedGeoLow:seatedGeoLow,seatedGeoUltra:seatedGeoUltra,rngS:rngS,seatedGeo:seatedGeo,standGeo:standGeo,figMat:figMat,RUN:RUN};
+})(THREE);
+
+</script>
 <script>
 (function(){
 'use strict';
@@ -222,7 +620,7 @@ var HALLS={
    {name:'Категория 3',price:2200,color:'#5B6FE0'},
    {name:'Балкон',price:1400,color:'#3FA0D8'}],
   presets:[
-   {name:'Обзор',tgt:[0,2,10],th:0,ph:1.15,dist:44},
+   {name:'Обзор',tgt:[0,2,10],th:0,ph:1.15,dist:28},
    {name:'Партер',tgt:[0,2,-2],th:.35,ph:1.2,dist:24},
    {name:'Балкон',tgt:[0,4,-2],th:0,ph:1.28,dist:40},
    {name:'Со сцены',tgt:[0,3,20],th:3.14,ph:1.45,dist:28},
@@ -242,9 +640,9 @@ var HALLS={
    {name:'Комфорт · центр',price:650,color:'#EE7B30'},
    {name:'Диваны',price:900,color:'#F5A623'}],
   presets:[
-   {name:'Обзор',tgt:[0,2,10],th:0,ph:1.15,dist:24},
+   {name:'Обзор',tgt:[0,2,10],th:0,ph:1.15,dist:16},
    {name:'Из зала',tgt:[0,3,0],th:0,ph:1.42,dist:24},
-   {name:'Сбоку',tgt:[0,2.5,10],th:1,ph:1.2,dist:24},
+   {name:'Сбоку',tgt:[0,3,10],th:1,ph:1.3,dist:12},
    {name:'От экрана',tgt:[0,2.5,14],th:3.14,ph:1.4,dist:14},
    {name:'Сверху',tgt:[0,0,12],th:0,ph:.12,dist:40}],
   look:[0,5.2,0], sweet:[0,14.5],
@@ -272,10 +670,11 @@ scene.fog=new T.Fog(0x07060a,70,170);
 var camera=new T.PerspectiveCamera(50,1,.1,300);
 var hall=new T.Group(); scene.add(hall);
 var baseMesh,backMesh,glowMesh,rimMesh,stageLights=[],beams=[],catCol=[],catDim=[],catSold=[];
+var crowd=null,band=null,conductor=null,orch=null,colliders=[],paused=!!reduce,showCrowd=true,tAnim=0,beatLevel=0,scrAvg=new T.Color(0x222222),tintC=new T.Color(),SOLDC=new T.Color(0x5e626b),SOLDD=new T.Color(0x5e626b).multiplyScalar(.22);
 var SOLD=new T.Color(0x2c2c34), SEL=new T.Color(0x8dff7a), WHITE=new T.Color(0xffffff);
 
-scene.add(new T.HemisphereLight(0xc9c6ff,0x2a1420,.95));
-scene.add(new T.AmbientLight(0xffffff,.32));
+var hemiL=new T.HemisphereLight(0xc9c6ff,0x2a1420,.95), ambL=new T.AmbientLight(0xffffff,.32);
+scene.add(hemiL); scene.add(ambL);
 var warm=new T.PointLight(0xffe0b0,.7,80); warm.position.set(0,16,14); scene.add(warm);
 
 /* текстуры */
@@ -294,8 +693,54 @@ var screenTex=new T.CanvasTexture(sc);
 function fitFont(txt,maxW,start,fam,w){
   var s=start; for(;s>26;s-=4){sx.font=w+' '+s+'px '+fam; if(sx.measureText(txt).width<=maxW)break;} return s;
 }
+/* фильм рисуется в маленьком кадре 256×128 и растягивается на экран; средний цвет кадра даёт свет в зале */
+var fc=document.createElement('canvas'); fc.width=256; fc.height=128; var fx=fc.getContext('2d');
+var fc2=document.createElement('canvas'); fc2.width=256; fc2.height=128; var fx2=fc2.getContext('2d');
+var tiny=document.createElement('canvas'); tiny.width=16; tiny.height=8; var tx=tiny.getContext('2d');
+var hash=function(n){var x=Math.sin(n*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+function mixc(a,b,k){var A=new T.Color(a),B=new T.Color(b);return '#'+A.lerp(B,k).getHexString()}
+function sceneFilm(x,idx,t,p){
+  var W=256,H=128,i,g;
+  if(idx===0){                                                   /* полёт над горами */
+    g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,p[2]);g.addColorStop(.55,mixc(p[1],p[2],.4));g.addColorStop(1,p[0]);x.fillStyle=g;x.fillRect(0,0,W,H);
+    g=x.createRadialGradient(176,74,2,176,74,60);g.addColorStop(0,'rgba(255,240,210,.95)');g.addColorStop(1,'rgba(255,200,140,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(var l=0;l<4;l++){
+      x.fillStyle=mixc(p[2],'#000000',.25+l*.2);x.beginPath();x.moveTo(0,H);
+      for(i=0;i<=W;i+=3){var u=i+t*(7+l*9)*3;x.lineTo(i,66+l*13-(14+l*3)*(.5+.5*Math.sin(u*.021+l*2)+.45*Math.sin(u*.053+l)))}
+      x.lineTo(W,H);x.fill();
+    }
+  }else if(idx===1){                                              /* город ночью */
+    g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,p[2]);g.addColorStop(1,mixc(p[1],p[2],.5));x.fillStyle=g;x.fillRect(0,0,W,H);
+    for(var l2=0;l2<2;l2++)for(i=0;i<22;i++){
+      var bw=14+hash(i+l2*50)*12,bh=22+hash(i*3+l2*9)*(46-l2*14),bx=((i*17-t*(10+l2*14)*1)%(22*17)+22*17)%(22*17)-20;
+      x.fillStyle=l2?'#0c1020':'#161c30';x.fillRect(bx,H-bh,bw,bh);
+      for(var wy=H-bh+4;wy<H-3;wy+=6)for(var wx=bx+3;wx<bx+bw-3;wx+=5){if(hash(wx*.7+wy*1.3+i+Math.floor(t*.8))>.62){x.fillStyle=l2?'rgba(255,200,120,.45)':'rgba(255,214,140,.9)';x.fillRect(wx,wy,2,3)}}
+    }
+  }else if(idx===2){                                              /* море и луна */
+    g=x.createLinearGradient(0,0,0,64);g.addColorStop(0,p[2]);g.addColorStop(1,mixc(p[0],p[2],.55));x.fillStyle=g;x.fillRect(0,0,W,64);
+    g=x.createLinearGradient(0,64,0,H);g.addColorStop(0,mixc(p[1],'#000000',.35));g.addColorStop(1,'#04060c');x.fillStyle=g;x.fillRect(0,64,W,64);
+    x.fillStyle='#f4f1e4';x.beginPath();x.arc(150,32,9,0,7);x.fill();
+    for(i=66;i<H;i+=2){var w=4+(i-64)*.5,a=.25+.35*Math.sin(i*.7+t*3);x.fillStyle='rgba(244,241,228,'+Math.max(0,a*(1-(i-64)/70))+')';x.fillRect(150-w/2+Math.sin(i*.4+t*2)*3,i,w,1)}
+  }else{                                                          /* титры сеанса */
+    x.fillStyle=mixc(p[2],'#000000',.6);x.fillRect(0,0,W,H);
+    var ev=EV(),lines=[ev.title,ev.sub,'Кинотеатр «Горизонт» · зал 1','Сеанс '+ev.time,'Приятного просмотра'],y0=H+8-(t%8)*16;
+    x.textAlign='center';x.fillStyle='#f2efe9';
+    lines.forEach(function(ln,j){x.font=(j?'11':'15')+'px Onest, sans-serif';x.fillText(ln,W/2,y0+j*22)});
+  }
+}
+function drawFilm(t){
+  var p=EV().pal,seg=8,idx=Math.floor(t/seg)%4,u=t%seg;
+  sceneFilm(fx,idx,t,p);
+  if(u>seg-.8){sceneFilm(fx2,(idx+1)%4,t,p);fx.globalAlpha=(u-(seg-.8))/.8;fx.drawImage(fc2,0,0);fx.globalAlpha=1}
+  sx.globalCompositeOperation='source-over';sx.imageSmoothingEnabled=true;sx.drawImage(fc,0,0,1024,512);
+  /* средний цвет кадра: уменьшаем до 16×8 и усредняем */
+  tx.drawImage(fc,0,0,16,8);var d=tx.getImageData(0,0,16,8).data,r=0,g2=0,b=0,n=d.length/4;
+  for(var i=0;i<d.length;i+=4){r+=d[i];g2+=d[i+1];b+=d[i+2]}
+  scrAvg.setRGB(r/n/255,g2/n/255,b/n/255);
+}
 function drawScreen(t){
   var ev=EV(), p=ev.pal, cn=H().kind==='cinema';
+  if(cn){drawFilm(t);screenTex.needsUpdate=true;return}
   sx.globalCompositeOperation='source-over';
   sx.fillStyle=p[2]; sx.fillRect(0,0,1024,512);
   var g=sx.createRadialGradient(250+110*Math.sin(t*.5),180,10,250,200,560);
@@ -314,10 +759,12 @@ function drawScreen(t){
   sx.font='600 28px Onest, sans-serif'; sx.globalAlpha=.8; sx.fillText(ev.date+' · '+ev.time,512,cn?336:308);
   sx.globalAlpha=1;
   if(!cn){
+    var bs=0;
     for(var i=0;i<56;i++){
       var a=Math.sin(t*3+i*.5)*.5+.5, b=Math.sin(t*1.3+i*.21)*.5+.5;
-      var h=10+a*b*150; sx.fillStyle='rgba(255,255,255,.85)'; sx.fillRect(34+i*17.4,500-h,11,h);
+      var h=10+a*b*150; bs+=a*b; sx.fillStyle='rgba(255,255,255,.85)'; sx.fillRect(34+i*17.4,500-h,11,h);
     }
+    beatLevel=Math.min(1,bs/56*3.2);
   } else {
     sx.fillStyle='rgba(255,255,255,.14)';
     sx.beginPath(); var rx=(t*60)%1400-200; sx.moveTo(rx,0); sx.lineTo(rx+90,0); sx.lineTo(rx-120,512); sx.lineTo(rx-210,512); sx.fill();
@@ -344,7 +791,7 @@ function Mat(c,o){return new T.MeshStandardMaterial(Object.assign({color:c,rough
 function add(geo,mat,x,y,z){var m=new T.Mesh(geo,mat); m.position.set(x||0,y||0,z||0); hall.add(m); return m}
 
 function clearHall(){
-  rimMesh=null;
+  rimMesh=null; colliders=[]; crowd=null; band=null; conductor=null; orch=null;
   while(hall.children.length){
     var o=hall.children.pop();
     o.traverse(function(n){
@@ -449,7 +896,28 @@ function buildHall(){
   glowMesh.frustumCulled=false; glowMesh.count=0; hall.add(glowMesh);
   catCol=H().cats.map(function(c){return new T.Color(c.color)});
   catDim=catCol.map(function(c){return c.clone().multiplyScalar(.22)});
-  catSold=catCol.map(function(c){return c.clone().lerp(SOLD,.6)});
+  catSold=catCol.map(function(){return SOLDC});
+  crowd=new RC.Crowd(hall,seats,{lod:function(){return 0}});
+  crowd.setVisible(showCrowd);
+  RC.U.uMode.value=kind==='concert'?1:2; RC.U.uHands.value=0; RC.U.uApplause.value=0;
+  hemiL.intensity=kind==='cinema'?.55:.95; ambL.intensity=kind==='cinema'?.22:.32; warm.intensity=kind==='cinema'?.18:.7;
+  if(kind==='concert'){
+    var bp={shirt:'#14141b',short:'#14141b',sock:'#14141b',skin:'#26262e'};
+    band=RC.createBand(hall,[{x:0,y:1.2,z:-2.6,ang:Math.PI,lead:1},{x:-3.2,y:1.2,z:-4.2,ang:Math.PI},{x:3.2,y:1.2,z:-4.2,ang:Math.PI},{x:-5,y:1.2,z:-6.4,ang:Math.PI},{x:0.2,y:1.55,z:-9.9,ang:Math.PI}],bp);
+    conductor=RC.createBand(hall,[{x:0,y:1.2,z:-1.2,ang:0,lead:1}],bp);
+    /* оркестр: 24 музыканта на стульях тремя дугами вокруг дирижёра */
+    var oc=[],oi=0,arcs=[[3.4,8],[5.3,8],[7.1,8]];
+    arcs.forEach(function(a){for(var k=0;k<a[1];k++){var ph=-1.25+2.5*k/(a[1]-1);oc.push({x:Math.sin(ph)*a[0],z:-1.2-Math.cos(ph)*a[0],ang:Math.PI-ph})}});
+    var og=RC.seatedGeo(),arr=new Float32Array(oc.length*4),r=RC.rngS(5);
+    for(oi=0;oi<oc.length;oi++){arr[oi*4]=r()*6.283;arr[oi*4+1]=r();arr[oi*4+2]=-100;arr[oi*4+3]=1}
+    og.setAttribute('aA',new T.InstancedBufferAttribute(arr,4));
+    orch=new T.InstancedMesh(og,crowd.mat,oc.length);orch.frustumCulled=false;
+    var chair=new T.InstancedMesh(new T.BoxGeometry(.46,.34,.46).translate(0,.17,0),Mat(0x1a1a22),oc.length),dm=new T.Object3D(),col=new T.Color(0x1a1a22);
+    orch.instanceColor=new T.InstancedBufferAttribute(new Float32Array(oc.length*3),3);
+    oc.forEach(function(m,j){dm.position.set(m.x,1.2,m.z);dm.rotation.set(0,m.ang,0);dm.scale.set(1,1,1);dm.updateMatrix();orch.setMatrixAt(j,dm.matrix);chair.setMatrixAt(j,dm.matrix);orch.setColorAt(j,col)});
+    chair.frustumCulled=false;orch.add(chair);hall.add(orch);
+    colliders=[{x0:-11.5,x1:11.5,y0:-300,y1:300,z0:-200,z1:-11.55},{x0:-10.2,x1:10.2,y0:14.7,y1:15.3,z0:-6.2,z1:-5.8}];
+  }
   applyEvent();
 }
 
@@ -466,23 +934,33 @@ function applyEvent(){
   if(rimMesh)rimMesh.material.color.copy(c0);
   beams.forEach(function(b,i){var c=i%2?c1:c0; b.material.color.copy(c); b.userData.lamp.material.color.copy(c)});
   if(kind==='concert'){stageLights[0].color.copy(c0); stageLights[1].color.copy(c1)} else {stageLights[0].color.copy(c1).lerp(WHITE,.4)}
+  var isOrch=kind==='concert'&&/Бетховен/.test(ev.title);
+  if(band)band.mesh.visible=showCrowd&&!isOrch; if(orch)orch.visible=showCrowd&&isOrch; if(conductor)conductor.mesh.visible=showCrowd&&isOrch;
   drawScreen(0);
+  syncCrowd();
   refreshColors();
 }
+function syncCrowd(){if(crowd)crowd.layout(sold,sel)}
 
 function refreshColors(){
   var tmp=new T.Color();
   for(var i=0;i<seats.length;i++){
     var s=seats[i],c;
-    if(sold[i])c=catSold[s.cat];
+    if(sold[i])c=(filter>=0&&s.cat!==filter)?SOLDD:SOLDC;
     else if(sel.indexOf(i)>=0)c=SEL;
     else c=(filter>=0&&s.cat!==filter)?catDim[s.cat]:catCol[s.cat];
     tmp.copy(c);
-    if(i===hover&&!sold[i])tmp.lerp(WHITE,.4);
+    if(i===hover)tmp.lerp(WHITE,.35);
     baseMesh.setColorAt(i,tmp);
     tmp.multiplyScalar(.82); backMesh.setColorAt(i,tmp);
   }
   baseMesh.instanceColor.needsUpdate=backMesh.instanceColor.needsUpdate=true;
+  if(crowd)crowd.recolor(function(i){
+    var s=seats[i]; tmp.copy(sel.indexOf(i)>=0?SEL:crowd.gray[i]); if(sel.indexOf(i)<0)tmp.multiplyScalar(.58);
+    if(filter>=0&&s.cat!==filter&&sel.indexOf(i)<0)tmp.multiplyScalar(.22);
+    if(i===hover)tmp.lerp(WHITE,.35);
+    return tmp;
+  });
   var d=new T.Object3D(); glowMesh.count=sel.length;
   sel.forEach(function(i,k){var s=seats[i]; d.position.set(s.x,s.y+1.45,s.z); d.rotation.set(0,0,0); d.updateMatrix(); glowMesh.setMatrixAt(k,d.matrix)});
   glowMesh.instanceMatrix.needsUpdate=true;
@@ -504,6 +982,7 @@ function viewFrom(i){
 }
 function onMode(){
   var seat=cam.mode==='seat';
+  if(crowd){var nh=seat?cam.seatI:-1; if(nh!==crowd.hide){crowd.hide=nh; syncCrowd(); refreshColors()}}
   $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat;
   if(seat){var s=seats[cam.seatI]; $('#seatBadge').textContent='Вид из кресла: '+seatLabel(s)+' · тяните, чтобы осмотреться'}
 }
@@ -518,8 +997,31 @@ function desired(){
 function stepCam(dt){
   var d=desired(), k=1-Math.exp(-dt*(cam.mode==='seat'?9:6));
   cur.pos.lerp(d.pos,k); cur.look.lerp(d.look,k); cur.fov+=(d.fov-cur.fov)*k;
-  camera.position.copy(cur.pos); camera.lookAt(cur.look);
+  camera.position.copy(cur.pos);
+  camera.position.y+=Math.min(6,Math.max(0,cur.pos.distanceTo(d.pos)-5)*.3);      /* перелёт идёт дугой над рядами */
+  if(kind==='concert'){
+    RC.clampCamera(camera,cam.mode,{x:46,z0:-50,z1:42,top:25.4},floorH,null,colliders);
+    if(cam.mode!=='seat'&&camera.position.y<=25.9){var qx=camera.position.x,qz=camera.position.z+4,qr=Math.hypot(qx,qz);if(qr>45){camera.position.x=qx*45/qr;camera.position.z=qz*45/qr-4}}
+  }else RC.clampCamera(camera,cam.mode,{x:10.4,z0:.4,z1:24.4,top:11.5},floorH,null,colliders);
+  camera.lookAt(cur.look);
   if(Math.abs(camera.fov-cur.fov)>.01){camera.fov=cur.fov; camera.updateProjectionMatrix()}
+}
+/* высота пола или ступени под камерой: партер и балкон концертного зала по дугам вокруг сцены, ряды кинозала */
+function floorH(x,z){
+  if(kind==='cinema'){
+    if(z<6.4)return 0;
+    if(z<20.2)return Math.min(11,Math.floor((z-6.425)/1.15))*.36+.2;
+    return 4.2;
+  }
+  var qx=x,qz=z+4,R=Math.hypot(qx,qz),th=Math.atan2(qx,qz);
+  if(R<8.7)return 1.35;
+  if(Math.abs(th)<=.95){
+    if(R>=9.5&&R<=24.9)return Math.min(15,Math.floor((R-9.525)/.95))*.14+.25;
+    if(R>30.4&&R<=36.7)return 5.4+Math.min(5,Math.floor((R-30.5)/1))*.55+.25;
+    if(R>36.7)return 9.2;
+    if(R>24.9)return R>29.5?6.6:0;
+  }
+  return 0;
 }
 function rotateBy(dx,dy){
   if(cam.mode==='orbit'){cam.th-=dx*.006; cam.ph=Math.max(.12,Math.min(1.5,cam.ph-dy*.006))}
@@ -536,7 +1038,7 @@ function pickAt(e){
   var r=canvas.getBoundingClientRect();
   ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
   raycaster.setFromCamera(ndc,camera);
-  var h=raycaster.intersectObjects([baseMesh,backMesh],false)[0];
+  var h=raycaster.intersectObjects(crowd&&showCrowd&&crowd.N<3000?[baseMesh,backMesh].concat(crowd.meshes):[baseMesh,backMesh],false)[0];
   return h&&h.instanceId!==undefined?h.instanceId:-1;
 }
 var ptrs=new Map(), down=null, pinch0=0, hovBusy=false;
@@ -594,20 +1096,20 @@ function seatLabel(s){return kind==='concert'?s.tier+' · ряд '+s.row+' · м
 function toggleSeat(i){
   if(sold[i]){toast('Это место уже занято');return}
   var k=sel.indexOf(i);
-  if(k>=0)sel.splice(k,1);
-  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i)}
+  if(k>=0){sel.splice(k,1); if(crowd)crowd.reset(i)}
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime)}
   onSel();
 }
 function onSel(){
   if(sel.length&&!holdEnd){holdEnd=Date.now()+10*60*1000}
   if(!sel.length)holdEnd=0;
-  refreshColors(); renderCats(); renderSeats(); tickHold();
+  syncCrowd(); refreshColors(); renderCats(); renderSeats(); tickHold();
 }
 function tickHold(){
   var el=$('#hold');
   if(!holdEnd){el.textContent=''; return}
   var left=holdEnd-Date.now();
-  if(left<=0){sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
+  if(left<=0){sel=[]; holdEnd=0; syncCrowd(); refreshColors(); renderCats(); renderSeats(); el.textContent=''; toast('Время удержания истекло, места освобождены'); return}
   var m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
   el.textContent='Места удерживаются за вами ещё '+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
@@ -629,7 +1131,7 @@ function bestSeats(){
     if(sc2<bs){bs=sc2;best=i}
   }
   if(best===null){toast('Нет '+n+' свободных мест подряд'+(filter>=0?' в этой категории':'')); return}
-  sel=[]; for(var j=0;j<n;j++)sel.push(best+j);
+  sel=[]; for(var j=0;j<n;j++){sel.push(best+j); if(crowd)crowd.born(best+j,clock.elapsedTime)}
   holdEnd=0; onSel(); viewFrom(best+Math.floor(n/2));
   toast('Подобрали '+n+' '+(n===1?'место':n<5?'места':'мест')+' рядом');
 }
@@ -700,6 +1202,16 @@ function renderToolbar(){
     if(i>=0)viewFrom(i);
   };
   tb.appendChild(v);
+  var cb=document.createElement('button'); cb.className='chip'+(showCrowd?' on':''); cb.textContent='Зрители';
+  cb.onclick=function(){showCrowd=!showCrowd; cb.classList.toggle('on',showCrowd); if(crowd)crowd.setVisible(showCrowd); applyEventVis()};
+  tb.appendChild(cb);
+  var pb=document.createElement('button'); pb.className='chip'+(paused?' on':''); pb.textContent='Пауза';
+  pb.onclick=function(){paused=!paused; pb.classList.toggle('on',paused)};
+  tb.appendChild(pb);
+}
+function applyEventVis(){
+  var isOrch=kind==='concert'&&/Бетховен/.test(EV().title);
+  if(band)band.mesh.visible=showCrowd&&!isOrch; if(orch)orch.visible=showCrowd&&isOrch; if(conductor)conductor.mesh.visible=showCrowd&&isOrch;
 }
 function startTour(){tourOn=true; tourI=0; var b=$('#tourBtn'); if(b)b.classList.add('on'); nextTour()}
 function nextTour(){
@@ -743,7 +1255,7 @@ function submitPay(){
     var order=String(Math.floor(100000+Math.random()*900000)), picked=sel.slice(), sum=totalSel(), ev=EV();
     picked.forEach(function(i){sold[i]=1});
     var lines=picked.map(function(i){return '<div><span>'+esc(seatLabel(seats[i]))+'</span><span>'+fmt(priceOf(seats[i]))+'</span></div>'}).join('');
-    sel=[]; holdEnd=0; refreshColors(); renderCats(); renderSeats(); tickHold();
+    sel=[]; holdEnd=0; syncCrowd(); refreshColors(); renderCats(); renderSeats(); tickHold();
     $('#mBody').innerHTML='<div class="done"><div class="ok">✓</div><h3 id="mTitle" style="padding:0">Заказ № '+order+' оплачен</h3><p class="sub">'+esc(name)+', ждём вас: '+esc(ev.title)+', '+esc(ev.date)+' в '+esc(ev.time)+'.</p><canvas id="qr" width="168" height="168"></canvas><div class="sum-box" style="text-align:left">'+lines+'<div class="total"><span>Оплачено</span><span>'+fmt(sum)+'</span></div></div><button class="btn primary" id="mOk" style="width:100%">Готово</button><p class="demo">Это пример QR-кода. В рабочей версии билеты уходят на почту или в мессенджер, а на входе их сканируют.</p></div>';
     drawQR($('#qr'),order); $('#mOk').onclick=closeModal;
   },1100);
@@ -783,8 +1295,21 @@ function loop(){
   requestAnimationFrame(loop);
   var dt=Math.min(clock.getDelta(),.1), t=clock.elapsedTime;
   frame++;
+  if(!paused&&!reduce)tAnim+=dt;
+  RC.U.uT.value=t; RC.U.uMotion.value=(paused||reduce)?0:1;
+  if(kind==='cinema'){
+    /* свет от экрана: средний цвет кадра красит зал и зрителей */
+    var lum=(scrAvg.r+scrAvg.g+scrAvg.b)/3, L1=stageLights[0];
+    var mxc=Math.max(.08,scrAvg.r,scrAvg.g,scrAvg.b); tintC.setRGB(scrAvg.r/mxc,scrAvg.g/mxc,scrAvg.b/mxc); L1.color.lerp(tintC,.12); L1.intensity+=((.5+Math.pow(lum,.6)*4.4)-L1.intensity)*.12;
+    hemiL.color.lerp(scrAvg,.04); hemiL.intensity=.5+lum*.7;
+  }else{
+    var cyc=tAnim%60, ap=cyc<1?cyc:cyc<7?1:cyc<8?8-cyc:0;               /* аплодисменты после каждого номера, раз в минуту */
+    var isO=/Бетховен/.test(EV().title), bl=(paused||reduce)?0:beatLevel*(isO?.35:1);
+    RC.U.uBeat.value=bl; RC.U.uApplause.value=(paused||reduce)?0:ap*(cyc<8?1:0); RC.U.uHands.value=isO?((paused||reduce)?0:.6+bl*.4):0;
+    if(band)band.update(tAnim,bl); if(conductor)conductor.update(tAnim,bl);
+  }
   if(!reduce){
-    if(frame%3===0)drawScreen(t);
+    if(frame%3===0)drawScreen(tAnim);
     beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
   }
   stepCam(dt);
@@ -797,6 +1322,10 @@ resize(); loop();
 setTimeout(function(){$('#loading').classList.add('off')},250);
 })();
 </script>
+
+
+
+<!-- merged with live 1792560639-d10d -->
 
 </body>
 </html>
