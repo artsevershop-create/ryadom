@@ -383,6 +383,10 @@ footer .sp{margin-left:auto}
 /* липкая кнопка на телефоне */
 .fab{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:none;justify-content:center;transform:translateY(120%);transition:transform .35s}
 .fab.on{transform:none}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:24;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:var(--gold);color:#14161F;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .25s,transform .25s,visibility .25s}
+.totop.on{opacity:1;visibility:visible;transform:none}
+.totop svg{width:22px;height:22px}
+@media (max-width:700px){.totop{bottom:calc(84px + env(safe-area-inset-bottom,0px));width:42px;height:42px}}
 @media (max-width:700px){.fab{display:flex}}
 
 /* ===== v5: премиальная типографика, «Для кого», «Выгоды», реквизиты ===== */
@@ -709,6 +713,36 @@ footer a{color:inherit}
   </div>
 </section>
 
+<section id="contact" class="contact">
+  <div class="wrap contact-grid">
+    <div data-reveal>
+      <p class="eyebrow">Заявка</p>
+      <h2 style="margin-top:14px">Покажем ваш зал в 3D бесплатно</h2>
+      <p class="lead" style="margin-top:16px">Пришлите схему рассадки и пару фото зала: бесплатно соберём превью с видами из нескольких мест и покажем его на онлайн-встрече на 15 минут. Договор и оплата — только если вам понравится.</p>
+      <div class="direct">
+        <div><span>Телефон</span><a href="tel:+79096769898" style="color:inherit">+7 909 676-98-98</a></div><div><span>Почта</span><a href="mailto:info@3dryad.ru" style="color:inherit">info@3dryad.ru</a></div>
+      </div>
+    </div>
+    <form id="lead" novalidate data-reveal style="--d:.12s">
+      <div class="two">
+        <div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div>
+        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div>
+        <div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div>
+      </div>
+      <div class="field"><label for="fSize">Мест в зале</label><select id="fSize" name="size"><option>до 300</option><option selected>300–800</option><option>800–3000</option><option>3000–10000</option><option>от 10 000</option><option>несколько залов</option></select></div>
+      <div class="field"><label for="fMsg">Билетная система и вопросы</label><textarea id="fMsg" name="msg" rows="3" placeholder="Какая у вас билетная система, к какому сроку хотите запуститься"></textarea></div>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+      <label class="consent" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--muted);cursor:pointer"><input type="checkbox" id="fConsent" name="consent" style="width:18px;height:18px;margin-top:2px;flex:none"><span>Даю <a href="consent.html" target="_blank" rel="noopener" style="text-decoration:underline">согласие на обработку персональных данных</a> и ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="text-decoration:underline">Политикой обработки</a></span></label><span class="err" id="eConsent" style="font-size:13px;color:#C2410C"></span>
+      <button class="btn btn-gold" type="submit" style="justify-self:start">Показать мой зал в 3D бесплатно</button>
+      <p class="fine">После отправки формы коммерческое предложение откроется на этой странице. Согласие можно отозвать письмом на info@3dryad.ru.</p>
+      <div id="sent" hidden></div>
+    </form>
+  </div>
+</section>
+
 <div class="row-div" aria-hidden="true"><i></i><i></i><i></i><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
 
 <section id="try">
@@ -956,38 +990,11 @@ footer a{color:inherit}
   </div>
 </section>
 
-<section id="contact" class="contact">
-  <div class="wrap contact-grid">
-    <div data-reveal>
-      <p class="eyebrow">Заявка</p>
-      <h2 style="margin-top:14px">Покажем ваш зал в 3D бесплатно</h2>
-      <p class="lead" style="margin-top:16px">Пришлите схему рассадки и пару фото зала: бесплатно соберём превью с видами из нескольких мест и покажем его на онлайн-встрече на 15 минут. Договор и оплата — только если вам понравится.</p>
-      <div class="direct">
-        <div><span>Телефон</span><a href="tel:+79096769898" style="color:inherit">+7 909 676-98-98</a></div><div><span>Почта</span><a href="mailto:info@3dryad.ru" style="color:inherit">info@3dryad.ru</a></div>
-      </div>
-    </div>
-    <form id="lead" novalidate data-reveal style="--d:.12s">
-      <div class="two">
-        <div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div>
-        <div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div>
-      </div>
-      <div class="two">
-        <div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div>
-        <div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div>
-      </div>
-      <div class="field"><label for="fSize">Мест в зале</label><select id="fSize" name="size"><option>до 300</option><option selected>300–800</option><option>800–3000</option><option>3000–10000</option><option>от 10 000</option><option>несколько залов</option></select></div>
-      <div class="field"><label for="fMsg">Билетная система и вопросы</label><textarea id="fMsg" name="msg" rows="3" placeholder="Какая у вас билетная система, к какому сроку хотите запуститься"></textarea></div>
-      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
-      <label class="consent" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--muted);cursor:pointer"><input type="checkbox" id="fConsent" name="consent" style="width:18px;height:18px;margin-top:2px;flex:none"><span>Даю <a href="consent.html" target="_blank" rel="noopener" style="text-decoration:underline">согласие на обработку персональных данных</a> и ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="text-decoration:underline">Политикой обработки</a></span></label><span class="err" id="eConsent" style="font-size:13px;color:#C2410C"></span>
-      <button class="btn btn-gold" type="submit" style="justify-self:start">Показать мой зал в 3D бесплатно</button>
-      <p class="fine">После отправки формы коммерческое предложение откроется на этой странице. Согласие можно отозвать письмом на info@3dryad.ru.</p>
-      <div id="sent" hidden></div>
-    </form>
-  </div>
-</section>
 </main>
 
 <div class="fab" id="fab"><a class="btn btn-gold" href="#contact" style="flex:1;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.35)">Показать мой зал в 3D бесплатно</a></div>
+
+<button class="totop" id="totop" type="button" aria-label="Наверх"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
 
 <footer>
   <div class="wrap">
@@ -1031,6 +1038,7 @@ footer a{color:inherit}
   }
 
   /* ---------- прогресс, меню, липкая кнопка ---------- */
+  var tt=$('#totop');if(tt){tt.addEventListener('click',function(){window.scrollTo({top:0,behavior:reduce?'auto':'smooth'})});addEventListener('scroll',function(){tt.classList.toggle('on',scrollY>700)},{passive:true})}
   var prog=$('#progress'), links=$$('#nav a'), fab=$('#fab');
   var secs=links.map(function(a){return $(a.getAttribute('href'))});
   function onScroll(){

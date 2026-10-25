@@ -363,6 +363,10 @@ footer .sp{margin-left:auto}
 /* липкая кнопка на телефоне */
 .fab{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:25;display:none;justify-content:center;transform:translateY(120%);transition:transform .35s}
 .fab.on{transform:none}
+.totop{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:24;width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:var(--gold);color:#14161F;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);opacity:0;visibility:hidden;transform:translateY(12px);transition:opacity .25s,transform .25s,visibility .25s}
+.totop.on{opacity:1;visibility:visible;transform:none}
+.totop svg{width:22px;height:22px}
+@media (max-width:700px){.totop{bottom:calc(84px + env(safe-area-inset-bottom,0px));width:42px;height:42px}}
 @media (max-width:700px){.fab{display:flex}}
 
 /* ===== v5: премиальная типографика, «Для кого», «Выгоды», реквизиты ===== */
