@@ -170,12 +170,55 @@ button{cursor:pointer}
 #app.nopanel #panel{display:none}
 @media (max-width:860px){#app.nopanel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0}}
 @media (prefers-reduced-motion:reduce){#loading{transition:none}}
+
+/* подсказка по управлению */
+#gdBtn{position:absolute;top:12px;right:12px;z-index:4;width:36px;height:36px;padding:0;display:grid;place-items:center;border-radius:50%;font-weight:700;font-size:17px;line-height:1}
+#gdBtn.beside{right:158px}
+#gdBtn.pulse{animation:gdp 1.2s ease-out 3}
+@keyframes gdp{0%{box-shadow:0 0 0 0 rgba(245,166,35,.7)}100%{box-shadow:0 0 0 16px rgba(245,166,35,0)}}
+#gd{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:14px;background:rgba(7,6,10,.62);backdrop-filter:blur(3px);transition:opacity .25s}
+#gd[hidden]{display:none!important}
+#gd.out{opacity:0}
+#gd .gdc{position:relative;width:min(560px,100%);max-height:100%;overflow:auto;background:var(--panel,#17161f);color:var(--fg);border:1px solid var(--line);border-radius:16px;padding:22px 22px 18px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#gd h2{margin:0 36px 4px 0;font:600 18px/1.25 var(--font-display)}
+#gd .gdsub{margin:0 0 14px;color:var(--mute);font-size:13px}
+#gd .gdx{position:absolute;top:10px;right:10px;width:34px;height:34px;border:0;background:transparent;color:var(--mute);font-size:24px;line-height:1;border-radius:50%}
+#gd .gdx:hover{color:var(--fg);background:rgba(255,255,255,.08)}
+#gd ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#gd li{display:flex;gap:11px;align-items:flex-start;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:11px 12px;min-width:0}
+#gd li svg{flex:none;width:34px;height:34px;color:var(--accent)}
+#gd li b{display:block;font-size:14px;margin-bottom:1px}
+#gd li span{display:block;font-size:12.5px;color:var(--mute);line-height:1.4}
+#gd .gdt{display:none}
+@media (hover:none){#gd .gdm{display:none}#gd .gdt{display:inline}}
+#gd .gdgo{margin-top:16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#gd .gdgo small{color:var(--mute);font-size:12px}
+#gd .gdok{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:10px 24px;font-weight:600}
+@media (max-width:560px){#gd{padding:8px}#gd ul{grid-template-columns:1fr;gap:6px}#gd .gdc{padding:14px 12px 10px}#gd h2{font-size:15px}#gd .gdsub,#gd .gdgo small{display:none}#gd li{padding:7px 10px;gap:9px}#gd li svg{width:26px;height:26px}#gd li b{font-size:13px}#gd li span{font-size:11.5px;line-height:1.3}#gd .gdgo{margin-top:8px;position:sticky;bottom:-10px;background:var(--panel,#17161f);padding:6px 0 2px}#gd .gdok{width:100%}#gdBtn.beside{right:148px}}
+@media (prefers-reduced-motion:reduce){#gd{transition:none}#gdBtn.pulse{animation:none}}
 </style>
 
 <div id="app">
   <main id="view">
     <canvas id="gl" aria-label="3D-схема зала"></canvas>
     <div id="loading">Строим зал…</div>
+    <button id="gdBtn" class="chip" type="button" aria-label="Как пользоваться" title="Как пользоваться">?</button>
+    <div id="gd" hidden role="dialog" aria-modal="true" aria-labelledby="gdT">
+      <div class="gdc">
+        <button class="gdx" type="button" aria-label="Закрыть">×</button>
+        <h2 id="gdT">Как пользоваться моделью</h2>
+        <p class="gdsub">Это живая 3D-модель: её можно крутить, приближать и садиться в любое кресло.</p>
+        <ul>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="17" cy="17" r="4"/><path d="M3 17s5-9 14-9 14 9 14 9-5 9-14 9S3 17 3 17z"/></svg><div><b>Вид из кресла</b><span><i class="gdm" style="font-style:normal">Двойной клик</i><i class="gdt" style="font-style:normal">Двойное касание</i> по месту: увидите сцену или поле глазами зрителя</span></div></li>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17a10 6 0 0 1 20 0"/><path d="M24 13l3 4-4 2"/><path d="M27 20a10 6 0 0 1-20 0"/><path d="M10 24l-3-4 4-2"/></svg><div><b>Вращать</b><span><i class="gdm" style="font-style:normal">Зажмите левую кнопку мыши и тяните</i><i class="gdt" style="font-style:normal">Проведите одним пальцем по залу</i></span></div></li>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="15" cy="15" r="8"/><path d="M21 21l7 7M12 15h6M15 12v6"/></svg><div><b>Приблизить</b><span><i class="gdm" style="font-style:normal">Колесо мыши</i><i class="gdt" style="font-style:normal">Сведите или разведите два пальца</i></span></div></li>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="12" width="16" height="9" rx="3"/><path d="M11 21v5M23 21v5M9 12V9a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v3"/></svg><div><b>Выбрать место</b><span><i class="gdm" style="font-style:normal">Клик по креслу</i><i class="gdt" style="font-style:normal">Коснитесь кресла</i>: цена, категория и добавление в заказ</span></div></li>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="21" width="9" height="8" rx="3"/><rect x="13" y="21" width="9" height="8" rx="3"/><path d="M17 4v10M12 9l5-5 5 5"/></svg><div><b>Быстрые ракурсы</b><span>Кнопки внизу экрана: партер, сцена, вид сверху</span></div></li>
+          <li><svg viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="5" width="26" height="24" rx="4"/><path d="M21 5v24M24 12h3M24 17h3"/></svg><div><b>Панель с билетами</b><span>Мероприятие, категории мест, вход и оформление заказа</span></div></li>
+        </ul>
+        <div class="gdgo"><small>Подсказку всегда можно открыть кнопкой «?» в углу</small><button class="gdok" type="button">Понятно, смотрим</button></div>
+      </div>
+    </div>
     <div id="legend">
       <span><i style="background:linear-gradient(90deg,#F5A623,#D9486A,#4A78E0)"></i>Свободно: цвет по категории</span>
       <span><i style="background:var(--ok)"></i>Ваши места</span>
@@ -1549,6 +1592,23 @@ setTimeout(function(){$('#loading').classList.add('off')},400);
 
 
 <!-- merged with live, preset v3 -->
+
+<script>
+(function(){
+  var g=document.getElementById('gd'),b=document.getElementById('gdBtn');if(!g||!b)return;
+  if(document.getElementById('panelToggle'))b.classList.add('beside');
+  var last=null,KEY='gd-seen';
+  function open(){last=document.activeElement;g.classList.remove('out');g.hidden=false;var o=g.querySelector('.gdok');if(o)o.focus({preventScroll:true});g.querySelector('.gdc').scrollTop=0}
+  function close(){g.classList.add('out');setTimeout(function(){g.hidden=true;if(last&&last.focus)try{last.focus()}catch(e){}},230);try{sessionStorage.setItem(KEY,'1')}catch(e){}b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')}
+  b.addEventListener('click',open);
+  g.querySelector('.gdx').addEventListener('click',close);
+  g.querySelector('.gdok').addEventListener('click',close);
+  g.addEventListener('pointerdown',function(e){if(e.target===g)close()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!g.hidden)close()});
+  var seen=false;try{seen=sessionStorage.getItem(KEY)==='1'}catch(e){}
+  if(!seen)setTimeout(open,900);
+})();
+</script>
 
 </body>
 </html>
