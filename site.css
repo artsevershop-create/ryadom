@@ -498,6 +498,10 @@ footer a{color:inherit}
 .vcard p{font-size:15px}
 .vchips span{flex:1 1 calc(50% - 8px);min-width:0}
 .vnav{top:calc((100vw - 32px) * .3);width:40px;height:40px}
+.cmp{aspect-ratio:3/2.6}
+.cmp-flat svg{height:calc(100% - 46px);margin-top:46px}
+.cmp-lab{top:10px;font-size:11px;padding:6px 10px}
+.cmp-lab.l{left:10px}.cmp-lab.r{right:10px}
 }
 
 /* Плоская схема */
