@@ -966,7 +966,7 @@ function buildHall(){
   [-2.2,0,2.2].forEach(function(mx){add(new T.PlaneGeometry(1,.6),new T.MeshBasicMaterial({color:0x2c6db0}),mx,dy+1.55,dz+.2).rotation.y=Math.PI});
   [-3.4,3.4].forEach(function(wx2){var w=add(new T.PlaneGeometry(3.8,1.5),new T.MeshBasicMaterial({color:0x14202e}),wx2,9.2,ZB-.03); w.rotation.y=Math.PI});
 
-  /* двери: 4 входа по схеме Quick Tickets + 2 верхних выхода у лестниц (по фото) */
+  /* двери: 4 входа по схеме Quick Tickets */
   function signTex(t1,t2){return wtex(320,110,function(g,w,h){g.fillStyle='#0d7a3e';g.fillRect(0,0,w,h);g.fillStyle='#fff';g.textAlign='center';g.font='800 46px sans-serif';g.fillText(t1,w/2,t2?54:72);if(t2){g.font='600 26px sans-serif';g.fillText(t2,w/2,92)}})}
   function opening(x,z,y,ry,w,h,par){
     var g=new T.Group(); g.position.set(x,y,z); g.rotation.y=ry; (par||hall).add(g);
@@ -981,10 +981,6 @@ function buildHall(){
     doorGlow.push(op.glow);
   });
   backG=new T.Group(); hall.add(backG);
-  AX.forEach(function(ax){
-    var op=opening(ax,ZB-.02,rowY(25)+.05,Math.PI,1.6,2.3,backG);
-    var sg=new T.Mesh(new T.PlaneGeometry(1.4,.48),new T.MeshBasicMaterial({map:signTex('ВЫХОД')})); sg.position.set(0,op.h+.45,.06); op.g.add(sg);
-  });
 
   /* места по плану зала: ряды 2-25, 686 мест */
   var blocks=function(r){
