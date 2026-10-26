@@ -617,11 +617,18 @@ footer a{color:inherit}
 
 /* было / стало */
 .wm{position:relative;display:block;aspect-ratio:2880/1800;overflow:hidden;background:#F4EFE3}
-.wm img{display:block;width:100%;height:100%;object-fit:cover}
+.wm img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
 .wm-flat{position:absolute;inset:0}
 .wm-3d{position:relative;animation:wmReveal 11s cubic-bezier(.5,0,.3,1) infinite}
 .wm-line{position:absolute;top:0;bottom:0;left:0;width:3px;background:#fff;box-shadow:0 0 22px rgba(0,0,0,.45);z-index:2;animation:wmLine 11s cubic-bezier(.5,0,.3,1) infinite}
 .wm-line::after{content:"⇄";position:absolute;top:50%;left:50%;translate:-50% -50%;width:42px;height:42px;border-radius:50%;background:var(--gold);color:#241a05;display:grid;place-items:center;font-weight:700;font-size:18px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.wm{cursor:ew-resize;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.wm.drag .wm-3d,.wm.drag .wm-line,.wm.drag .wm-lab{animation:none!important}
+.wm.drag .wm-lab{opacity:1!important}
+.wm.drag .wm-lab.a{left:auto;right:12px}
+.wm.drag .wm-lab.b{right:auto;left:12px}
+.wm-hint{position:absolute;left:50%;bottom:12px;translate:-50% 0;z-index:3;font-size:12px;font-weight:600;color:#fff;background:rgba(20,22,31,.78);padding:6px 14px;border-radius:999px;pointer-events:none;white-space:nowrap;transition:opacity .4s}
+.wm.drag .wm-hint{opacity:0}
 .wm-lab{position:absolute;top:12px;z-index:3;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:6px 12px;border-radius:999px;opacity:0}
 .wm-lab.a{left:12px;background:rgba(20,22,31,.85);color:#fff;animation:wmA 11s infinite}
 .wm-lab.b{right:12px;background:var(--gold);color:#241a05;animation:wmB 11s infinite}
@@ -629,7 +636,7 @@ footer a{color:inherit}
 @keyframes wmLine{0%,20%{left:0;opacity:0}22%{opacity:1}42%{left:calc(100% - 3px);opacity:1}44%,76%{left:calc(100% - 3px);opacity:0}78%{left:calc(100% - 3px);opacity:1}98%{left:0;opacity:1}100%{left:0;opacity:0}}
 @keyframes wmA{0%,30%{opacity:1}38%,92%{opacity:0}98%,100%{opacity:1}}
 @keyframes wmB{0%,38%{opacity:0}46%,74%{opacity:1}82%,100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.wm-3d,.wm-line,.wm-lab{animation:none}.wm-3d{clip-path:none}.wm-line,.wm-lab.a{display:none}.wm-lab.b{opacity:1}}
+@media (prefers-reduced-motion:reduce){.wm-3d,.wm-line,.wm-lab{animation:none}.wm:not(.drag) .wm-3d{clip-path:none}.wm:not(.drag) .wm-line,.wm:not(.drag) .wm-lab.a{display:none}.wm:not(.drag) .wm-lab.b{opacity:1}}
 .vflat{position:absolute;inset:0;z-index:0;width:100%!important;height:100%;object-fit:cover!important;object-position:center!important;clip-path:inset(0 0 0 100%);transition:clip-path .9s cubic-bezier(.6,0,.2,1)}
 .vs.was .vflat{clip-path:inset(0 0 0 0)}
 .vbs{position:absolute;top:14px;right:14px;z-index:4;display:inline-flex;padding:3px;border-radius:999px;background:rgba(20,22,31,.82);border:1px solid rgba(255,255,255,.18);font:inherit;color:#fff;cursor:pointer;backdrop-filter:blur(6px)}
@@ -666,7 +673,7 @@ footer a{color:inherit}
       <p class="note">Демо собрано на реальном зале Ямальской филармонии. Работает в браузере, на телефоне тоже.</p>
     </div>
     <div class="shot" id="shot">
-      <div class="frame" id="frame"><div class="wm"><img class="wm-flat" src="img2/flat-hall.svg" width="1600" height="1000" alt="" aria-hidden="true"><img class="wm-3d" src="img2/app-overview.jpg" width="2880" height="1800" alt="3D-модель концертного зала на 686 мест с панелью выбора мероприятия и цен"><i class="wm-line" aria-hidden="true"></i><span class="wm-lab a">Было: плоская схема</span><span class="wm-lab b">Стало: 3D-зал</span></div></div>
+      <div class="frame" id="frame"><div class="wm"><img class="wm-flat" src="img2/flat-hall.svg" width="1600" height="1000" alt="" aria-hidden="true"><img class="wm-3d" src="img2/app-overview.jpg" width="2880" height="1800" alt="3D-модель концертного зала на 686 мест с панелью выбора мероприятия и цен"><i class="wm-line" aria-hidden="true"></i><span class="wm-lab a">Было: плоская схема</span><span class="wm-lab b">Стало: 3D-зал</span><span class="wm-hint">Потяните, чтобы сравнить самому</span></div></div>
       <div class="ticket" id="tk" aria-live="polite">
         <div class="main"><b id="tkSeat">Амфитеатр · ряд 10 · место 14</b><span id="tkEv">Игорь Саруханов · 12 ноября, 19:00</span><span class="door" id="tkDoor">Вход 2, левая сторона</span></div>
         <div class="stub" id="tkPrice">3 000 ₽</div>
@@ -1295,6 +1302,26 @@ footer a{color:inherit}
     st.addEventListener('pointerup',function(e){if(sx===null)return;var d=e.clientX-sx;sx=null;if(Math.abs(d)>50)go(cur+(d<0?1:-1),true)});
     restart();
     if(!reduce&&slides[0]){slides[0].classList.add('was');wasT=setTimeout(function(){slides[0].classList.remove('was');syncBs(slides[0])},2200)}
+  })();
+
+
+  /* ---------- первый экран: ручное сравнение «было / стало» ---------- */
+  (function(){
+    var w=$('.wm'); if(!w)return;
+    var d3=$('.wm-3d',w), line=$('.wm-line',w), la=$('.wm-lab.a',w), lb=$('.wm-lab.b',w), on=false;
+    function set(p){
+      p=Math.max(2,Math.min(98,p)); w.classList.add('drag');
+      d3.style.clipPath='inset(0 '+(100-p)+'% 0 0)'; line.style.animation='none'; line.style.opacity=1; line.style.left='calc('+p+'% - 1.5px)';
+    }
+    function at(e){var r=w.getBoundingClientRect();set((e.clientX-r.left)/r.width*100)}
+    w.addEventListener('pointerdown',function(e){on=true;try{w.setPointerCapture(e.pointerId)}catch(x){}at(e)});
+    w.addEventListener('pointermove',function(e){if(on)at(e)});
+    ['pointerup','pointercancel','lostpointercapture'].forEach(function(ev){w.addEventListener(ev,function(){on=false})});
+    w.addEventListener('dragstart',function(e){e.preventDefault()});
+    w.setAttribute('tabindex','0'); w.setAttribute('role','slider'); w.setAttribute('aria-label','Сравнить плоскую схему и 3D-зал');
+    var cur=50;
+    w.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();var r=w.getBoundingClientRect();cur=(w.classList.contains('drag')?cur:50)+(e.key==='ArrowRight'?8:-8);cur=Math.max(2,Math.min(98,cur));set(cur)}});
+    w.addEventListener('pointerdown',function(){cur=50});
   })();
 
   /* ---------- сравнение «плоская схема / 3D» ---------- */
