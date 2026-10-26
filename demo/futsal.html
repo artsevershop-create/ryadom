@@ -38,6 +38,17 @@
 #gd .gdok{background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:10px 24px;font-weight:600}
 @media (max-width:560px){#gd{padding:8px}#gd ul{grid-template-columns:1fr;gap:6px}#gd .gdc{padding:14px 12px 10px}#gd h2{font-size:15px}#gd .gdsub,#gd .gdgo small{display:none}#gd li{padding:7px 10px;gap:9px}#gd li svg{width:26px;height:26px}#gd li b{font-size:13px}#gd li span{font-size:11.5px;line-height:1.3}#gd .gdgo{margin-top:8px;position:sticky;bottom:-10px;background:var(--panel,#17161f);padding:6px 0 2px}#gd .gdok{width:100%}#gdBtn.beside{right:148px}}
 @media (prefers-reduced-motion:reduce){#gd{transition:none}#gdBtn.pulse{animation:none}}
+
+/* мобильная: меньше текста поверх сцены */
+@media (max-width:860px){
+  #app{grid-template-rows:58% minmax(0,1fr)}
+  #legend{display:none}
+  #toolbar{flex-wrap:nowrap;overflow-x:auto;justify-content:safe center;pointer-events:auto;scrollbar-width:none;gap:6px;bottom:calc(8px + env(safe-area-inset-bottom,0px))}
+  #toolbar::-webkit-scrollbar{display:none}
+  #toolbar .chip{flex:0 0 auto;padding:5px 11px;font-size:12px}
+  #gdBtn{top:10px;right:10px}
+  #gdBtn.beside{right:148px}
+}
 </style></head><body>
 <title>Факел-Арена в 3D</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
