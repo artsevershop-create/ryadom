@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>3D-выбор квартир для застройщика: дом, этаж, интерьер и вид из окна | РЯДом</title>
+<meta name="description" content="Покупатель выбирает квартиру в 3D: корпус, этаж, статус и цена, интерьер «как продаем» и дизайн-проект, вид из окна днём и вечером. Работает в браузере, данные из вашей выгрузки продаж. Пилот на одну секцию от 250 000 ₽.">
+<link rel="icon" type="image/svg+xml" href="img/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+h2{font-size:clamp(28px,3.6vw,46px)}
+.pg-hero{background:var(--stage);color:var(--stage-ink);padding-block:clamp(56px,8vw,112px);position:relative;overflow:hidden}
+.pg-hero::before{content:"";position:absolute;width:900px;height:900px;right:-260px;top:-360px;background:radial-gradient(closest-side,rgba(240,185,74,.22),transparent)}
+.pg-hero .eyebrow{color:var(--gold)}
+.pg-hero .lead{color:var(--stage-muted);margin-top:22px}
+.pg-hero .mega{margin-top:14px;max-width:20ch}
+.pg-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.pg-cta .btn-ghost{color:var(--stage-ink)}
+.pg-facts{display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,48px);margin-top:40px}
+.pg-facts b{display:block;font:600 clamp(28px,4vw,48px)/1 var(--display);color:var(--gold)}
+.pg-facts span{font-size:14px;color:var(--stage-muted)}
+.pg-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(24px,5vw,64px);align-items:center}
+.pg-prob{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:12px}
+.pg-prob li{display:flex;gap:12px;color:var(--muted);font-size:18px}
+.pg-prob li::before{content:"?";flex:none;width:28px;height:28px;border-radius:50%;background:var(--panel-2);color:var(--gold-ink);display:grid;place-items:center;font-weight:700}
+.pg-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.pg-grid article{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:grid;gap:8px;align-content:start;transition:transform .25s,border-color .25s}
+.pg-grid article:hover{transform:translateY(-4px);border-color:var(--gold)}
+.pg-grid h3{font-family:var(--display);font-size:19px;font-weight:600}
+.pg-grid p{color:var(--muted)}
+.pg-phones{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,24%);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 18px;scrollbar-width:thin}
+.pg-phones figure{margin:0;scroll-snap-align:start;display:grid;gap:10px;align-content:start}
+.pg-phones img{width:100%;height:auto;border-radius:22px;border:1px solid var(--line);box-shadow:0 30px 60px -36px rgba(20,22,31,.55);background:var(--stage)}
+.pg-phones figcaption{font-size:14px;color:var(--muted)}
+.pg-phones figcaption b{display:block;color:var(--ink);font-weight:600;margin-bottom:2px}
+.pg-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.pg-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:s}
+.pg-steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:8px}
+.pg-steps li::before{content:"0" counter(s);font:600 14px var(--display);color:var(--gold-ink)}
+.pg-steps b{font-family:var(--display);font-weight:600}
+.pg-steps span{color:var(--muted);font-size:15px}
+.pg-need{list-style:none;margin:18px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 24px}
+.pg-need li{display:flex;gap:10px;color:var(--muted)}
+.pg-need li::before{content:"✓";color:var(--gold-ink);font-weight:700}
+.pg-band{background:var(--stage);color:var(--stage-ink);border-radius:24px;padding:clamp(26px,4vw,48px);display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between}
+.pg-band h2{font-size:clamp(26px,3.4vw,44px);max-width:20ch}
+.pg-band p{color:var(--stage-muted);margin-top:10px}
+.pg-links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;margin-top:6px}
+.pg-note{margin-top:18px;font-size:14px;color:var(--muted);max-width:70ch}
+@media (max-width:860px){.pg-two{grid-template-columns:minmax(0,1fr)}.pg-grid{grid-template-columns:minmax(0,1fr)}.pg-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.pg-need{grid-template-columns:minmax(0,1fr)}.pg-phones{grid-auto-columns:minmax(190px,62%)}}
+</style>
+<script src="metrika.js" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
+    <nav class="nav" aria-label="Разделы"><a href="index.html#venues">Площадки</a><a href="index.html#benefits">Выгоды</a><a href="index.html#price">Тарифы</a><a href="index.html#faq">FAQ</a></nav>
+    <a class="btn btn-gold" href="#contact" style="white-space:nowrap">Получить КП</a>
+  </div>
+</header>
+<main>
+<section class="pg-hero">
+  <div class="wrap">
+    <p class="eyebrow">РЯДом для застройщиков</p>
+    <h1 class="mega">Покупатель выбирает квартиру в 3D, а не в таблице</h1>
+    <p class="lead">Весь жилой комплекс в 3D: корпус, этаж, квартира со статусом и ценой, интерьер «как продаем» и дизайн-проект, вид из окна днём и вечером. Работает в браузере на телефоне и компьютере, без установки.</p>
+    <div class="pg-cta"><a class="btn btn-gold" href="https://artsevershop-create.github.io/udsd-novella-3d/demo/" target="_blank" rel="noopener">Открыть демо ЖК <span class="arr">↗</span></a><a class="btn btn-ghost" href="#contact">Получить коммерческое предложение</a></div>
+    <div class="pg-facts"><div><b>1–2</b><span>недели на пилот: одна секция</span></div><div><b>7</b><span>экранов выбора в демо</span></div><div><b>0</b><span>установок для покупателя</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap pg-two">
+    <div data-reveal>
+      <p class="eyebrow">Почему шахматки мало</p>
+      <h2 style="margin-top:12px">Таблица не показывает, что за окном и как жить в квартире</h2>
+      <ul class="pg-prob"><li>В шахматке видно этаж и цену, но не видно двор, соседний дом и перспективу из окна.</li><li>Планировка на картинке не передаёт, каково ходить по квартире и какая там отделка.</li><li>Покупатель уходит с вопросами к менеджеру или к конкурентам, у которых картинка нагляднее.</li></ul>
+    </div>
+    <div class="pg-phones" data-reveal style="--d:.1s;grid-auto-columns:minmax(150px,46%)"><figure><img src="img/dev-free.webp" width="780" height="1560" alt="Свободные квартиры в 3D-модели жилого комплекса" loading="lazy"></figure><figure><img src="img/dev-facade.webp" width="780" height="1560" alt="Выбор квартиры на фасаде дома" loading="lazy"></figure></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Что видит покупатель</p><h2>Семь экранов: от города до кухни</h2><p class="lead">Листайте. Это скриншоты демо-концепта на примере ЖК «Новелла» в Новом Уренгое.</p></div>
+    <div class="pg-phones" data-reveal>
+      <figure><img src="img/dev-city.webp" width="780" height="1560" alt="Весь город и ЖК в окружении" loading="lazy"><figcaption><b>Район и окружение</b>Где стоит дом, что рядом: школы, детские сады, парковки.</figcaption></figure>
+      <figure><img src="img/dev-free.webp" width="780" height="1560" alt="Свободные квартиры" loading="lazy"><figcaption><b>Свободные квартиры</b>Корпуса со свободными квартирами подсвечены, на каждом число.</figcaption></figure>
+      <figure><img src="img/dev-facade.webp" width="780" height="1560" alt="Выбор на фасаде" loading="lazy"><figcaption><b>Выбор на фасаде</b>Корпус, этаж, квартира: касанием по дому или по ячейке.</figcaption></figure>
+      <figure><img src="img/dev-plan.webp" width="780" height="1560" alt="План этажа" loading="lazy"><figcaption><b>План этажа</b>Соседние квартиры со статусами, лифтовый узел.</figcaption></figure>
+      <figure><img src="img/dev-bare.webp" width="780" height="1560" alt="Предчистовая отделка" loading="lazy"><figcaption><b>Как продаем</b>Предчистовая отделка: что покупатель получает по договору.</figcaption></figure>
+      <figure><img src="img/dev-design.webp" width="780" height="1560" alt="Дизайн-проект" loading="lazy"><figcaption><b>Дизайн-проект</b>Та же квартира с мебелью и светом, можно ходить по комнатам.</figcaption></figure>
+      <figure><img src="img/dev-window.webp" width="780" height="1560" alt="Вид из окна" loading="lazy"><figcaption><b>Вид из окна</b>Выбор этажа и окна, день и вечер.</figcaption></figure>
+    </div>
+    <p class="pg-note">Демо-концепт, не официальный сайт застройщика. Планировки, статусы и цены условные: для запуска нужны ваши поэтажные планы и выгрузка продаж.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Возможности</p><h2>Что вы получаете</h2></div>
+    <div class="pg-grid">
+      <article data-reveal style="--d:0s"><h3>Комплекс в 3D</h3><p>Корпуса, дворы, парковки и окружение. Корпуса со свободными квартирами подсвечены, у каждого счётчик.</p></article>
+      <article data-reveal style="--d:.08s"><h3>Корпус, этаж, квартира</h3><p>Выбор касанием по дому или по ячейке фасада. Статус, цена, площадь и номер на карточке.</p></article>
+      <article data-reveal style="--d:.16s"><h3>Интерьер внутри</h3><p>Отделка «как продаем» и дизайн-проект. Режим «хожу по квартире» с мини-картой, стены не загораживают обзор.</p></article>
+      <article data-reveal style="--d:.24s"><h3>Вид из окна</h3><p>Выбор окна и этажа, осмотр пальцем, день и вечер: свет в окнах соседних домов и фонари.</p></article>
+      <article data-reveal style="--d:.32s"><h3>Схема планировки</h3><p>Планировка открывается по кнопке, а понравившиеся квартиры сохраняются в «Недавно смотрели».</p></article>
+      <article data-reveal style="--d:.4s"><h3>Данные из вашей базы</h3><p>Статусы и цены читаются из выгрузки отдела продаж. Формат согласуем: файл, таблица, Profitbase или 1С.</p></article>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Стоимость</p><h2>Пилот на одной секции, потом весь комплекс</h2><p class="lead">Ориентиры, а не прайс: точную цену назовём после изучения планов и данных.</p></div>
+    <div class="pg-plans" data-reveal>
+      <article class="plan"><h3>Пилот</h3><p class="size">одна секция</p><p class="price">250–350 тыс. <small>₽ разово</small></p><div class="bar"><span>Срок: 1–2 недели</span></div><ul><li>3D-квартал и выбор квартир</li><li>Интерьер типовой квартиры</li><li>Вид из окна, день и вечер</li><li>Ссылка или кнопка для вашего сайта</li></ul></article>
+      <article class="plan"><h3>Весь комплекс</h3><p class="size">около 25 уникальных планировок</p><p class="price">0,7–1,1 млн <small>₽ разово</small></p><div class="bar"><span>Срок: 2–4 недели</span></div><ul><li>3D-квартал: 150–250 тыс. ₽</li><li>Выбор квартир: 60–90 тыс. ₽</li><li>Связь с вашей базой продаж: 40–60 тыс. ₽</li><li>Интерьер каждой планировки: 18–28 тыс. ₽</li></ul></article>
+      <article class="plan"><h3>Поддержка</h3><p class="size">после запуска</p><p class="price">20–30 тыс. <small>₽ в месяц</small></p><div class="bar"><span>Обновления и сопровождение</span></div><ul><li>Обновление статусов и цен</li><li>Исправление ошибок</li><li>Новые корпуса и этапы</li></ul></article>
+    </div>
+    <p class="pg-note">Сроки считаются с момента получения планов и данных. Налоги не учтены. Подробности и состав работ даст коммерческое предложение.</p>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap pg-two">
+    <div data-reveal>
+      <p class="eyebrow">Что нужно от вас</p>
+      <h2 style="margin-top:12px">Материалы, которые у отдела продаж уже есть</h2>
+      <p class="lead" style="margin-top:16px">Пока планов нет, мы покажем типовое решение с пометкой «условно». Для запуска на реальных данных пришлите:</p>
+    </div>
+    <ul class="pg-need" data-reveal style="--d:.1s"><li>Поэтажные планы секций (PDF или DWG)</li><li>Планировки квартир с размерами</li><li>Генплан и благоустройство</li><li>Рендеры или цвета фасадов</li><li>Состав предчистовой отделки</li><li>Выгрузка квартир со статусами и ценами</li><li>Логотип застройщика</li><li>Контакт в отделе продаж</li></ul>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Как это происходит</p><h2>От планов до запуска за несколько недель</h2></div>
+    <ol class="pg-steps" data-reveal><li><b>Присылаете материалы</b><span>Планы, генплан, фасады и список квартир.</span></li><li><b>Собираем 3D</b><span>Квартал, выбор квартир, интерьер и вид из окна. Вы согласуете планировки.</span></li><li><b>Подключаем данные</b><span>Статусы и цены из вашей выгрузки или CRM.</span></li><li><b>Запуск</b><span>Ссылка или кнопка на вашем сайте, проверка на телефонах.</span></li></ol>
+  </div>
+</section>
+
+<section style="padding-top:0" id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">FAQ</p><h2>Часто задаваемые вопросы</h2></div>
+    <div class="faq" data-reveal>
+      <details open><summary>Нужно ли менять CRM или сайт?</summary><p>Нет. Мы добавляем ссылку или кнопку на ваш сайт. Статусы и цены берём из вашей выгрузки продаж. Формат согласуем: файл, таблица, Profitbase или 1С.</p></details>
+      <details><summary>Что, если реальных планов пока нет?</summary><p>Можно начать с типового решения: лифтовый узел, холл и входы покажем с пометкой «типовое решение, условно». Когда придут реальные планы, пересоберём секцию.</p></details>
+      <details><summary>Работает ли на телефоне?</summary><p>Да, в браузере телефона и компьютера, без установки. Демо проверяли на ширине экрана 375 пикселей.</p></details>
+      <details><summary>Можно ли показывать любую квартиру изнутри?</summary><p>Интерьер собирается по планировке. В пилоте это типовая квартира, при запуске на весь комплекс интерьер строится для каждой планировки отдельно.</p></details>
+      <details><summary>Вы берёте долю от продаж?</summary><p>Нет. Создание оплачивается разово, дальше идёт ежемесячная поддержка.</p></details>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0" id="contact">
+  <div class="wrap">
+    <div class="pg-band" data-reveal style="align-items:flex-start">
+      <div style="flex:1;min-width:260px"><h2>Покажем ваш комплекс в 3D бесплатно</h2><p>Оставьте контакты и пришлите генплан или планы секции: соберём короткое превью и покажем его на онлайн-встрече на 15 минут. Договор и оплата только если вам понравится.</p></div>
+      <form id="lead" novalidate style="flex:1;min-width:300px;display:grid;gap:12px;background:var(--panel);color:var(--ink);border-radius:18px;padding:22px">
+        <div class="two"><div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div><div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div></div>
+        <div class="two"><div class="field"><label for="fOrg">Застройщик и ЖК</label><input id="fOrg" name="org" placeholder="Название компании и комплекса"><span class="err" id="eOrg"></span></div><div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div></div>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+        <label class="consent" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--muted);cursor:pointer"><input type="checkbox" id="fConsent" name="consent" style="width:18px;height:18px;margin-top:2px;flex:none"><span>Даю <a href="consent.html" target="_blank" rel="noopener" style="text-decoration:underline">согласие на обработку персональных данных</a> и ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="text-decoration:underline">Политикой обработки</a></span></label><span class="err" id="eConsent" style="font-size:13px;color:#C2410C"></span>
+        <button class="btn btn-gold" type="submit" style="justify-self:start">Получить коммерческое предложение</button>
+        <p class="fine">Согласие можно отозвать письмом на info@3dryad.ru.</p>
+        <div id="sent" hidden></div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <a class="logo" href="index.html" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ" width="140" height="auto"></a>
+    <span>3D-пространство, которое продаёт</span>
+    <span class="sp">ООО «Северный Характер»</span>
+    <a href="privacy.html" style="text-decoration:underline">Политика обработки персональных данных</a>
+    <span class="pg-links" style="flex-basis:100%"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="sport.html">Спорт и арены</a><a href="doma-kultury.html">ДК и площадки</a><a href="zastroyshchikam.html">Застройщикам</a></span>
+  </div>
+</footer>
+<script src="config.js"></script>
+<script src="lead.js"></script>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window){
+    document.documentElement.classList.add('js');
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)});
+  }
+})();
+</script>
+</body>
+</html>

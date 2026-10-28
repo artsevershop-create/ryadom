@@ -1107,7 +1107,7 @@ function buildHall(){
   /* LED-борта по периметру поля */
   var bt=adTex(['ВАШ БРЕНД','ПАРТНЁР КЛУБА','СПОНСОР МАТЧА','РЕКЛАМА НА LED-БОРТАХ'],'#0b0a10','#f0b94a');bt.repeat.set(4,1);
   var adM=new T.MeshBasicMaterial({map:bt,side:T.DoubleSide});
-  [[0,PW+1.5,2*PL,0],[0,-PW-1.5,2*PL,Math.PI],[PL+1.5,0,2*PW,-Math.PI/2],[-PL-1.5,0,2*PW,Math.PI/2]].forEach(function(b){var m=new T.Mesh(new T.PlaneGeometry(b[2],.9),adM);m.position.set(b[0],.55,b[1]);m.rotation.y=b[3];hall.add(m)});
+  [[0,PW+1.5,2*PL,Math.PI],[0,-PW-1.5,2*PL,0],[PL+1.5,0,2*PW,Math.PI/2],[-PL-1.5,0,2*PW,-Math.PI/2]].forEach(function(b){var m=new T.Mesh(new T.PlaneGeometry(b[2],.9),adM);m.position.set(b[0],.55,b[1]);m.rotation.y=b[3];hall.add(m)});
   var conc=Mat(0x9b9488,{roughness:.9}),fasc=Mat(0x15131a);
   /* основные трибуны запад/восток: 2 яруса */
   ['W','E'].forEach(function(sd,k){
