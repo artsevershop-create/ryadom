@@ -188,13 +188,93 @@ button{cursor:pointer}
   #gdBtn{top:10px;right:10px}
   #gdBtn.beside{right:148px}
 }
+
+/* навигация v2 */
+#legend{display:none!important}
+#toolbar{display:none!important}
+#panelToggle{display:none!important}
+#dock{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));translate:-50% 0;z-index:3;display:flex;gap:8px;align-items:center;width:max-content;max-width:calc(100% - 24px)}
+.seg2{display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(18,17,25,.88);backdrop-filter:blur(10px);border:1px solid var(--line);overflow-x:auto;scrollbar-width:none;min-width:0}
+.seg2::-webkit-scrollbar{display:none}
+.seg2 button{border:0;background:transparent;color:var(--fg);padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;white-space:nowrap;flex:0 0 auto}
+.seg2 button:hover:not(.on){background:rgba(255,255,255,.09)}
+.seg2 button.on{background:var(--accent);color:var(--accent-ink)}
+.dockseat{flex:0 0 auto;padding:12px 18px;font-weight:700;background:rgba(18,17,25,.88);border:1px solid var(--accent);color:var(--accent);border-radius:999px;backdrop-filter:blur(10px)}
+.dockseat.on,.dockseat:hover{background:var(--accent);color:var(--accent-ink)}
+#tools{position:absolute;top:12px;right:12px;z-index:7;display:flex;flex-direction:column;gap:8px}
+#toolsDyn{display:contents}
+.tb,#tools #gdBtn{position:static!important;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;padding:0;background:rgba(18,17,25,.88);border:1px solid var(--line);color:var(--fg);backdrop-filter:blur(10px);font-weight:700;font-size:20px;line-height:1}
+.tb svg{width:22px;height:22px}
+.tb.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tb:hover,#tools #gdBtn:hover{border-color:var(--accent)}
+.tb[data-tip]{position:relative!important}
+.tb[data-tip]:hover::after{content:attr(data-tip);position:absolute;right:calc(100% + 8px);top:50%;translate:0 -50%;background:rgba(12,11,17,.96);border:1px solid var(--line);padding:5px 10px;border-radius:8px;font-size:12px;font-weight:500;white-space:nowrap;pointer-events:none}
+@media (hover:none){.tb[data-tip]:hover::after{display:none}}
+#floatBar{position:absolute;left:50%;bottom:calc(74px + env(safe-area-inset-bottom,0px));translate:-50% 0;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;width:max-content;max-width:calc(100% - 24px)}
+#secBar,#tourBar,#seatCtl{display:flex;align-items:center;gap:12px;background:rgba(18,17,25,.9);backdrop-filter:blur(10px);border:1px solid var(--line);border-radius:16px;padding:8px 12px;font-size:13px;max-width:100%}
+#secBar b,#tourBar b{font-weight:700}
+#secBar span,#tourBar span{color:var(--mute)}
+#secBar button,#tourBar button{border:0;background:rgba(255,255,255,.08);color:var(--fg);width:30px;height:30px;border-radius:50%;font-size:16px;line-height:1;flex:0 0 auto}
+#secBar button:hover,#tourBar button:hover{background:var(--accent);color:var(--accent-ink)}
+#seatCtl{gap:18px;flex-wrap:wrap;justify-content:center}
+#seatCtl label{display:flex;align-items:center;gap:8px;color:var(--mute)}
+#seatCtl input{width:110px;accent-color:var(--accent)}
+#seatCtl output{min-width:44px;color:var(--fg);font-variant-numeric:tabular-nums}
+.sg{margin:0 0 10px}
+.sg h3{margin:0 0 6px;font-size:12px;font-weight:600;color:var(--mute)}
+.sc{display:flex;flex-wrap:wrap;gap:6px}
+.sc button{min-width:50px;padding:7px 8px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);font-weight:600;font-variant-numeric:tabular-nums;display:grid;gap:0;text-align:center;line-height:1.15}
+.sc button small{font-weight:400;font-size:10.5px;color:var(--mute)}
+.sc button:hover{border-color:var(--accent)}
+.sc button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sc button.on small{color:var(--accent-ink)}
+.sc button.full{opacity:.45}
+#app.nopanel{grid-template-columns:minmax(0,1fr) 0}
+#app.nopanel #panel{display:none}
+#vm{position:absolute;top:12px;left:12px;z-index:5;display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(18,17,25,.9);backdrop-filter:blur(10px);border:1px solid var(--line)}
+#vm button{border:0;background:transparent;color:var(--fg);padding:8px 14px;border-radius:999px;font-weight:600;font-size:12.5px;white-space:nowrap}
+#vm button:hover:not(.on){background:rgba(255,255,255,.09)}
+#vm button.on{background:var(--accent);color:var(--accent-ink)}
+#mini{position:absolute;top:58px;left:12px;z-index:4;width:270px;background:rgba(14,13,20,.94);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column}
+#mini .mh{display:flex;justify-content:space-between;align-items:center;padding:7px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+#mini .mh button{border:0;background:rgba(255,255,255,.08);color:var(--fg);width:22px;height:22px;border-radius:50%;line-height:1}
+#mapSvg{display:block;width:100%;height:auto;aspect-ratio:244/168;touch-action:manipulation}
+#mapSvg polygon{cursor:pointer;transition:fill-opacity .2s}
+#mapSvg polygon:hover{stroke:#fff;stroke-width:.9}
+#mapSvg text{pointer-events:none;font-family:Onest,sans-serif;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central}
+#mini .mn{padding:2px 10px 8px;font-size:11px;color:var(--mute)}
+#mini.big{inset:56px 68px 76px 12px;width:auto;z-index:6;background:#0d0c13}
+#mini.big #mapSvg{flex:1;min-height:0;height:100%;aspect-ratio:auto}
+#mini.big .mh{font-size:12px;padding:10px 14px 4px}
+#mini.big .mn{font-size:12.5px;padding:4px 14px 10px}
+@media (max-width:860px){
+  #app.nopanel{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) 0}
+  #dock{left:8px;right:8px;translate:none;width:auto;max-width:none;justify-content:center}
+  .seg2{flex:1 1 auto}
+  .seg2 button{padding:9px 13px;font-size:12.5px}
+  .dockseat{padding:10px 14px;font-size:12.5px}
+  #tools{top:10px;right:10px;gap:6px}
+  .tb,#tools #gdBtn{width:40px;height:40px;border-radius:12px}
+  .tb svg{width:20px;height:20px}
+  #floatBar{bottom:calc(66px + env(safe-area-inset-bottom,0px));left:8px;right:58px;translate:none;width:auto;max-width:none}
+  #seatCtl input{width:84px}
+  #seatCtl{gap:10px;font-size:12px}
+  #score{display:none}
+  #vm{top:10px;left:10px}
+  #vm button{padding:7px 11px;font-size:12px}
+  #mini{top:52px;left:10px;width:164px}
+  #mini .mh{padding:5px 8px 2px;font-size:10px}
+  #mini .mn{display:none}
+  #mini.big{inset:50px 58px 66px 10px;width:auto}
+  #mini.big .mn{display:block}
+}
 </style>
 
 <div id="app">
   <main id="view">
     <canvas id="gl" aria-label="3D-схема зала"></canvas>
     <div id="loading">Строим зал…</div>
-    <button id="gdBtn" class="chip" type="button" aria-label="Как пользоваться" title="Как пользоваться">?</button>
+    <div id="tools"><span id="toolsDyn"></span><button id="gdBtn" class="chip" type="button" aria-label="Как пользоваться" title="Как пользоваться">?</button></div>
     <div id="gd" hidden role="dialog" aria-modal="true" aria-labelledby="gdT">
       <div class="gdc">
         <button class="gdx" type="button" aria-label="Закрыть">×</button>
@@ -218,10 +298,13 @@ button{cursor:pointer}
       <span id="hint">Тяните — вращать · колесо — масштаб · клик по месту — выбрать · двойной клик — вид из кресла</span>
     </div>
     <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
+    <div id="vm" role="tablist" aria-label="Режим выбора мест"><button type="button" data-m="3d">3D</button><button type="button" data-m="both">3D + схема</button><button type="button" data-m="map">Схема</button></div>
+    <div id="mini" hidden><div class="mh"><span id="miniT">Схема секторов</span><button id="miniX" type="button" aria-label="Свернуть схему">–</button></div><svg id="mapSvg" viewBox="-122 -84 244 168" role="img" aria-label="Схема секторов"></svg><div class="mn" id="mapNote">Нажмите на сектор: он подсветится, а 3D подлетит к нему.</div></div>
     <button id="exitSeat" class="chip" hidden>← Выйти из вида</button>
     <div id="seatBadge" hidden></div>
     <div id="tip" hidden></div>
-    <div id="toolbar" role="toolbar" aria-label="Ракурсы"></div>
+    <div id="toolbar" role="toolbar" aria-label="Ракурсы"></div><div id="floatBar"><div id="secBar" hidden><b id="secName"></b><span id="secInfo"></span><button id="secX" type="button" aria-label="Сбросить сектор">×</button></div><div id="tourBar" hidden><b id="tourName"></b><span id="tourNum"></span><button id="tourNext" type="button" aria-label="Следующая точка">›</button><button id="tourX" type="button" aria-label="Остановить тур">×</button></div><div id="seatCtl" hidden><label>Высота глаз <input id="eyeR" type="range" min="1" max="2.6" step=".05" value="1.2"><output id="eyeO">1,2 м</output></label><label>Обзор <input id="fovR" type="range" min="34" max="85" step="1" value="68"><output id="fovO">68°</output></label></div></div>
+    <div id="dock"><div class="seg2" id="views" role="toolbar" aria-label="Ракурсы"></div><button class="dockseat" id="seatBtn" type="button">Вид из кресла</button></div>
   </main>
   <aside id="panel">
     <header>
@@ -234,6 +317,7 @@ button{cursor:pointer}
     <div id="scroll">
       <section><h2>Мероприятие</h2><div id="events"></div><p class="hintline">Фильм на экране, выступление и зрители в сцене условные.</p></section>
       <section><h2>Категории мест</h2><div id="cats"></div><p class="hintline">Нажмите на категорию, чтобы подсветить её в зале.</p></section>
+      <section><h2>Секторы и зоны</h2><div id="secList"></div><p class="hintline">Выберите сектор: он подсветится, а камера подлетит к нему. В кружке число свободных мест.</p></section>
       <section><h2>Подобрать места рядом</h2>
         <div class="finder">
           <div class="step"><button id="nMinus" aria-label="Меньше">−</button><output id="nVal">2</output><button id="nPlus" aria-label="Больше">+</button></div>
@@ -857,7 +941,7 @@ function clearHall(){
 }
 
 /* ---------- Построение зала ---------- */
-function buildHall(){
+function buildHallOrig(){
   clearHall(); seats=[];
   var cx=0,cz=-4;
   if(kind==='concert'){
@@ -977,7 +1061,7 @@ function buildHall(){
 
 /* занятые места (приглушённый цвет своей категории) и палитра события */
 function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-function applyEvent(){
+function applyEventOrig(){
   var ev=EV(), r=rng(ev.seed*7919+(kind==='cinema'?1:0)), w=[1.3,1.2,1,.8,.6,.5];
   sold=new Uint8Array(seats.length);
   seats.forEach(function(s,i){
@@ -1000,9 +1084,9 @@ function refreshColors(){
   var tmp=new T.Color();
   for(var i=0;i<seats.length;i++){
     var s=seats[i],c;
-    if(sold[i])c=(filter>=0&&s.cat!==filter)?SOLDD:SOLDC;
+    if(sold[i])c=(dimC(s))?SOLDD:SOLDC;
     else if(sel.indexOf(i)>=0)c=SEL;
-    else c=(filter>=0&&s.cat!==filter)?catDim[s.cat]:catCol[s.cat];
+    else c=(dimC(s))?catDim[s.cat]:catCol[s.cat];
     tmp.copy(c);
     if(i===hover)tmp.lerp(WHITE,.35);
     baseMesh.setColorAt(i,tmp);
@@ -1011,7 +1095,7 @@ function refreshColors(){
   baseMesh.instanceColor.needsUpdate=backMesh.instanceColor.needsUpdate=true;
   if(crowd)crowd.recolor(function(i){
     var s=seats[i]; tmp.copy(sel.indexOf(i)>=0?SEL:crowd.gray[i]); if(sel.indexOf(i)<0)tmp.multiplyScalar(.58);
-    if(filter>=0&&s.cat!==filter&&sel.indexOf(i)<0)tmp.multiplyScalar(.22);
+    if(dimC(s)&&sel.indexOf(i)<0)tmp.multiplyScalar(.22);
     if(i===hover)tmp.lerp(WHITE,.35);
     return tmp;
   });
@@ -1024,20 +1108,23 @@ function refreshColors(){
 var cam={mode:'orbit',tgt:new T.Vector3(0,2,10),th:0,ph:1.15,dist:44,eye:new T.Vector3(),yaw:0,yaw0:0,pitch:0,fov:68,seatI:-1};
 var cur={pos:new T.Vector3(0,20,50),look:new T.Vector3(0,2,10),fov:50};
 function applyPreset(p){
+  if(vmode==='map')setVm('both');
+  activePreset=p.name||''; markViews();
   cam.mode='orbit'; cam.tgt.set(p.tgt[0],p.tgt[1],p.tgt[2]); cam.th=p.th; cam.ph=p.ph; cam.dist=p.dist; onMode();
 }
-function viewFrom(i){
+function viewFrom(i,keep){
+  if(vmode==='map')setVm('both');
   var s=seats[i], L=H().look;
   cam.mode='seat'; cam.seatI=i;
-  cam.eye.set(s.x-Math.sin(s.th)*.0,s.y+1.2,s.z);
+  cam.eye.set(s.x-Math.sin(s.th)*.0,s.y+eyeH,s.z);
   var dx=L[0]-cam.eye.x, dy=L[1]-cam.eye.y, dz=L[2]-cam.eye.z;
-  cam.yaw=cam.yaw0=Math.atan2(dx,-dz); cam.pitch=Math.atan2(dy,Math.hypot(dx,dz)); cam.fov=68;
-  stopTour(); onMode();
+  cam.yaw=cam.yaw0=Math.atan2(dx,-dz); cam.pitch=Math.atan2(dy,Math.hypot(dx,dz)); cam.fov=68; $('#fovR').value=68; $('#fovO').textContent='68°';
+  if(!keep)stopTour(); onMode();
 }
 function onMode(){
   var seat=cam.mode==='seat';
   if(crowd){var nh=seat?cam.seatI:-1; if(nh!==crowd.hide){crowd.hide=nh; syncCrowd(); refreshColors()}}
-  $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat;
+  $('#exitSeat').hidden=!seat; $('#seatBadge').hidden=!seat; $('#seatCtl').hidden=!seat; updateSecBar(); if(seat)activePreset=''; markViews();
   if(seat){var s=seats[cam.seatI]; $('#seatBadge').textContent='Вид из кресла: '+seatLabel(s)+' · тяните, чтобы осмотреться'}
 }
 function desired(){
@@ -1083,7 +1170,7 @@ function rotateBy(dx,dy){
 }
 function zoom(f){
   if(cam.mode==='orbit')cam.dist=Math.max(6,Math.min(75,cam.dist*f));
-  else cam.fov=Math.max(34,Math.min(85,cam.fov*f));
+  else{cam.fov=Math.max(34,Math.min(85,cam.fov*f)); var fr=$('#fovR'); if(fr){fr.value=Math.round(cam.fov); $('#fovO').textContent=Math.round(cam.fov)+'°'}}
 }
 
 /* ---------- Ввод ---------- */
@@ -1155,6 +1242,7 @@ function toggleSeat(i){
   onSel();
 }
 function onSel(){
+  updateMap();
   if(sel.length&&!holdEnd){holdEnd=Date.now()+10*60*1000}
   if(!sel.length)holdEnd=0;
   syncCrowd(); refreshColors(); renderCats(); renderSeats(); tickHold();
@@ -1176,7 +1264,7 @@ function bestSeats(){
     var ok=true,mx=0,mz=0,pen=0;
     for(var k=0;k<n;k++){
       var s=seats[i+k];
-      if(sold[i+k]||(filter>=0&&s.cat!==filter)){ok=false;break}
+      if(sold[i+k]||(dimC(s))){ok=false;break}
       if(k>0){var p=seats[i+k-1]; if(p.row!==s.row||p.tier!==s.tier||Math.hypot(p.x-s.x,p.z-s.z)>1.1){ok=false;break}}
       mx+=s.x; mz+=s.z; if(s.tier==='Балкон')pen=8;
     }
@@ -1223,7 +1311,7 @@ $('#events').addEventListener('click',function(e){
   if(had)toast('Выбор сброшен: другое мероприятие');
 });
 $('#cats').addEventListener('click',function(e){
-  var b=e.target.closest('.cat'); if(!b)return; var c=+b.dataset.c; filter=filter===c?-1:c; refreshColors(); renderCats();
+  var b=e.target.closest('.cat'); if(!b)return; var c=+b.dataset.c; filter=filter===c?-1:c; refreshColors(); renderCats(); updateMap();
 });
 $('#mySeats').addEventListener('click',function(e){
   var b=e.target.closest('button'); if(!b)return;
@@ -1240,7 +1328,7 @@ $('#venueSeg').addEventListener('click',function(e){
 });
 
 /* панель ракурсов */
-function renderToolbar(){
+function renderToolbarOrig(){
   var tb=$('#toolbar'); tb.innerHTML='';
   H().presets.forEach(function(p){
     var b=document.createElement('button'); b.className='chip'; b.textContent=p.name;
@@ -1267,11 +1355,6 @@ function applyEventVis(){
   var isOrch=kind==='concert'&&/Бетховен/.test(EV().title);
   if(band)band.mesh.visible=showCrowd&&!isOrch; if(orch)orch.visible=showCrowd&&isOrch; if(conductor)conductor.mesh.visible=showCrowd&&isOrch;
 }
-function startTour(){tourOn=true; tourI=0; var b=$('#tourBtn'); if(b)b.classList.add('on'); nextTour()}
-function nextTour(){
-  if(!tourOn)return; var P=H().presets; applyPreset(P[tourI%P.length]); tourI++; tourT=setTimeout(nextTour,3800);
-}
-function stopTour(){tourOn=false; clearTimeout(tourT); var b=$('#tourBtn'); if(b)b.classList.remove('on')}
 
 function renderAll(){renderToolbar(); renderEvents(); renderCats(); renderSeats()}
 
@@ -1366,11 +1449,217 @@ function loop(){
     if(frame%3===0)drawScreen(tAnim);
     beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
   }
-  stepCam(dt);
-  renderer.render(scene,camera);
+  stepCam(dt); if(frame%6===0)updateCamMark();
+  if(vmode!=='map')renderer.render(scene,camera);
 }
 
-buildHall(); renderAll(); applyPreset(H().presets[0]);
+
+/* ================= навигация v2, схема, секторы ================= */
+var secFocus='', eyeH=1.2, activePreset='', vmode='both', mapSec={}, mapReady=false, mapVB=[-122,-84,244,168], secInfo={}, tourStopsCur=[];
+var uiMob=!!(window.matchMedia&&(matchMedia('(max-width:860px)').matches||matchMedia('(pointer:coarse)').matches));
+function zk(s){return s.sec?String(s.sec):(s.zn||'')}
+function dimC(s){return (filter>=0&&s.cat!==filter)||(secFocus&&zk(s)!==secFocus)}
+function assignZones(){
+  var by={};
+  seats.forEach(function(s){if(s.sec)return; (by[s.tier]=by[s.tier]||[]).push(s)});
+  Object.keys(by).forEach(function(tr){
+    var a=by[tr],x0=1e9,x1=-1e9,r0=1e9,r1=-1e9;
+    a.forEach(function(s){x0=Math.min(x0,s.x);x1=Math.max(x1,s.x);r0=Math.min(r0,s.row);r1=Math.max(r1,s.row)});
+    var rn=r1-r0+1,splitR=rn>8,ab=(tr||'?').charAt(0).toUpperCase();
+    a.forEach(function(s){
+      var xi=Math.min(2,Math.floor((s.x-x0)/((x1-x0)||1)*3)),ri=splitR?((s.row-r0)<rn/2?0:1):0;
+      s.zn=ab+(ri*3+xi+1);
+    });
+  });
+}
+function mapFocus(){var L=H().look; if(H().kind==='cinema')return {x:L[0],z:L[2],w:16,h:1.6,r:.6,label:'Экран'}; return {x:L[0],z:L[2],w:16,h:6,r:1.5,label:'Сцена'};}
+function hull(pts){
+  pts=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1]});
+  function cr(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0])}
+  var lo=[],up=[],i;
+  for(i=0;i<pts.length;i++){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],pts[i])<=0)lo.pop();lo.push(pts[i])}
+  for(i=pts.length-1;i>=0;i--){while(up.length>=2&&cr(up[up.length-2],up[up.length-1],pts[i])<=0)up.pop();up.push(pts[i])}
+  up.pop();lo.pop();return lo.concat(up);
+}
+function buildMap(){
+  mapSec={};
+  var x0=1e9,x1=-1e9,z0=1e9,z1=-1e9;
+  seats.forEach(function(s,i){
+    var k=zk(s); if(!k)return;
+    var m=mapSec[k]||(mapSec[k]={sec:k,tier:s.tier,pts:[],cat:s.cat,n:0,cx:0,cz:0,zone:!s.sec});
+    m.n++;m.cx+=s.x;m.cz+=s.z; if(i%3===0)m.pts.push([s.x,s.z]);
+    x0=Math.min(x0,s.x);x1=Math.max(x1,s.x);z0=Math.min(z0,s.z);z1=Math.max(z1,s.z);
+  });
+  var f=mapFocus();
+  x0=Math.min(x0,f.x-f.w/2);x1=Math.max(x1,f.x+f.w/2);z0=Math.min(z0,f.z-f.h/2);z1=Math.max(z1,f.z+f.h/2);
+  var w=(x1-x0)*1.1+6,h=(z1-z0)*1.1+6,cx=(x0+x1)/2,cz=(z0+z1)/2,ar=244/168;
+  if(w/h<ar)w=h*ar;else h=w/ar;
+  mapVB=[cx-w/2,cz-h/2,w,h];
+  $('#mapSvg').setAttribute('viewBox',mapVB.map(function(v){return v.toFixed(1)}).join(' '));
+  var sw=Math.max(.15,w/480), g='<rect x="'+mapVB[0]+'" y="'+mapVB[1]+'" width="'+w+'" height="'+h+'" fill="#0d0c13"/>'+
+    '<rect x="'+(f.x-f.w/2).toFixed(1)+'" y="'+(f.z-f.h/2).toFixed(1)+'" width="'+f.w+'" height="'+f.h+'" rx="'+f.r+'" fill="#25222f" stroke="#7d7890" stroke-width="'+(sw*1.4).toFixed(2)+'"/>'+
+    '<text x="'+f.x.toFixed(1)+'" y="'+f.z.toFixed(1)+'" font-size="'+Math.max(1.4,Math.min(f.h*.45,w/40)).toFixed(1)+'" fill-opacity=".75">'+esc(f.label)+'</text>';
+  Object.keys(mapSec).forEach(function(k){
+    var m=mapSec[k],hl=hull(m.pts); if(hl.length<3)return;
+    m.cx/=m.n; m.cz/=m.n;
+    var xs=hl.map(function(q){return q[0]}),zs=hl.map(function(q){return q[1]});
+    var bw=Math.max.apply(null,xs)-Math.min.apply(null,xs),bh=Math.max.apply(null,zs)-Math.min.apply(null,zs);
+    m.span=Math.max(bw,bh);
+    var fs=Math.max(w/110,Math.min(w/48,Math.min(bw,bh)*.34));
+    g+='<polygon data-s="'+esc(k)+'" points="'+hl.map(function(q){return q[0].toFixed(1)+','+q[1].toFixed(1)}).join(' ')+'" fill="#888" stroke="#0d0c13" stroke-width="'+sw.toFixed(2)+'" stroke-linejoin="round"><title></title></polygon>'+
+       '<text data-t="'+esc(k)+'" x="'+m.cx.toFixed(1)+'" y="'+m.cz.toFixed(1)+'" font-size="'+fs.toFixed(1)+'">'+esc(k)+'</text>';
+  });
+  g+='<g pointer-events="none"><circle id="camTgt" r="'+(w/90).toFixed(2)+'" fill="none" stroke="#fff" stroke-width="'+(sw*1.6).toFixed(2)+'"/><path id="camArr" d="M0,-1 L2.3,0 L0,1 Z" fill="#f0b94a" stroke="#0d0c13" stroke-width=".15" transform="scale('+(w/90*1.3).toFixed(2)+')"/></g>';
+  $('#mapSvg').innerHTML=g; mapReady=true; updateMap();
+}
+function updateMap(){
+  if(!mapReady||!sold)return;
+  var st={},svg=$('#mapSvg');
+  seats.forEach(function(s,i){
+    var k=zk(s); if(!k)return;
+    var o=st[k]||(st[k]={n:0,free:0,sel:0,min:1e9});
+    o.n++; if(!sold[i]){o.free++; var pr=priceOf(s); if(pr<o.min)o.min=pr}
+  });
+  sel.forEach(function(i){var s=seats[i],k=s&&zk(s); if(k&&st[k])st[k].sel++});
+  Array.prototype.forEach.call(svg.querySelectorAll('polygon'),function(pg){
+    var k=pg.getAttribute('data-s'),o=st[k],m=mapSec[k]; if(!o||!m)return;
+    var cat=H().cats[m.cat],c=cat?cat.color:'#888',fr=o.free/o.n;
+    var d=(filter>=0&&m.cat!==filter)||(secFocus&&secFocus!==k);
+    pg.setAttribute('fill',c); pg.setAttribute('fill-opacity',d?.3:(.3+.7*fr).toFixed(2));
+    pg.setAttribute('stroke',secFocus===k?'#fff':'#0d0c13'); pg.setAttribute('stroke-width',(secFocus===k?mapVB[2]/200:mapVB[2]/480).toFixed(2));
+    pg.firstChild.textContent=k+' · '+m.tier+' · свободно '+o.free+' из '+o.n+(o.free?' · от '+fmt(o.min):'')+(o.sel?' · выбрано '+o.sel:'');
+    var tx=svg.querySelector('text[data-t="'+k+'"]'); if(tx){tx.textContent=o.sel?k+' ✓'+o.sel:k; tx.setAttribute('fill-opacity',d?.35:1)}
+  });
+}
+function updateCamMark(){
+  if(!mapReady||vmode==='3d')return;
+  var tg=$('#camTgt'),ar=$('#camArr'); if(!tg)return;
+  tg.setAttribute('cx',cur.look.x.toFixed(1)); tg.setAttribute('cy',cur.look.z.toFixed(1));
+  var px=camera.position.x,pz=camera.position.z,inside=px>mapVB[0]&&px<mapVB[0]+mapVB[2]&&pz>mapVB[1]&&pz<mapVB[1]+mapVB[3];
+  ar.style.display=inside?'':'none';
+  if(inside){var ang=Math.atan2(cur.look.z-pz,cur.look.x-px)*180/Math.PI; ar.setAttribute('transform','translate('+px.toFixed(1)+','+pz.toFixed(1)+') rotate('+ang.toFixed(0)+') scale('+(mapVB[2]/90*1.3).toFixed(2)+')')}
+}
+function setVm(m){
+  vmode=m; var mini=$('#mini');
+  mini.hidden=(m==='3d'); mini.classList.toggle('big',m==='map');
+  $('#miniT').textContent=m==='map'?'Схема: нажмите на сектор':'Схема секторов';
+  $('#miniX').hidden=(m==='map');
+  Array.prototype.forEach.call(document.querySelectorAll('#vm button'),function(b){b.classList.toggle('on',b.dataset.m===m)});
+  if(m!=='3d')updateMap();
+}
+$('#vm').addEventListener('click',function(e){var b=e.target.closest('button'); if(b)setVm(b.dataset.m)});
+$('#miniX').addEventListener('click',function(){setVm('3d')});
+$('#mapSvg').addEventListener('click',function(e){
+  var pg=e.target.closest('polygon'); if(!pg)return;
+  if(vmode==='map')setVm('both');
+  setSector(pg.getAttribute('data-s'));
+});
+
+/* ---------- секторы ---------- */
+function renderSectors(){
+  secInfo={};
+  seats.forEach(function(s,i){
+    var k=zk(s); if(!k)return;
+    var m=secInfo[k]||(secInfo[k]={sec:k,tier:s.tier,n:0,free:0,min:1e9,x:0,y:0,z:0,zone:!s.sec});
+    m.n++;m.x+=s.x;m.y+=s.y;m.z+=s.z;
+    if(!sold||!sold[i]){m.free++;var pr=priceOf(s);if(pr<m.min)m.min=pr}
+  });
+  var groups={},order=[];
+  Object.keys(secInfo).sort().forEach(function(k){var m=secInfo[k];if(!groups[m.tier]){groups[m.tier]=[];order.push(m.tier)}groups[m.tier].push(m)});
+  var el=$('#secList'); if(!el)return;
+  el.innerHTML=order.map(function(tr){
+    return '<div class="sg"><h3>'+esc(tr)+'</h3><div class="sc">'+groups[tr].map(function(m){
+      return '<button data-s="'+esc(m.sec)+'" class="'+(secFocus===m.sec?'on ':'')+(m.free?'':'full')+'">'+esc(m.sec)+'<small>'+m.free+'</small></button>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+function flyToSector(sec){
+  var m=secInfo[sec]; if(!m)return;
+  var cx=m.x/m.n,cy=m.y/m.n,cz=m.z/m.n,L=H().look,ms=mapSec[sec],span=ms&&ms.span?ms.span:20;
+  applyPreset({name:'',tgt:[cx,cy+1,cz],th:Math.atan2(L[0]-cx,L[2]-cz),ph:1.12,dist:Math.max(14,Math.min(80,span*1.15+10))});
+}
+function setSector(sec){
+  secFocus=secFocus===sec?'':sec; refreshColors(); renderSectors(); updateSecBar(); updateMap();
+  if(secFocus){stopTour(); flyToSector(secFocus)}
+}
+function updateSecBar(){
+  var bar=$('#secBar'); if(!bar)return;
+  var m=secFocus&&secInfo[secFocus];
+  bar.hidden=!m||cam.mode==='seat';
+  if(m){$('#secName').textContent=(m.zone?'Зона ':'Сектор ')+m.sec; $('#secInfo').textContent=m.tier+' · свободно '+m.free+' из '+m.n+(m.free?' · от '+fmt(m.min):'')}
+}
+$('#secList').addEventListener('click',function(e){var b=e.target.closest('button'); if(b)setSector(b.dataset.s)});
+$('#secX').addEventListener('click',function(){setSector(secFocus)});
+
+/* ---------- вид из кресла: высота глаз и угол обзора ---------- */
+$('#eyeR').addEventListener('input',function(){eyeH=+this.value; $('#eyeO').textContent=String(eyeH.toFixed(2).replace('.',',')).replace(/0$/,'')+' м'; if(cam.mode==='seat'&&cam.seatI>=0)cam.eye.y=seats[cam.seatI].y+eyeH});
+$('#fovR').addEventListener('input',function(){if(cam.mode==='seat'){cam.fov=+this.value; $('#fovO').textContent=this.value+'°'}});
+
+/* ---------- навигация ---------- */
+var ICON={
+ play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>',
+ stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+ crowd:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8.5" cy="8" r="3"/><circle cx="16.5" cy="9" r="2.5"/><path d="M2.5 19c.3-3.5 2.8-5.5 6-5.5s5.7 2 6 5.5M15 14c3 0 5.5 1.7 6 5"/></svg>',
+ pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
+ panel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M15 4v16"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ minus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>'
+};
+function tb(id,icon,tip,on,fn){
+  var b=document.createElement('button'); b.type='button'; b.className='tb'+(on?' on':''); if(id)b.id=id;
+  b.innerHTML=icon; b.setAttribute('aria-label',tip); b.setAttribute('data-tip',tip); b.onclick=fn; return b;
+}
+function panelOff(){return $('#app').classList.contains('nopanel')}
+function togglePanel(){var pt=$('#panelToggle'); if(pt)pt.click(); else $('#app').classList.toggle('nopanel'); buildNav()}
+function buildNav(){
+  var src=$('#toolbar'); if(!src)return;
+  var chips=Array.prototype.slice.call(src.children), P=H().presets.map(function(p){return p.name});
+  var v=$('#views'),el=$('#toolsDyn'); v.innerHTML=''; el.innerHTML='';
+  var KNOWN=['Автотур','Вид из кресла','Зрители','Пауза'], c;
+  var byTx=function(t){return chips.filter(function(x){return x.textContent.trim()===t})[0]};
+  chips.forEach(function(ch){
+    var tx=ch.textContent.trim();
+    if(P.indexOf(tx)>=0||KNOWN.indexOf(tx)<0){
+      var b=document.createElement('button'); b.type='button'; b.textContent=tx; b.onclick=function(){ch.click()}; v.appendChild(b);
+    }
+  });
+  c=byTx('Автотур'); if(c)el.appendChild(tb('tourBtn',tourOn?ICON.stop:ICON.play,tourOn?'Остановить автотур':'Автотур по залу',tourOn,function(){c.click()}));
+  c=byTx('Зрители'); if(c)el.appendChild(tb('crowdBtn',ICON.crowd,c.classList.contains('on')?'Скрыть зрителей':'Показать зрителей',c.classList.contains('on'),function(){c.click(); setTimeout(buildNav,0)}));
+  c=byTx('Пауза'); if(c)el.appendChild(tb('pauseBtn',ICON.pause,c.classList.contains('on')?'Продолжить':'Пауза',c.classList.contains('on'),function(){c.click(); setTimeout(buildNav,0)}));
+  el.appendChild(tb('zin',ICON.plus,'Приблизить',false,function(){stopTour(); zoom(.78)}));
+  el.appendChild(tb('zout',ICON.minus,'Отдалить',false,function(){stopTour(); zoom(1.28)}));
+  el.appendChild(tb('panBtn',ICON.panel,panelOff()?'Показать панель с билетами':'Скрыть панель: зал на весь экран',panelOff(),togglePanel));
+  c=byTx('Вид из кресла'); $('#seatBtn').onclick=function(){if(c)c.click()};
+  markViews();
+}
+function markViews(){
+  var v=$('#views'); if(!v)return;
+  Array.prototype.forEach.call(v.children,function(b){b.classList.toggle('on',b.textContent===activePreset)});
+  var sb=$('#seatBtn'); if(sb)sb.classList.toggle('on',cam.mode==='seat');
+}
+function tourStops(){
+  var st=H().presets.map(function(p){return {t:p.name,go:function(){applyPreset(p)}}});
+  st.push({t:'Вид из кресла',go:function(){
+    var i=-1,sw=H().sweet||[0,10],best=1e9;
+    for(var k=0;k<seats.length;k++){if(sold[k])continue; var d=Math.hypot(seats[k].x-sw[0],seats[k].z-sw[1]); if(d<best){best=d;i=k}}
+    if(i>=0)viewFrom(i,true)}});
+  return st;
+}
+function startTour(){tourOn=true; tourI=0; tourStopsCur=tourStops(); $('#tourBar').hidden=false; buildNav(); nextTour()}
+function nextTour(){
+  if(!tourOn)return; clearTimeout(tourT);
+  var st=tourStopsCur[tourI%tourStopsCur.length]; tourI++;
+  $('#tourName').textContent=st.t; $('#tourNum').textContent=((tourI-1)%tourStopsCur.length+1)+' из '+tourStopsCur.length;
+  st.go(); tourT=setTimeout(nextTour,4300);
+}
+function stopTour(){tourOn=false; clearTimeout(tourT); var tbar=$('#tourBar'); if(tbar)tbar.hidden=true; if($('#toolsDyn')&&typeof buildNav==='function')buildNav()}
+$('#tourNext').addEventListener('click',nextTour);
+$('#tourX').addEventListener('click',stopTour);
+function renderToolbar(){renderToolbarOrig(); buildNav()}
+function applyEvent(){applyEventOrig(); if(typeof renderSectors==='function'){renderSectors(); updateMap()}}
+function buildHall(){buildHallOrig(); assignZones(); secFocus=''; buildMap(); renderSectors(); updateSecBar()}
+
+buildHall(); renderAll(); applyPreset(H().presets[0]); setVm(uiMob?'3d':'both');
 cur.pos.set(0,26,60); cur.look.set(0,2,10);
 resize(); loop();
 setTimeout(function(){$('#loading').classList.add('off')},250);
