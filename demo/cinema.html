@@ -337,6 +337,120 @@ button{cursor:pointer}
 <div id="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--HQ-->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+/* РЯДом: пакет качества графики для демо (three.js r128).
+   Мягкие тени, отражения окружения, фактура ткани на креслах и поверхностях, свечение экранов и софитов.
+   Цвета категорий и сцены не меняет. На телефонах облегчённый режим: без теней и свечения.
+   Подключение: после three.min.js и examples/js (RoomEnvironment, EffectComposer, RenderPass, UnrealBloomPass);
+   в демо: RQ.setup(renderer,scene,camera) сразу после создания сцены, RQ.render(scene,camera) вместо renderer.render. */
+var RQ=(function(T){
+'use strict';
+var low=(window.matchMedia&&matchMedia('(max-width:860px)').matches)||/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent);
+var R=null,S=null,composer=null,key=null,frame=0,fitted=null;
+
+/* процедурные карты рельефа: переплетение ткани и мелкая фактура (бетон, дерево, ковёр) */
+function canvasTex(size,fn){
+  var c=document.createElement('canvas');c.width=c.height=size;var g=c.getContext('2d'),d=g.createImageData(size,size);
+  for(var y=0;y<size;y++)for(var x=0;x<size;x++){var v=Math.max(0,Math.min(255,fn(x,y)|0)),i=(y*size+x)*4;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}
+  g.putImageData(d,0,0);var t=new T.CanvasTexture(c);t.wrapS=t.wrapT=T.RepeatWrapping;t.anisotropy=8;return t;
+}
+var rnd=(function(s){return function(){s=(s*16807)%2147483647;return s/2147483647}})(7);
+var FABRIC=canvasTex(64,function(x,y){var wv=((x>>2)+(y>>2))%2?(x%4<2?150:120):(y%4<2?150:120);return wv+rnd()*36-18});
+var GRAIN=canvasTex(256,function(x,y){return 128+Math.sin(y*.18+Math.sin(x*.03)*2.4)*18+rnd()*44-22});
+
+function sizeOf(o){
+  var g=o.geometry;if(!g)return 1;if(!g.boundingBox)g.computeBoundingBox();var b=g.boundingBox;if(!b)return 1;
+  var s=new T.Vector3();b.getSize(s);var sc=o.scale||{x:1,y:1,z:1};return Math.max(s.x*sc.x,s.y*sc.y,s.z*sc.z,.5);
+}
+
+function setup(renderer,scene,camera){
+  R=renderer;S=scene;
+  // правильный цвет (sRGB) и киношная тональная кривая, как в демо филармонии; цвета кресел пересчитываем, чтобы они остались прежними
+  R.outputEncoding=T.sRGBEncoding;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
+  var lin=new T.Color(),setColorAt=T.InstancedMesh.prototype.setColorAt;
+  T.InstancedMesh.prototype.setColorAt=function(i,c){setColorAt.call(this,i,lin.copy(c).convertSRGBToLinear())};
+  if(!low){R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap}
+  try{if(T.RoomEnvironment){var p=new T.PMREMGenerator(R);S.environment=p.fromScene(new T.RoomEnvironment(),.04).texture;p.dispose()}}catch(e){}
+  if(!low)try{
+    if(T.EffectComposer&&T.UnrealBloomPass&&T.RenderPass){
+      var sz=R.getDrawingBufferSize(new T.Vector2());
+      var rt=T.WebGLMultisampleRenderTarget?new T.WebGLMultisampleRenderTarget(Math.max(1,sz.x),Math.max(1,sz.y),{format:T.RGBAFormat}):undefined;
+      composer=new T.EffectComposer(R,rt);composer.addPass(new T.RenderPass(S,camera));
+      composer.addPass(new T.UnrealBloomPass(new T.Vector2(512,512),.32,.45,.93));
+      if(T.GammaCorrectionShader&&T.ShaderPass)composer.addPass(new T.ShaderPass(T.GammaCorrectionShader));
+      var setSize=R.setSize.bind(R),setPR=R.setPixelRatio.bind(R);
+      R.setSize=function(w,h,u){setSize(w,h,u);if(composer){composer.setPixelRatio(R.getPixelRatio());composer.setSize(w,h)}};
+      R.setPixelRatio=function(v){setPR(v);if(composer)composer.setPixelRatio(v)};
+    }
+  }catch(e){composer=null}
+}
+
+function seatsOf(o,box){
+  box.makeEmpty();var m=new T.Matrix4(),p=new T.Vector3();o.updateMatrixWorld();
+  for(var i=0;i<o.count;i++){o.getMatrixAt(i,m);p.setFromMatrixPosition(m).applyMatrix4(o.matrixWorld);box.expandByPoint(p)}
+  box.expandByScalar(4);
+}
+/* цвета материалов и картинок заданы «как на экране» — переводим в линейные один раз, чтобы при sRGB-выводе они не выцвели */
+function linearize(){
+  if(S.fog&&!S.fog.userData){S.fog.userData=1;S.fog.color.convertSRGBToLinear()}
+  S.traverse(function(o){
+    var ms=o.material;if(!ms)return;(Array.isArray(ms)?ms:[ms]).forEach(function(m){
+      if(m.userData.lin||m.isShaderMaterial)return;m.userData.lin=1;
+      if(m.color)m.color.convertSRGBToLinear();if(m.emissive)m.emissive.convertSRGBToLinear();
+      [m.map,m.emissiveMap].forEach(function(t){if(t&&t.encoding===T.LinearEncoding){t.encoding=T.sRGBEncoding;t.needsUpdate=true}});
+      m.needsUpdate=true;
+    });
+  });
+}
+/* донастройка материалов и теней после (пере)постройки зала */
+function polish(){
+  var box=new T.Box3(),any=false;polish.most=0;
+  S.traverse(function(o){
+    if(!o.isMesh||!o.visible)return;var m=o.material;if(!m||Array.isArray(m)||!m.isMeshStandardMaterial)return;
+    if(!m.userData.rq){
+      m.userData.rq=1;
+      if(m.envMapIntensity===1)m.envMapIntensity=o.isInstancedMesh?.06:.14;
+      if(!m.bumpMap&&!(m.emissiveIntensity>0&&m.emissive&&m.emissive.getHex())){
+        var t=(o.isInstancedMesh?FABRIC:GRAIN).clone();t.needsUpdate=true;
+        var n=o.isInstancedMesh?1.5:Math.min(40,sizeOf(o)/1.6);t.repeat.set(n,n);
+        m.bumpMap=t;m.bumpScale=o.isInstancedMesh?.02:.012;m.needsUpdate=true;
+      }
+    }
+    if(!low&&!o.userData.rqs){o.userData.rqs=1;o.receiveShadow=true;if(o.isInstancedMesh||sizeOf(o)<6)o.castShadow=true}
+    // тени нужны там, где кресла: границы считаем по креслам (самый большой набор копий), а не по фасаду и земле
+    if(o.isInstancedMesh&&o.count>50&&o.count>(polish.most||0)){polish.most=o.count;seatsOf(o,box);any=true}
+  });
+  if(low||!any||box.isEmpty())return;
+  var c=box.getCenter(new T.Vector3()),s=box.getSize(new T.Vector3()),r=Math.min(Math.max(s.x,s.z)*.6,160);
+  var sig=Math.round(c.x)+','+Math.round(c.z)+','+Math.round(r);if(sig===fitted)return;fitted=sig;
+  if(!key){
+    // часть ровной заливки (полусфера, общий свет) отдаём направленному свету с тенями — появляется объём
+    S.traverse(function(l){if((l.isHemisphereLight||l.isAmbientLight)&&!l.userData.rq){l.userData.rq=1;l.intensity*=.62}});
+    key=new T.DirectionalLight(0xfff3e0,.75);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.bias=-.0006;key.shadow.normalBias=.02;key.shadow.radius=3;S.add(key,key.target)}
+  key.position.set(c.x+r*.55,c.y+r*.75,c.z+r*.5);   // косой свет: тени от спинок ложатся на ряды за нимиkey.target.position.copy(c);
+  var cam=key.shadow.camera;cam.left=cam.bottom=-r;cam.right=cam.top=r;cam.near=1;cam.far=r*4;cam.updateProjectionMatrix();
+}
+
+function render(scene,camera){
+  if(frame%8===0)linearize();
+  if(frame++%90===0)polish();
+  if(composer)composer.render();else R.render(scene,camera);
+}
+function info(){var n={mesh:0,inst:0,bump:0,cast:0,recv:0};if(S)S.traverse(function(o){if(!o.isMesh)return;n.mesh++;if(o.isInstancedMesh)n.inst++;if(o.material&&o.material.bumpMap)n.bump++;if(o.castShadow)n.cast++;if(o.receiveShadow)n.recv++});
+  return {low:low,composer:!!composer,key:key&&{i:key.intensity,pos:key.position.toArray().map(Math.round),r:key.shadow.camera.right},shadows:R&&R.shadowMap.enabled,env:!!(S&&S.environment),n:n,frame:frame}}
+return {setup:setup,render:render,polish:polish,low:low,info:info};
+})(THREE);
+</script>
+<!--/HQ-->
 <script>
 /* РЯДом: общее ядро демо. Зрители, игроки, матч, ограничение камеры. Один файл, без внешних библиотек (кроме three.js r128 страницы).
    Подключается в каждое демо перед основным скриптом: var RC=...; */
@@ -806,6 +920,7 @@ var scene=new T.Scene();
 scene.background=new T.Color(0x07060a);
 scene.fog=new T.Fog(0x07060a,70,170);
 var camera=new T.PerspectiveCamera(50,1,.1,300);
+RQ.setup(renderer,scene,camera); /*HQ*/
 var hall=new T.Group(); scene.add(hall);
 var baseMesh,backMesh,glowMesh,rimMesh,stageLights=[],beams=[],catCol=[],catDim=[],catSold=[];
 var crowd=null,band=null,conductor=null,orch=null,colliders=[],paused=!!reduce,showCrowd=true,tAnim=0,beatLevel=0,scrAvg=new T.Color(0x222222),tintC=new T.Color(),SOLDC=new T.Color(0x5e626b),SOLDD=new T.Color(0x5e626b).multiplyScalar(.22);
@@ -1450,7 +1565,7 @@ function loop(){
     beams.forEach(function(b){b.rotation.z=Math.sin(t*.8+b.userData.ph)*.3; b.rotation.x=.2+Math.cos(t*.6+b.userData.ph)*.12});
   }
   stepCam(dt); updateExterior(); if(frame%6===0)updateCamMark();
-  if(vmode!=='map')renderer.render(scene,camera);
+  if(vmode!=='map')RQ.render(scene,camera);
 }
 
 
