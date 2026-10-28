@@ -1053,7 +1053,7 @@ function buildHallOrig(){
   /* поперечный проход и барьер амфитеатра (с проёмами у лестниц) */
   box(-HX,HX,TZ0,TZ1,AISLE_Y,carpet);
   var BH=rowY(10)+.9;
-  SEG.forEach(function(sg){box(sg[0],sg[1],TZ1-.18,TZ1,BH,wood); line(sg[0],sg[1],BH+.02,TZ1-.09)});
+  /* деревянный барьер перед 10-м рядом убран по просьбе заказчика */
   /* пульт звукорежиссёра на месте разрыва 21-го ряда, окна аппаратной в задней стене */
   var dz=rowZ(21), dy=rowY(21)+.05;
   add(new T.BoxGeometry(8.6,1.05,1.1),woodL,0,dy+.52,dz);
@@ -1295,8 +1295,7 @@ function floorH(x,z){
   if(z<STAGE_Z){ if(z>=-17){h=1.0; if(Math.abs(x)<3.1&&z>-14.3&&z<-10.7)h=1.4} return h; }
   if(z<rowZ(2)-.51)return 0;
   if(z>=TZ0&&z<=TZ1)return AISLE_Y+.15;
-  if(z>TZ1-.2&&z<TZ1+.02)return rowY(10)+1.05;
-  for(r=2;r<=25;r++){
+    for(r=2;r<=25;r++){
     if(z<=rowZ(r)+.51){h=rowY(r)+.2; if(r===21&&Math.abs(x)<4.4&&Math.abs(z-rowZ(21))<.6)h=rowY(21)+1.8; return h}
   }
   return rowY(25)+.25;
