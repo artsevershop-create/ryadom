@@ -1761,7 +1761,8 @@ function buildExterior(){
     var W=c.w+3,D=c.d+3,Hh=c.h+1.2;
     var tS=facadeTex(tone,Math.max(2,D/9),Math.max(1,c.h/9)),tF=facadeTex(tone,Math.max(2,W/9),Math.max(1,c.h/9));
     var mS=xm({map:tS}),mF=xm({map:tF}),mR=xm({color:0x3a3d45,roughness:.9});
-    var body=new T.Mesh(new T.BoxGeometry(W,Hh,D),[mS,mS,mR,mR,mF,mF]);body.position.set(c.cx,Hh/2+c.gy+.15,c.cz);walls.add(body);
+    var mTop=new T.MeshBasicMaterial({visible:false});var body=new T.Mesh(new T.BoxGeometry(W,Hh,D),[mS,mS,mTop,mR,mF,mF]);body.position.set(c.cx,Hh/2+c.gy+.15,c.cz);walls.add(body);
+    var rf=new T.Mesh(new T.PlaneGeometry(W,D).rotateX(-Math.PI/2),mR);rf.position.set(c.cx,Hh+c.gy+.16,c.cz);roof.add(rf);
     var par=xm({color:0x6a6e79,roughness:.6});
     [[W+1,.9,.9,0,D/2],[W+1,.9,.9,0,-D/2],[.9,.9,D+1,W/2,0],[.9,.9,D+1,-W/2,0]].forEach(function(p){var m=new T.Mesh(new T.BoxGeometry(p[0],p[1],p[2]),par);m.position.set(c.cx+p[3],Hh+.6+c.gy,c.cz+p[4]);roof.add(m)});
     var hv=xm({color:0x8d939f,metalness:.4});
