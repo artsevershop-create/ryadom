@@ -1929,5 +1929,35 @@ setTimeout(function(){$('#loading').classList.add('off')},250);
 })();
 </script>
 
+<!--fullview-->
+<style>
+#fsBtn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:30;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(16,18,26,.72);color:#fff;font:600 13px/1 system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#fsBtn:hover{background:rgba(16,18,26,.9)}
+@media (max-width:640px){#fsBtn span{display:none}#fsBtn{width:36px;padding:0;justify-content:center}}
+</style>
+<script>
+(function(){
+  /* сцена на весь экран сразу: панель билетов скрыта, открывается кнопкой; ?panel=1 оставляет её */
+  var app=document.getElementById('app');
+  if(app&&!/[?&]panel=1/.test(location.search)){
+    app.classList.add('nopanel');
+    var pt=document.getElementById('panelToggle');
+    if(pt){pt.textContent='◂ Показать панель';pt.setAttribute('aria-expanded','false')}
+    try{if(typeof buildNav==='function')buildNav()}catch(e){}
+    try{if(typeof renderTools==='function')renderTools()}catch(e){}
+  }
+  var de=document.documentElement,can=de.requestFullscreen||de.webkitRequestFullscreen;
+  if(!can)return;
+  var b=document.createElement('button');b.id='fsBtn';b.type='button';b.setAttribute('aria-label','Во весь экран');
+  function paint(){var on=document.fullscreenElement||document.webkitFullscreenElement;b.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(on?'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5':'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5')+'"/></svg><span>'+(on?'Выйти':'На весь экран')+'</span>'}
+  b.addEventListener('click',function(){
+    var on=document.fullscreenElement||document.webkitFullscreenElement;
+    try{ if(on){(document.exitFullscreen||document.webkitExitFullscreen).call(document)} else {(de.requestFullscreen||de.webkitRequestFullscreen).call(de)} }catch(e){}
+  });
+  document.addEventListener('fullscreenchange',paint);document.addEventListener('webkitfullscreenchange',paint);
+  paint();document.body.appendChild(b);
+})();
+</script>
+
 </body>
 </html>
