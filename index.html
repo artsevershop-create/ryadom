@@ -691,7 +691,7 @@ footer a{color:inherit}
     <div class="shot" id="shot">
       <div class="frame" id="frame"><div class="wm"><img class="wm-flat" src="img2/flat-hall.svg" width="1600" height="1000" alt="" aria-hidden="true"><img class="wm-3d" src="img2/app-overview.jpg" width="2880" height="1800" alt="3D-модель концертного зала на 686 мест с панелью выбора мероприятия и цен"><i class="wm-line" aria-hidden="true"></i><span class="wm-lab a">Было: плоская схема</span><span class="wm-lab b">Стало: 3D-зал</span><span class="wm-hint">Потяните, чтобы сравнить самому</span></div></div>
       <div class="ticket" id="tk" aria-live="polite">
-        <div class="main"><b id="tkSeat">Амфитеатр · ряд 10 · место 14</b><span id="tkEv">Игорь Саруханов · 12 ноября, 19:00</span><span class="door" id="tkDoor">Вход 2, левая сторона</span></div>
+        <div class="main"><b id="tkSeat">Амфитеатр · ряд 10 · место 14</b><span id="tkEv">Эстрадный концерт · 12 ноября, 19:00</span><span class="door" id="tkDoor">Вход 2, левая сторона</span></div>
         <div class="stub" id="tkPrice">3 000 ₽</div>
       </div>
     </div>
@@ -1121,10 +1121,10 @@ footer a{color:inherit}
     shot.addEventListener('pointerleave',function(){frame.style.transform=''});
   }
   var T=[
-    {s:'Амфитеатр · ряд 10 · место 14',e:'Игорь Саруханов · 12 ноября, 19:00',d:'Вход 2, левая сторона',p:'3 000 ₽'},
-    {s:'Партер · ряд 4 · место 9',e:'Группа «Садко» · 17 ноября, 19:00',d:'Вход 1, левая сторона',p:'4 000 ₽'},
-    {s:'Партер · ряд 8 · место 22',e:'Минус 40 · 21 ноября, 18:00',d:'Вход 2, правая сторона',p:'3 600 ₽'},
-    {s:'Амфитеатр · ряд 18 · место 28',e:'Ирина Круг · 28 ноября, 17:00',d:'Вход 2, правая сторона',p:'2 300 ₽'}
+    {s:'Амфитеатр · ряд 10 · место 14',e:'Эстрадный концерт · 12 ноября, 19:00',d:'Вход 2, левая сторона',p:'3 000 ₽'},
+    {s:'Партер · ряд 4 · место 9',e:'Народный ансамбль · 17 ноября, 19:00',d:'Вход 1, левая сторона',p:'4 000 ₽'},
+    {s:'Партер · ряд 8 · место 22',e:'Рок-концерт · 21 ноября, 18:00',d:'Вход 2, правая сторона',p:'3 600 ₽'},
+    {s:'Амфитеатр · ряд 18 · место 28',e:'Вечер шансона · 28 ноября, 17:00',d:'Вход 2, правая сторона',p:'2 300 ₽'}
   ], ti=0, tk=$('#tk');
   if(!reduce) setInterval(function(){
     tk.classList.add('swap');
