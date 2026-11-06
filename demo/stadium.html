@@ -959,7 +959,7 @@ function setTod(m){
   hemi.color.setHex(d.hemi[0]);hemi.groundColor.setHex(d.hemi[1]);hemi.intensity=d.hemi[2];amb.intensity=d.amb;warm.intensity=d.warm;
   sideL.forEach(function(l){l.intensity=d.side});
   if(topL)topL.intensity=d.top;
-  if(skyMat){skyMat.map=skyTex(m);skyMat.needsUpdate=true}
+  if(skyMat){if(panoTex)applyPano();else{skyMat.map=skyTex(m);skyMat.needsUpdate=true}}
   if(treeMat)treeMat.color.setHex(d.tree);
   if(winMat)winMat.color.setHex(d.win);
   if(bldMesh){var cs=d.bld.map(function(h){return new T.Color(h)});bldIdx.forEach(function(k,j){bldMesh.setColorAt(j,cs[k])});if(bldMesh.instanceColor)bldMesh.instanceColor.needsUpdate=true}
@@ -968,6 +968,15 @@ function setTod(m){
   floodLights.forEach(function(l){l.intensity=d.flood});
   if(typeof renderTools==='function')renderTools();
 }
+/* реальный вид: панорамное фото местности вместо условного неба. Файл pano/stadium.jpg рядом с демо или ?pano=адрес (?panoRot=0..1 поворот). Нет файла — прежнее небо */
+var fakeEnv=[], panoTex=null, PANO_TINT={day:0xffffff,dusk:0xc9a48f,night:0x3a4668};
+(function(){
+  var q=location.search,m=q.match(/[?&]pano=([^&]+)/),u=m?decodeURIComponent(m[1]):'pano/stadium.jpg',rm=q.match(/[?&]panoRot=([\d.]+)/),rot=rm?+rm[1]:0;
+  var im=new Image();im.crossOrigin='anonymous';
+  im.onload=function(){panoTex=new T.Texture(im);panoTex.encoding=T.sRGBEncoding;panoTex.wrapS=T.RepeatWrapping;panoTex.repeat.x=-1;panoTex.offset.x=rot;panoTex.anisotropy=8;panoTex.needsUpdate=true;if(typeof applyPano==='function')applyPano()};
+  im.onerror=function(){};im.src=u;
+})();
+function applyPano(){if(!panoTex)return;fakeEnv.forEach(function(m){m.visible=false});if(!skyMat)return;skyMat.map=panoTex;skyMat.color.setHex(PANO_TINT[tod]||0xffffff);skyMat.needsUpdate=true}
 function nextTod(){setTod(tod==='dusk'?'night':tod==='night'?'day':'dusk')}
 
 /* текстуры */
@@ -1050,7 +1059,7 @@ function clearHall(){
     });
   }
   stageLights.forEach(function(l){scene.remove(l)}); stageLights=[]; beams=[];
-  floodLights.forEach(function(l){scene.remove(l)}); floodLights=[]; floodMats=[]; floodFlares=[]; skyMat=null; treeMat=null; bldMesh=null; winMat=null; topL=null;
+  floodLights.forEach(function(l){scene.remove(l)}); floodLights=[]; floodMats=[]; floodFlares=[]; skyMat=null; fakeEnv=[]; treeMat=null; bldMesh=null; winMat=null; topL=null;
 }
 
 /* ---------- Построение стадиона ---------- */
@@ -1164,14 +1173,14 @@ function buildEnv(){
   var gt=new T.CanvasTexture(c);gt.anisotropy=8;
   add(new T.PlaneGeometry(G,G).rotateX(-Math.PI/2),new T.MeshStandardMaterial({map:gt,roughness:1}),0,-.9,0);
   skyMat=new T.MeshBasicMaterial({map:skyTex(tod),side:T.BackSide,fog:false,depthWrite:false});var dome=new T.Mesh(new T.SphereGeometry(1700,32,16),skyMat);
-  dome.renderOrder=-1;hall.add(dome);
+  dome.renderOrder=-1;hall.add(dome);if(panoTex)applyPano();
   /* деревья */
   var tg=new T.IcosahedronGeometry(1,0),tm=new T.MeshStandardMaterial({color:0x1d3a24,roughness:1,flatShading:true}),NT=520,trees=new T.InstancedMesh(tg,tm,NT),d=new T.Object3D();
   for(var i=0;i<NT;i++){
     var sx_=r()<.5?-1:1,sz_=r()<.5?-1:1,tx=sx_*(260+r()*900),tz=sz_*(240+r()*900),sc=3+r()*4;
     d.position.set(tx,sc*.85,tz);d.rotation.set(0,r()*3,0);d.scale.set(sc,sc*(1+r()*.5),sc);d.updateMatrix();trees.setMatrixAt(i,d.matrix);
   }
-  treeMat=tm;trees.frustumCulled=false;hall.add(trees);
+  treeMat=tm;trees.frustumCulled=false;hall.add(trees);fakeEnv.push(trees);
   /* город на горизонте: тёмные силуэты и огни окон */
   var NB=150,bl=[],wm=[],i2;
   for(i2=0;i2<NB;i2++){
@@ -1186,10 +1195,10 @@ function buildEnv(){
   }
   var bld=new T.InstancedMesh(new T.BoxGeometry(1,1,1),new T.MeshBasicMaterial({color:0xffffff}),bl.length),bcol=[new T.Color(0x10162b),new T.Color(0x151b33),new T.Color(0x0e1226)];
   bl.forEach(function(m,j){d.position.set(m[0],m[1],m[2]);d.rotation.set(0,m[3],0);d.scale.set(m[4],m[5],m[6]);d.updateMatrix();bld.setMatrixAt(j,d.matrix);bld.setColorAt(j,bcol[m[7]])});
-  bldMesh=bld;bldIdx=bl.map(function(m){return m[7]});bld.frustumCulled=false;hall.add(bld);
+  bldMesh=bld;bldIdx=bl.map(function(m){return m[7]});bld.frustumCulled=false;hall.add(bld);fakeEnv.push(bld);
   var wins=new T.InstancedMesh(new T.PlaneGeometry(1.5,2.1),new T.MeshBasicMaterial({color:0xffd08a,fog:false}),wm.length);
   wm.forEach(function(m,j){d.position.set(m[0],m[1],m[2]);d.rotation.set(0,m[3],0);d.scale.set(1,1,1);d.updateMatrix();wins.setMatrixAt(j,d.matrix)});
-  winMat=wins.material;wins.frustumCulled=false;hall.add(wins);
+  winMat=wins.material;wins.frustumCulled=false;hall.add(wins);fakeEnv.push(wins);if(panoTex)applyPano();
   /* четыре мачты прожекторов */
   [[-100,-74],[100,-74],[-100,74],[100,74]].forEach(function(p){
     add(new T.BoxGeometry(.9,62,.9),Mat(0x59606e,{metalness:.5,roughness:.5}),p[0],31,p[1]);
