@@ -155,6 +155,14 @@ button{cursor:pointer}
 #gdBtn.beside{right:158px}
 #gdBtn.pulse{animation:gdp 1.2s ease-out 3}
 @keyframes gdp{0%{box-shadow:0 0 0 0 rgba(245,166,35,.7)}100%{box-shadow:0 0 0 16px rgba(245,166,35,0)}}
+#ph{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:max(14px,env(safe-area-inset-top,0px)) 14px max(14px,env(safe-area-inset-bottom,0px));background:rgba(7,6,10,.94)}
+#ph.on{display:flex}
+#ph .phm{position:relative;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
+#ph img{max-width:100%;max-height:100%;object-fit:contain;border-radius:12px;background:#111}
+#ph .phn,#ph .phx{position:absolute;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(16,18,26,.78);color:#fff;font:600 22px/1 system-ui,sans-serif;cursor:pointer}
+#ph .phn.p{left:6px;top:50%;margin-top:-22px}#ph .phn.n{right:6px;top:50%;margin-top:-22px}#ph .phx{top:0;right:0}
+#ph .phc{max-width:900px;text-align:center;color:#e8e4da;font:13px/1.45 system-ui,sans-serif}
+#ph .phc b{display:block;font-size:16px;color:#fff;margin-bottom:2px}#ph .phc a{color:#f0b94a}
 #gd{position:absolute;inset:0;z-index:8;display:grid;place-items:center;padding:14px;background:rgba(7,6,10,.62);backdrop-filter:blur(3px);transition:opacity .25s}
 #gd[hidden]{display:none!important}
 #gd.out{opacity:0}
@@ -977,6 +985,33 @@ var fakeEnv=[], panoTex=null, PANO_TINT={day:0xffffff,dusk:0xc9a48f,night:0x3a46
   im.onerror=function(){};im.src=u;
 })();
 function applyPano(){if(!panoTex)return;fakeEnv.forEach(function(m){m.visible=false});if(!skyMat)return;skyMat.map=panoTex;skyMat.color.setHex(PANO_TINT[tod]||0xffffff);skyMat.needsUpdate=true}
+/* фото стадиона: свободные лицензии, Wikimedia Commons (автор и лицензия указаны под снимком) */
+var PHOTOS=[
+ {f:'photos/stadium-1.jpg',t:'Екатеринбург Арена с высоты',a:'Vyacheslav Bukharov',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Central_Stadium,_Yekaterinburg_(August_2022)_-_1.jpg'},
+ {f:'photos/stadium-2.jpg',t:'Стадион и временные трибуны',a:'Vyacheslav Bukharov',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Central_Stadium,_Yekaterinburg_(August_2022)_-_2.jpg'},
+ {f:'photos/stadium-3.jpg',t:'Стадион сверху',a:'Vyacheslav Bukharov',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Central_Stadium,_Yekaterinburg_(August_2022)_-_3.jpg'},
+ {f:'photos/stadium-4.jpg',t:'Вид на стадион и район',a:'Vyacheslav Bukharov',l:'CC BY-SA 4.0',u:'https://commons.wikimedia.org/wiki/File:Central_Stadium,_Yekaterinburg_(August_2022)_-_4.jpg'},
+ {f:'photos/stadium-5.jpg',t:'Концерт на поле стадиона',a:'MSDN.WhiteKnight',l:'CC0',u:'https://commons.wikimedia.org/wiki/File:20230610_Cardiogramma.jpg'},
+ {f:'photos/stadium-6.jpg',t:'Входная группа',a:'MSDN.WhiteKnight',l:'CC0',u:'https://commons.wikimedia.org/wiki/File:Yekaterinburg_Arena_2023.jpg'}
+];
+var phI=0,phEl=null;
+function showPhoto(i){
+  phI=(i+PHOTOS.length)%PHOTOS.length;var d=PHOTOS[phI];
+  phEl.querySelector('img').src=d.f;phEl.querySelector('img').alt=d.t;
+  phEl.querySelector('.phc').innerHTML='<b>'+d.t+' ('+(phI+1)+'/'+PHOTOS.length+')</b>Фото: <a href="'+d.u+'" target="_blank" rel="noopener">'+d.a+'</a>, '+d.l+', Wikimedia Commons';
+}
+function openPhotos(i){
+  if(!phEl){
+    phEl=document.createElement('div');phEl.id='ph';phEl.setAttribute('role','dialog');phEl.setAttribute('aria-label','Фото стадиона');
+    phEl.innerHTML='<div class="phm"><img alt=""><button type="button" class="phn p" aria-label="Назад">‹</button><button type="button" class="phn n" aria-label="Дальше">›</button><button type="button" class="phx" aria-label="Закрыть">×</button></div><div class="phc"></div>';
+    document.body.appendChild(phEl);
+    phEl.querySelector('.p').onclick=function(){showPhoto(phI-1)};phEl.querySelector('.n').onclick=function(){showPhoto(phI+1)};
+    phEl.querySelector('.phx').onclick=function(){phEl.classList.remove('on')};
+    phEl.addEventListener('pointerdown',function(e){if(e.target===phEl)phEl.classList.remove('on')});
+    document.addEventListener('keydown',function(e){if(!phEl.classList.contains('on'))return;if(e.key==='Escape')phEl.classList.remove('on');if(e.key==='ArrowLeft')showPhoto(phI-1);if(e.key==='ArrowRight')showPhoto(phI+1)});
+  }
+  showPhoto(i||0);phEl.classList.add('on');
+}
 function nextTod(){setTod(tod==='dusk'?'night':tod==='night'?'day':'dusk')}
 
 /* текстуры */
@@ -1748,6 +1783,7 @@ $('#fovR').addEventListener('input',function(){if(cam.mode==='seat'){cam.fov=+th
 
 /* ---------- навигация ---------- */
 var ICON={
+ photo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.4"/></svg>',
  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l12-7.5z"/></svg>',
  stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
  day:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg>',
@@ -1772,6 +1808,7 @@ function renderTools(){
   if(H().kind==='football')el.appendChild(tb('matchBtn',paused?ICON.ball:ICON.pause,paused?'Продолжить матч':'Поставить матч на паузу',paused,function(){paused=!paused; if(match)match.paused=paused; renderTools()}));
   el.appendChild(tb('zin',ICON.plus,'Приблизить',false,function(){stopTour(); zoom(.78)}));
   el.appendChild(tb('zout',ICON.minus,'Отдалить',false,function(){stopTour(); zoom(1.28)}));
+  el.appendChild(tb('photoBtn',ICON.photo,'Фото стадиона',false,function(){openPhotos(0)}));
   el.appendChild(tb('panBtn',ICON.panel,$('#app').classList.contains('nopanel')?'Показать панель с билетами':'Скрыть панель: сцена на весь экран',$('#app').classList.contains('nopanel'),function(){$('#app').classList.toggle('nopanel'); renderTools()}));
 }
 function markViews(){
