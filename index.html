@@ -651,6 +651,39 @@ footer a{color:inherit}
   .sec-head .lead{font-size:15px}
   .fab .btn{padding:12px 16px;font-size:15px}
 }
+
+/* ===== телефон: закреплённые разделы в шапке, листалки вместо длинных столбцов ===== */
+@media (max-width:1000px){
+  .top .wrap{flex-wrap:wrap;height:auto;row-gap:0;padding-top:8px}
+  .top .logo img{width:150px}
+  .top .btn{padding:10px 16px;font-size:14px}
+  .nav{display:flex;order:3;flex:0 0 calc(100% + 2*max(20px,env(safe-area-inset-left,0px)));margin:6px calc(-1*max(20px,env(safe-area-inset-left,0px))) 0;padding:0 max(20px,env(safe-area-inset-left,0px)) 4px;overflow-x:auto;scrollbar-width:none;gap:2px;font-size:14px;overscroll-behavior-x:contain;
+    -webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+  .nav::-webkit-scrollbar{display:none}
+  .nav a{padding:9px 11px}
+  .nav a.on{background:rgba(240,185,74,.14);color:var(--gold)}
+  html{scroll-padding-top:124px}
+}
+@media (max-width:760px){
+  .swipe,.plans,.feat-grid,.addons{display:flex!important;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;
+    margin-inline:calc(-1*max(20px,env(safe-area-inset-left,0px)));padding:4px max(20px,env(safe-area-inset-left,0px)) 6px;scroll-padding-inline:max(20px,env(safe-area-inset-left,0px));scrollbar-width:none;overscroll-behavior-x:contain}
+  .swipe::-webkit-scrollbar,.plans::-webkit-scrollbar,.feat-grid::-webkit-scrollbar,.addons::-webkit-scrollbar{display:none}
+  .swipe>*,.plans>*,.feat-grid>*,.addons>*{flex:0 0 86%;min-width:0;scroll-snap-align:start}
+  .swipe>.feat-big{display:flex;flex-direction:column;gap:16px;margin:0;padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--panel)}
+  .swipe>.feat-big .txt{order:1}
+  .swipe>.feat-big .img,.swipe>.feat-big .phone{order:0;max-height:240px;overflow:hidden;border-radius:12px}
+  .swipe>.feat-big img{width:100%;height:240px;object-fit:cover}
+  .swipe>.feat-big h3{font-size:20px!important}
+  .swipe>.bn{display:flex;flex-direction:column;gap:14px;padding:18px;border:1px solid var(--line);border-radius:18px;margin:0}
+  .swipe>.bn .viz{order:-1}
+  .feat-grid{margin-top:14px}
+  .sdots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+  .sdots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .2s,width .2s}
+  .sdots i.on{background:var(--gold);width:18px;border-radius:4px}
+  .swipe-hint{font-size:13px;color:var(--muted);margin:14px 0 8px}
+}
+@media (min-width:761px){.sdots,.swipe-hint{display:none}}
+@media (hover:none){.wl .more{grid-template-rows:0fr}.wl li.act .more{grid-template-rows:1fr}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/img/mark.svg">
@@ -860,6 +893,7 @@ footer a{color:inherit}
       <h2>Всё, что нужно зрителю, чтобы решиться на покупку</h2>
     </div>
 
+    <div class="swipe" aria-label="Возможности, листайте">
     <div class="feat-big" data-reveal>
       <div class="txt">
         <h3 style="font-size:24px">Вид из любого кресла</h3>
@@ -896,6 +930,7 @@ footer a{color:inherit}
       <div class="phone"><img src="img2/phone-app.jpg" width="780" height="1687" alt="3D-зал на экране телефона с афишей и кнопкой перехода к покупке" loading="lazy"></div>
     </div>
 
+    </div>
     <div class="feat-grid">
       <div class="fg" data-reveal style="--d:0s"><span class="tag">Доход площадки</span><h3>Реклама и афиша на стенах</h3><p>Баннеры партнёров и афиша следующих концертов висят на стенах 3D-зала. Их видит каждый, кто выбирает место.</p></div>
       <div class="fg" data-reveal style="--d:.12s"><span class="tag">Доход площадки</span><h3>Допродажи к билету</h3><p>Программка, гардероб без очереди, буфет, парковка, сувениры. Предлагаем в момент покупки, подключаем по запросу.</p></div>
@@ -945,6 +980,7 @@ footer a{color:inherit}
     <h2 class="mega" style="margin-top:14px">Что получает <em>заказчик</em></h2>
     <p class="lead">Четыре эффекта, которые площадка видит после запуска. Рост продаж мы не обещаем: измеряем его вместе с вами на пилоте.</p>
     <nav class="ben-chips" aria-label="Выгоды"><a href="#b-save">01 Экономия</a><a href="#b-trust">02 Доверие</a><a href="#b-up">03 Допродажи</a><a href="#b-ads">04 Реклама при выборе мест</a></nav>
+    <div class="swipe" aria-label="Выгоды, листайте">
     <article class="bn" id="b-save" data-reveal>
       <div class="bn-in"><div class="num">01</div><h3>Экономия: платите за сервис, а не за каждый билет</h3><ul><li>Зритель сам отвечает на вопрос «что видно с места?»: меньше звонков в кассу</li><li>Комиссию с проданных билетов не берём: одна цена на год вместо процента</li><li>Ваша билетная система остаётся прежней: на её замену не нужно ни рубля</li><li>Понятный бюджет: создание один раз и подписка на обслуживание</li></ul><div class="stats"><div><b>0 ₽</b><span>на замену билетной системы</span></div><div><b>0 %</b><span>комиссии с билетов</span></div></div></div>
       <div class="viz"><svg viewBox="0 0 560 340" role="img" aria-label="Схема: процент с билетов растёт вместе с продажами, подписка остаётся фиксированной"><line x1="40" y1="290" x2="540" y2="290" stroke="#CFC8B8" stroke-width="2"/><line x1="40" y1="40" x2="40" y2="290" stroke="#CFC8B8" stroke-width="2"/><rect class="vb" style="--i:0" x="70" y="250" width="46" height="40" rx="6" fill="#E0614F"/><rect class="vb" style="--i:1" x="142" y="220" width="46" height="70" rx="6" fill="#E0614F"/><rect class="vb" style="--i:2" x="214" y="185" width="46" height="105" rx="6" fill="#E0614F"/><rect class="vb" style="--i:3" x="286" y="150" width="46" height="140" rx="6" fill="#E0614F"/><rect class="vb" style="--i:4" x="358" y="110" width="46" height="180" rx="6" fill="#E0614F"/><rect class="vb" style="--i:5" x="430" y="65" width="46" height="225" rx="6" fill="#E0614F"/><path class="flow" pathLength="1" d="M40 256 H540" stroke="#2F8F4E" stroke-width="5" stroke-linecap="round" fill="none"/><text x="540" y="318" text-anchor="end" fill="#5E5A66" font-size="13">объём продаж билетов →</text><text x="48" y="30" fill="#5E5A66" font-size="13">расходы площадки</text></svg><div class="cap"><span><i style="background:#E0614F"></i>Процент с билетов растёт вместе с продажами</span><span><i style="background:#2F8F4E"></i>Подписка «РЯДом»: одна сумма на год</span></div></div>
@@ -961,6 +997,7 @@ footer a{color:inherit}
       <div class="bn-in"><div class="num">04</div><h3>Реклама при выборе мест: новый доход площадки</h3><ul><li>Зритель выбирает место в 3D-зале и видит баннеры партнёров на стенах и афишу над сценой</li><li>На аренах реклама висит на бортах, LED-кольце и экране-кубе</li><li>Вы продаёте рекламную площадь партнёрам по своему прайсу</li><li>Размещение подключаем по запросу</li></ul></div>
       <div class="viz"><svg viewBox="0 0 560 340" role="img" aria-label="3D-зал с рекламой: афиша над сценой и баннеры партнёров на стенах"><polygon points="40,236 170,170 390,170 520,236 520,326 40,326" fill="#EFE8D6"/><polygon points="40,14 170,54 170,170 40,236" fill="#DCD4C0"/><polygon points="520,14 390,54 390,170 520,236" fill="#DCD4C0"/><rect x="170" y="54" width="220" height="116" fill="#CFC7B1"/><rect x="214" y="74" width="132" height="70" rx="5" fill="#14161F"/><text x="280" y="102" text-anchor="middle" fill="#F0B94A" font-size="12" font-weight="700">АФИША</text><text x="280" y="120" text-anchor="middle" fill="#F2EFE9" font-size="11">концерт · 12 ноября</text><text x="280" y="134" text-anchor="middle" fill="#A6A1AE" font-size="10">выбрать место</text><polygon class="banner" style="--i:0" points="50.4,59.9 86.8,65.2 86.8,142.4 50.4,149.6" fill="#F0B94A"/><polygon class="banner" style="--i:1" points="509.6,59.9 473.2,65.2 473.2,142.4 509.6,149.6" fill="#4C8DF6"/><polygon class="banner" style="--i:2" points="97.2,66.7 133.6,71.9 133.6,133.1 97.2,140.3" fill="#4C8DF6"/><polygon class="banner" style="--i:3" points="462.8,66.7 426.4,71.9 426.4,133.1 462.8,140.3" fill="#E0614F"/><rect x="175.2" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="199.7" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="224.1" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="248.6" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="273.0" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="297.4" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="321.9" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="346.3" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="370.8" y="206" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="152.1" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="182.3" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="212.6" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="242.8" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="273.0" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="303.2" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="333.4" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="363.7" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="393.9" y="226" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="129.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="165.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="201.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="237.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="273.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="309.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="345.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="381.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="417.0" y="246" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="105.9" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="147.7" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="189.4" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="231.2" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="273.0" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="314.8" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="356.6" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="398.3" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="440.1" y="266" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="82.8" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="130.3" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="177.9" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="225.4" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="273.0" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="320.6" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="368.1" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="415.7" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><rect x="463.2" y="286" width="14" height="10" rx="3" fill="#D6CFBE"/><circle class="sd" style="--i:5" cx="280" cy="236" r="8" fill="#F0B94A" stroke="#A8650A" stroke-width="2"/><g class="callout" style="--i:0"><circle cx="280" cy="40" r="13" fill="#14161F"/><text x="280" y="45" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">1</text></g><g class="callout" style="--i:1"><circle cx="82" cy="122" r="13" fill="#14161F"/><text x="82" y="127" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">2</text></g><g class="callout" style="--i:2"><circle cx="478" cy="122" r="13" fill="#14161F"/><text x="478" y="127" text-anchor="middle" fill="#fff" font-size="14" font-weight="700">2</text></g></svg><ol class="legend"><li><b>1</b>Афиша ближайших событий над сценой</li><li><b>2</b>Баннеры партнёров на стенах (на аренах: борта и LED-кольцо)</li></ol><ol class="chain"><li><i>1</i>Партнёр оплачивает рекламное место</li><li><i>2</i>Баннер появляется в 3D-зале</li><li><i>3</i>Зритель видит его, выбирая место</li><li><i>4</i>Площадка получает доход</li></ol></div>
     </article>
+    </div>
   </div>
 </section>
 
@@ -1369,6 +1406,30 @@ footer a{color:inherit}
       o.observe(c);
     }
   })();
+})();
+</script>
+
+
+
+<script>
+(function(){
+  var mq=matchMedia('(max-width:760px)');
+  document.querySelectorAll('.swipe,.plans,.feat-grid,.addons').forEach(function(box){
+    var n=box.children.length; if(n<2)return;
+    var hint=document.createElement('p'); hint.className='swipe-hint'; hint.textContent='Листайте вбок →'; box.parentNode.insertBefore(hint,box);
+    var d=document.createElement('div'); d.className='sdots'; d.setAttribute('aria-hidden','true');
+    for(var i=0;i<n;i++)d.appendChild(document.createElement('i'));
+    box.parentNode.insertBefore(d,box.nextSibling);
+    function upd(){var w=box.children[0].getBoundingClientRect().width+12, k=Math.round(box.scrollLeft/w); if(box.scrollLeft+box.clientWidth>=box.scrollWidth-4)k=n-1; [].forEach.call(d.children,function(x,j){x.classList.toggle('on',j===k)})}
+    box.addEventListener('scroll',upd,{passive:true}); upd();
+  });
+  var nav=document.getElementById('nav'), last=null;
+  if(nav)setInterval(function(){var a=nav.querySelector('a.on'); if(a&&a!==last&&nav.scrollWidth>nav.clientWidth){last=a; nav.scrollTo({left:a.offsetLeft-(nav.clientWidth-a.offsetWidth)/2,behavior:'smooth'})}},400);
+  var wl=document.getElementById('wl');
+  if(wl&&matchMedia('(hover:none)').matches)wl.addEventListener('click',function(e){
+    if(e.target.closest('a'))return; var li=e.target.closest('li'); if(!li)return;
+    var on=li.classList.contains('act'); [].forEach.call(wl.children,function(x){x.classList.remove('act')}); if(!on)li.classList.add('act');
+  });
 })();
 </script>
 </body>
