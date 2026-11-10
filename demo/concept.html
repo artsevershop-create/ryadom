@@ -1289,7 +1289,7 @@ canvas.addEventListener('pointermove',function(e){
 });
 function endPtr(e,click){
   ptrs.delete(e.pointerId); pinch0=0;
-  if(click&&down&&ptrs.size===0&&down.moved<6&&performance.now()-down.t<600){var i=pickAt(e); if(i>=0)toggleSeat(i)}
+  if(click&&down&&ptrs.size===0&&down.moved<6&&performance.now()-down.t<600){var i=pickAt(e); if(i>=0){if(farPick(i))flyNear(i); else toggleSeat(i)}}
   if(ptrs.size===0)down=null;
 }
 canvas.addEventListener('pointerup',function(e){endPtr(e,true)});
@@ -1321,6 +1321,14 @@ function hoverAt(e){
 
 /* ---------- Выбор мест ---------- */
 function seatLabel(s){return kind==='concert'?s.tier+' · ряд '+s.row+' · место '+s.num:'Ряд '+s.row+' · место '+s.num}
+/* издалека клик по креслу сначала подлетает к нему, место выбирается уже вблизи */
+var NEAR=16;
+function farPick(i){if(cam.mode!=='orbit')return false; var s=seats[i]; return camera.position.distanceTo(new T.Vector3(s.x,s.y,s.z))>NEAR}
+function flyNear(i){
+  var s=seats[i], L=H().look||[0,0,0];
+  stopTour(); applyPreset({name:'',tgt:[s.x,s.y+.6,s.z],th:Math.atan2(L[0]-s.x,L[2]-s.z),ph:1.05,dist:NEAR*.55});
+  toast('Подлетели ближе: теперь нажмите на нужное место');
+}
 function toggleSeat(i){
   if(sold[i]){toast('Это место уже занято');return}
   var k=sel.indexOf(i);
@@ -1651,7 +1659,7 @@ function renderSectors(){
 function flyToSector(sec){
   var m=secInfo[sec]; if(!m)return;
   var cx=m.x/m.n,cy=m.y/m.n,cz=m.z/m.n,L=H().look,ms=mapSec[sec],span=ms&&ms.span?ms.span:20;
-  applyPreset({name:'',tgt:[cx,cy+1,cz],th:Math.atan2(L[0]-cx,L[2]-cz),ph:1.12,dist:Math.max(14,Math.min(80,span*1.15+10))});
+  applyPreset({name:'',tgt:[cx,cy+1,cz],th:Math.atan2(L[0]-cx,L[2]-cz),ph:1.12,dist:Math.max(8,Math.min(14,span*.8+5))});
 }
 function setSector(sec){
   secFocus=secFocus===sec?'':sec; refreshColors(); renderSectors(); updateSecBar(); updateMap();
