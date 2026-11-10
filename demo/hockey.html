@@ -3,16 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="icon" type="image/svg+xml" href="/img/mark.svg">
-<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-<link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#0E0D13">
-<script src="/config.js"></script>
-<script src="/metrika.js" defer></script>
-</head>
-<body>
-<title>УГМК-Арена в 3D</title>
+<title>Демо: 3D-схема хоккейной арены с видом на лёд с места | РЯДом</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700&display=swap">
@@ -267,7 +258,32 @@ button{cursor:pointer}
   #mini.big .mn{display:block}
 }
 </style>
-
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/svg+xml" href="/img/mark.svg">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0E0D13">
+<script src="/config.js"></script>
+<script src="/metrika.js" defer></script>
+<meta name="description" content="Живое демо ледовой арены в 3D: три яруса, 12 000+ мест, VIP-ложи, реклама на бортах. Выбор сектора, ряда и места с видом на лёд, режимы матча и концерта.">
+<link rel="canonical" href="https://3dryad.ru/demo/hockey.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="РЯДом">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Демо: 3D-схема хоккейной арены с видом на лёд с места | РЯДом">
+<meta property="og:description" content="Живое демо ледовой арены в 3D: три яруса, 12 000+ мест, VIP-ложи, реклама на бортах. Выбор сектора, ряда и места с видом на лёд, режимы матча и концерта.">
+<meta property="og:url" content="https://3dryad.ru/demo/hockey.html">
+<meta property="og:image" content="https://3dryad.ru/img/og-sport.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Демо: 3D-схема хоккейной арены с видом на лёд с места | РЯДом">
+<meta name="twitter:description" content="Живое демо ледовой арены в 3D: три яруса, 12 000+ мест, VIP-ложи, реклама на бортах. Выбор сектора, ряда и места с видом на лёд, режимы матча и концерта.">
+<meta name="twitter:image" content="https://3dryad.ru/img/og-sport.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"РЯДом","item":"https://3dryad.ru/"},{"@type":"ListItem","position":2,"name":"Демо: хоккейная арена","item":"https://3dryad.ru/demo/hockey.html"}]}</script>
+</head>
+<body>
+<h1 style="position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0">3D-схема хоккейной арены с видом на лёд с места</h1>
 <div id="app">
   <main id="view">
     <canvas id="gl" aria-label="3D-схема арены"></canvas>
@@ -1715,10 +1731,10 @@ var outG=null, EXT=null, extMats=[], fogIn=null, extR=function(a){return functio
 function extCfgFor(key){return {shape:'oval',cx:0,cz:0,rx:92,rz:72,h:52,name:'УГМК-АРЕНА',tone:'metal',gy:-.7};}
 function extCfg(){return extCfgFor('default')}
 function extSize(c){return {hx:c.shape==='box'?c.w/2:c.rx,hz:c.shape==='box'?c.d/2:c.rz}}
-function extMaxD(){var c=extCfg(),s=extSize(c);return Math.max(s.hx*2,s.hz*2,c.h*3)*1.9}
+function extMaxD(){return 140}
 function extPreset(key){var c=extCfgFor(key),s=extSize(c);return {name:'Здание',tgt:[c.cx,c.h*.3,c.cz],th:.75,ph:1.2,dist:Math.max(s.hx*2,s.hz*2,c.h*3)*1.45}}
-var MO=(typeof MODES!=='undefined')?MODES:HALLS; Object.keys(MO).forEach(function(k){MO[k].presets.push(extPreset(k))});
-function extBd(b){var o={},k;for(k in b)o[k]=b[k]; if('x' in b)o.x=1600; if('z' in b)o.z=1600; if('z0' in b)o.z0=-1600; if('z1' in b)o.z1=1600; return o}
+var MO=(typeof MODES!=='undefined')?MODES:HALLS; /* только интерьер: вид здания снаружи убран */
+function extBd(b){return b}   /* камера не выходит за стены */
 var extBl=1;
 function xm(o){if(typeof o.color==='number'&&extBl<.6)o=Object.assign({},o,{color:new T.Color(o.color).multiplyScalar(extBl*1.4)}); if(o.map&&!o.color)o=Object.assign({color:new T.Color().setScalar(extBl)},o); var m=new T.MeshStandardMaterial(Object.assign({roughness:.8,metalness:.1,side:T.DoubleSide,transparent:true},o)); extMats.push(m); return m}
 function facadeTex(tone,w,h){
@@ -1861,7 +1877,7 @@ function updateExterior(){
   scene.fog.near=fogIn.near+(380-fogIn.near)*a; scene.fog.far=fogIn.far+(1700-fogIn.far)*a;
   scene.fog.color.setRGB(.027+(.416-.027)*a,.024+(.263-.024)*a,.039+(.345-.039)*a);
 }
-function buildHall(){buildHallOrig(); camera.far=2800; camera.near=Math.max(.3,camera.near); camera.updateProjectionMatrix(); fogIn={near:scene.fog.near,far:scene.fog.far}; buildExterior(); assignZones(); secFocus=''; buildMap(); renderSectors(); updateSecBar()}
+function buildHall(){buildHallOrig(); camera.far=2800; camera.near=Math.max(.3,camera.near); camera.updateProjectionMatrix(); fogIn={near:scene.fog.near,far:scene.fog.far}; assignZones(); secFocus=''; buildMap(); renderSectors(); updateSecBar()}
 
 function applyEvent(){applyEventOrig(); if(typeof renderSectors==='function'){renderSectors(); updateMap()}}
 
@@ -1918,6 +1934,5 @@ setTimeout(function(){$('#loading').classList.add('off')},250);
   paint();document.body.appendChild(b);
 })();
 </script>
-
 </body>
 </html>

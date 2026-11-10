@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>http://3dryad.ru/</loc></url>
-  <url><loc>http://3dryad.ru/consent.html</loc></url>
-  <url><loc>http://3dryad.ru/doma-kultury.html</loc></url>
-  <url><loc>http://3dryad.ru/kinoteatry.html</loc></url>
-  <url><loc>http://3dryad.ru/privacy.html</loc></url>
-  <url><loc>http://3dryad.ru/sport.html</loc></url>
-  <url><loc>http://3dryad.ru/teatry.html</loc></url>
-  <url><loc>http://3dryad.ru/zastroyshchikam.html</loc></url>
+  <url><loc>https://3dryad.ru/</loc><lastmod>2026-11-10</lastmod><priority>1.0</priority></url>
+  <url><loc>https://3dryad.ru/teatry.html</loc><lastmod>2026-11-10</lastmod><priority>0.8</priority></url>
+  <url><loc>https://3dryad.ru/sport.html</loc><lastmod>2026-11-10</lastmod><priority>0.8</priority></url>
+  <url><loc>https://3dryad.ru/kinoteatry.html</loc><lastmod>2026-11-10</lastmod><priority>0.8</priority></url>
+  <url><loc>https://3dryad.ru/doma-kultury.html</loc><lastmod>2026-11-10</lastmod><priority>0.8</priority></url>
+  <url><loc>https://3dryad.ru/zastroyshchikam.html</loc><lastmod>2026-11-10</lastmod><priority>0.8</priority></url>
+  <url><loc>https://3dryad.ru/privacy.html</loc><lastmod>2026-11-10</lastmod><priority>0.2</priority></url>
+  <url><loc>https://3dryad.ru/consent.html</loc><lastmod>2026-11-10</lastmod><priority>0.2</priority></url>
+  <url><loc>https://3dryad.ru/demo/yamal.html</loc><lastmod>2026-11-10</lastmod><priority>0.6</priority></url>
+  <url><loc>https://3dryad.ru/demo/cinema.html</loc><lastmod>2026-11-10</lastmod><priority>0.6</priority></url>
+  <url><loc>https://3dryad.ru/demo/hockey.html</loc><lastmod>2026-11-10</lastmod><priority>0.6</priority></url>
+  <url><loc>https://3dryad.ru/demo/stadium.html</loc><lastmod>2026-11-06</lastmod><priority>0.6</priority></url>
+  <url><loc>https://3dryad.ru/demo/futsal.html</loc><lastmod>2026-11-10</lastmod><priority>0.6</priority></url>
 </urlset>

@@ -1,3 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: http://3dryad.ru/sitemap.xml
+Disallow: /crm/
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&gclid&from
+
+Sitemap: https://3dryad.ru/sitemap.xml
