@@ -995,7 +995,8 @@ function setTod(m){
 /* реальный вид: панорамное фото местности вместо условного неба. Файл pano/stadium.jpg рядом с демо или ?pano=адрес (?panoRot=0..1 поворот). Нет файла — прежнее небо */
 var fakeEnv=[], panoTex=null, PANO_TINT={day:0xffffff,dusk:0xc9a48f,night:0x3a4668};
 (function(){
-  var q=location.search,m=q.match(/[?&]pano=([^&]+)/),u=m?decodeURIComponent(m[1]):'pano/stadium.jpg',rm=q.match(/[?&]panoRot=([\d.]+)/),rot=rm?+rm[1]:0;
+  var q=location.search,m=q.match(/[?&]pano=([^&]+)/),u=m?decodeURIComponent(m[1]):'',rm=q.match(/[?&]panoRot=([\d.]+)/),rot=rm?+rm[1]:0;
+  if(!u)return;   /* по умолчанию прежняя местность; фото-панорама только по ?pano= */
   var im=new Image();im.crossOrigin='anonymous';
   im.onload=function(){panoTex=new T.Texture(im);panoTex.encoding=T.sRGBEncoding;panoTex.wrapS=T.RepeatWrapping;panoTex.repeat.x=-1;panoTex.offset.x=rot;panoTex.anisotropy=8;panoTex.needsUpdate=true;if(typeof applyPano==='function')applyPano()};
   im.onerror=function(){};im.src=u;
