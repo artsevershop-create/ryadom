@@ -1183,11 +1183,18 @@ function flyNear(i){
   stopTour(); applyPreset({name:'',tgt:[s.x,s.y+.6,s.z],th:Math.atan2(L[0]-s.x,L[2]-s.z),ph:1.05,dist:NEAR*.55});
   toast('Подлетели ближе: теперь нажмите на нужное место');
 }
+/* выбранное место сразу видно в панели: если панель скрыта, открываем её и показываем «Ваши места» */
+function openPanelSeats(){
+  try{
+    var app=$('#app'); if(app&&app.classList.contains('nopanel')){if(typeof togglePanel==='function')togglePanel(); else {var pt=$('#panelToggle'); if(pt)pt.click(); else app.classList.remove('nopanel')}}
+    setTimeout(function(){var ms=$('#mySeats'),sec=ms&&ms.closest('section'),sc=$('#scroll'); if(sec&&sc)sc.scrollTo({top:Math.max(0,sec.offsetTop-sc.offsetTop-8),behavior:'smooth'})},120);
+  }catch(e){}
+}
 function toggleSeat(i){
   if(sold[i]){toast('Это место уже занято');return}
   var k=sel.indexOf(i);
   if(k>=0){sel.splice(k,1); if(crowd)crowd.reset(i)}
-  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime)}
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime); openPanelSeats()}
   onSel();
 }
 function onSel(){

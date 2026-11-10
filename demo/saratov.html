@@ -1418,11 +1418,18 @@ function flyNear(i){
   stopTour(); applyPreset({name:'',tgt:[s.x,s.y+.6,s.z],th:Math.atan2(L[0]-s.x,L[2]-s.z),ph:1.05,dist:NEAR*.55});
   toast('Подлетели ближе: теперь нажмите на нужное место');
 }
+/* выбранное место сразу видно в панели: если панель скрыта, открываем её и показываем «Ваши места» */
+function openPanelSeats(){
+  try{
+    var app=$('#app'); if(app&&app.classList.contains('nopanel')){if(typeof togglePanel==='function')togglePanel(); else {var pt=$('#panelToggle'); if(pt)pt.click(); else app.classList.remove('nopanel')}}
+    setTimeout(function(){var ms=$('#mySeats'),sec=ms&&ms.closest('section'),sc=$('#scroll'); if(sec&&sc)sc.scrollTo({top:Math.max(0,sec.offsetTop-sc.offsetTop-8),behavior:'smooth'})},120);
+  }catch(e){}
+}
 function toggleSeat(i){
   if(sold[i]){toast('Это место уже занято');return}
   var k=sel.indexOf(i);
   if(k>=0){sel.splice(k,1); if(crowd)crowd.reset(i)}
-  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime)}
+  else{if(sel.length>=MAXSEL){toast('Можно выбрать не больше '+MAXSEL+' мест');return} sel.push(i); if(crowd)crowd.born(i,clock.elapsedTime); openPanelSeats()}
   onSel();
 }
 function onSel(){
@@ -2073,15 +2080,15 @@ setTimeout(function(){$('#loading').classList.add('off')},400);
 
 <!--fullview-->
 <style>
-#fsBtn{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:calc(10px + env(safe-area-inset-right,0px));z-index:30;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(16,18,26,.72);color:#fff;font:600 13px/1 system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#fsBtn{position:absolute;top:12px;right:64px;z-index:30;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(16,18,26,.72);color:#fff;font:600 13px/1 system-ui,sans-serif;cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 #fsBtn:hover{background:rgba(16,18,26,.9)}
 @media (max-width:640px){#fsBtn span{display:none}#fsBtn{width:36px;padding:0;justify-content:center}}
 </style>
 <script>
 (function(){
-  /* сцена на весь экран сразу: панель билетов скрыта, открывается кнопкой; ?panel=1 оставляет её */
+  /* панель билетов открыта сразу, её можно скрыть кнопкой; ?panel=0 открывает зал без неё */
   var app=document.getElementById('app');
-  if(app&&!/[?&]panel=1/.test(location.search)){
+  if(app&&/[?&]panel=0/.test(location.search)){
     app.classList.add('nopanel');
     var pt=document.getElementById('panelToggle');
     if(pt){pt.textContent='◂ Показать панель';pt.setAttribute('aria-expanded','false')}
@@ -2097,7 +2104,7 @@ setTimeout(function(){$('#loading').classList.add('off')},400);
     try{ if(on){(document.exitFullscreen||document.webkitExitFullscreen).call(document)} else {(de.requestFullscreen||de.webkitRequestFullscreen).call(de)} }catch(e){}
   });
   document.addEventListener('fullscreenchange',paint);document.addEventListener('webkitfullscreenchange',paint);
-  paint();document.body.appendChild(b);
+  paint();(document.getElementById('view')||document.body).appendChild(b);
 })();
 </script>
 </body>
