@@ -690,3 +690,21 @@ footer a{color:inherit}
 .hub i{font-style:normal;color:var(--gold-ink);font-weight:600;font-size:14px}
 @media (prefers-reduced-motion:reduce){.hub a{transition:none}}
 .ph + section{padding-top:clamp(40px,5vw,64px)!important}
+
+/* меню по аудиториям: выпадающие списки на компьютере, горизонтальная лента на телефоне */
+.nv{position:relative;display:flex}
+.nv .cv{display:inline-block;width:6px;height:6px;margin-left:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);opacity:.7}
+.nv .sub{position:absolute;left:0;top:100%;min-width:250px;display:none;gap:2px;background:var(--stage);border:1px solid var(--stage-line);border-radius:12px;padding:8px;box-shadow:0 24px 48px -20px rgba(0,0,0,.7);z-index:30}
+.nv:hover .sub,.nv:focus-within .sub{display:grid}
+.nv .sub a{padding:10px 12px;border-radius:8px}
+.nv .sub a:hover,.nv .sub a:focus-visible{background:rgba(255,255,255,.07);color:var(--stage-ink)}
+.nsep{width:1px;height:18px;background:var(--stage-line);align-self:center;margin:0 8px}
+@media (max-width:1180px){.nav{font-size:14px}.nav a{padding:8px 7px}}
+@media (max-width:1000px){.nv{display:contents}.nv .sub,.nv .cv,.nsep{display:none!important}}
+
+/* «Открыть демо» в списке площадок: крупно, капсом, золотой кнопкой, первой в ряду */
+.wl .tags a[href*="demo/"]{order:-1;display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:999px;background:var(--gold);color:#241a05;font-family:var(--display);font-size:clamp(16px,1.7vw,21px);font-weight:700;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;box-shadow:0 14px 30px -14px rgba(240,185,74,.9),0 3px 0 #C98F1F;transition:transform .2s,box-shadow .2s,background .2s}
+.wl .tags a[href*="demo/"]:hover,.wl .tags a[href*="demo/"]:focus-visible{background:#F7C95E;transform:translateY(-2px);box-shadow:0 20px 36px -14px rgba(240,185,74,1),0 3px 0 #C98F1F}
+.wl .tags a[href*="demo/"]:active{transform:translateY(1px);box-shadow:0 8px 16px -10px rgba(240,185,74,.9),0 1px 0 #C98F1F}
+@media (prefers-reduced-motion:reduce){.wl .tags a[href*="demo/"]{transition:none}}
+.wl .tags{padding-bottom:14px}

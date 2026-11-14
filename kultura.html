@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>3D-схема зала для культуры: театры, филармонии, кинотеатры, дома культуры | РЯДом</title>
+<meta name="description" content="Интерактивная 3D-схема зала для учреждений культуры: театры и филармонии, кинотеатры, дома культуры. Зритель видит сцену или экран из кресла до покупки билета. От 150 000 ₽, запуск от 1 недели.">
+<link rel="icon" type="image/svg+xml" href="img/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+h2{font-size:clamp(28px,3.6vw,46px)}
+.pg-hero{background:var(--stage);color:var(--stage-ink);padding-block:clamp(56px,8vw,112px);position:relative;overflow:hidden}
+.pg-hero::before{content:"";position:absolute;width:900px;height:900px;right:-260px;top:-360px;background:radial-gradient(closest-side,rgba(240,185,74,.22),transparent)}
+.pg-hero .eyebrow{color:var(--gold)}
+.pg-hero .lead{color:var(--stage-muted);margin-top:22px}
+.pg-hero .mega{margin-top:14px;max-width:18ch}
+.pg-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.pg-cta .btn-ghost{color:var(--stage-ink)}
+.pg-facts{display:flex;flex-wrap:wrap;gap:clamp(18px,4vw,48px);margin-top:40px}
+.pg-facts b{display:block;font:600 clamp(28px,4vw,48px)/1 var(--display);color:var(--gold)}
+.pg-facts span{font-size:14px;color:var(--stage-muted)}
+.pg-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:clamp(24px,5vw,64px);align-items:center}
+.pg-prob{list-style:none;margin:20px 0 0;padding:0;display:grid;gap:12px}
+.pg-prob li{display:flex;gap:12px;color:var(--muted);font-size:18px}
+.pg-prob li::before{content:"?";flex:none;width:28px;height:28px;border-radius:50%;background:var(--panel-2);color:var(--gold-ink);display:grid;place-items:center;font-weight:700}
+.pg-shot{border-radius:22px;overflow:hidden;border:1px solid var(--line);box-shadow:0 36px 70px -40px rgba(20,22,31,.5);aspect-ratio:16/10;background:var(--stage)}
+.pg-shot img{width:100%;height:100%;object-fit:cover;object-position:left center}
+.pg-shot.crop img{width:138%;max-width:none}
+.pg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.pg-grid article{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:grid;gap:8px;transition:transform .25s,border-color .25s}
+.pg-grid article:hover{transform:translateY(-4px);border-color:var(--gold)}
+.pg-grid h3{font-family:var(--display);font-size:20px;font-weight:600}
+.pg-grid p{color:var(--muted)}
+.pg-plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.pg-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:s}
+.pg-steps li{counter-increment:s;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:8px}
+.pg-steps li::before{content:"0" counter(s);font:600 14px var(--display);color:var(--gold-ink)}
+.pg-steps b{font-family:var(--display);font-weight:600}
+.pg-steps span{color:var(--muted);font-size:15px}
+.pg-band{background:var(--stage);color:var(--stage-ink);border-radius:24px;padding:clamp(26px,4vw,48px);display:flex;flex-wrap:wrap;gap:20px 40px;align-items:center;justify-content:space-between}
+.pg-band h2{font-size:clamp(26px,3.4vw,44px);max-width:20ch}
+.pg-band p{color:var(--stage-muted);margin-top:10px}
+.pg-links{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;margin-top:6px}
+@media (max-width:860px){.pg-two{grid-template-columns:minmax(0,1fr)}.pg-grid{grid-template-columns:minmax(0,1fr)}.pg-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+<script src="metrika.js" defer></script>
+<link rel="canonical" href="https://3dryad.ru/kultura.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="РЯДом">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="3D-схема зала для культуры: театры, филармонии, кинотеатры, дома культуры | РЯДом">
+<meta property="og:description" content="Интерактивная 3D-схема зала для учреждений культуры: театры и филармонии, кинотеатры, дома культуры. Зритель видит сцену или экран из кресла до покупки билета. От 150 000 ₽, запуск от 1 недели.">
+<meta property="og:url" content="https://3dryad.ru/kultura.html">
+<meta property="og:image" content="https://3dryad.ru/img/og-hall.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="3D-схема зала для культуры: театры, филармонии, кинотеатры, дома культуры | РЯДом">
+<meta name="twitter:description" content="Интерактивная 3D-схема зала для учреждений культуры: театры и филармонии, кинотеатры, дома культуры. Зритель видит сцену или экран из кресла до покупки билета. От 150 000 ₽, запуск от 1 недели.">
+<meta name="twitter:image" content="https://3dryad.ru/img/og-hall.jpg">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#0E0D13">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"3D-схема зала для учреждений культуры","serviceType":"3D-схема зала для учреждений культуры","description":"Интерактивная 3D-схема зала для учреждений культуры: театры и филармонии, кинотеатры, дома культуры. Зритель видит сцену или экран из кресла до покупки билета. От 150 000 ₽, запуск от 1 недели.","url":"https://3dryad.ru/kultura.html","provider":{"@type":"Organization","@id":"https://3dryad.ru/#org","name":"РЯДом","alternateName":"РЯДом: 3D-пространство, которое продаёт","legalName":"ООО «Северный Характер»","taxID":"8901042804","url":"https://3dryad.ru/","logo":"https://3dryad.ru/img/icon-512.png","image":"https://3dryad.ru/img/og-hall.jpg","email":"info@3dryad.ru","telephone":"+7 916 422-32-88","address":{"@type":"PostalAddress","postalCode":"629003","addressRegion":"ЯНАО","addressLocality":"Салехард","streetAddress":"ул. Чупрова, д. 23","addressCountry":"RU"},"contactPoint":{"@type":"ContactPoint","telephone":"+7 916 422-32-88","email":"info@3dryad.ru","contactType":"sales","areaServed":"RU","availableLanguage":"ru"}},"areaServed":{"@type":"Country","name":"Россия"},"offers":{"@type":"AggregateOffer","lowPrice":150000,"priceCurrency":"RUB","url":"https://3dryad.ru/kultura.html"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"РЯДом","item":"https://3dryad.ru/"},{"@type":"ListItem","position":2,"name":"Культура","item":"https://3dryad.ru/kultura.html"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"С чего начать учреждению культуры?","acceptedAnswer":{"@type":"Answer","text":"Пришлите схему рассадки и 2–3 фотографии зала. Мы бесплатно соберём превью и покажем его на онлайн-встрече на 15–20 минут. Договор и оплата только после того, как вам понравится."}},{"@type":"Question","name":"Нужно ли менять билетную систему?","acceptedAnswer":{"@type":"Answer","text":"Нет. Цены и занятость берём из вашей системы, заказ возвращается туда же. Билеты и возвраты остаются как были."}},{"@type":"Question","name":"Сколько стоит 3D-схема для малого зала?","acceptedAnswer":{"@type":"Answer","text":"Для зала до 300 мест создание стоит 150 000 ₽, подписка на год 36 000 ₽, первый год 186 000 ₽. Срок запуска 1–2 недели."}},{"@type":"Question","name":"Можно ли запустить схему сразу для нескольких учреждений региона?","acceptedAnswer":{"@type":"Answer","text":"Да, для ведомств и регионов есть пилот на нескольких ведущих площадках с последующим распространением на подведомственные учреждения. Подробнее на странице «Партнёрам»."}},{"@type":"Question","name":"Это официальная схема зала?","acceptedAnswer":{"@type":"Answer","text":"Для вашего учреждения модель строится по вашей официальной схеме рассадки и фотографиям, нумерация согласуется с вами. Демо на сайте сделаны как примеры."}}]}</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ — Ваше пространство в 3D" width="190" height="auto"></a>
+    <nav class="nav" id="nav" aria-label="Разделы"><div class="nv"><a href="kultura.html" class="on">Культура<i class="cv" aria-hidden="true"></i></a><div class="sub"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="doma-kultury.html">Дома культуры</a></div></div><a href="sport.html">Спорт</a><a href="zastroyshchikam.html">Строительство</a><a href="partneram.html">Партнёрам</a><span class="nsep" aria-hidden="true"></span><div class="nv"><a href="kak-rabotaet.html">Как работает<i class="cv" aria-hidden="true"></i></a><div class="sub"><a href="kak-rabotaet.html">Как это работает</a><a href="dlya-kogo.html">Выгоды для заказчика</a><a href="skhemy-zalov-3d.html">Демо залов, арен и стадионов</a></div></div><a href="tarify.html">Тарифы</a><a href="gid.html">Гид</a></nav>
+    <a class="btn btn-gold" href="#contact" style="white-space:nowrap">Получить КП</a>
+  </div>
+</header>
+<main>
+<section class="pg-hero">
+  <div class="wrap">
+    <p class="eyebrow">РЯДом для культуры</p>
+    <h1 class="mega">3D-схема зала для театров, филармоний, кинотеатров и ДК</h1>
+    <p class="lead">Зритель крутит зал, садится в кресло и видит сцену или экран ещё до покупки билета. Схема работает поверх вашей кассы, на телефоне и компьютере, без процента с билетов.</p>
+    <div class="pg-cta"><a class="btn btn-gold" href="demo/yamal.html" target="_blank" rel="noopener">Открыть демо филармонии <span class="arr">↗</span></a><a class="btn btn-ghost" href="#contact">Получить коммерческое предложение</a></div>
+    <div class="pg-facts"><div><b>686</b><span>мест в демо филармонии</span></div><div><b>от 150 тыс. ₽</b><span>малый зал до 300 мест</span></div><div><b>1–2</b><span>недели на малый зал</span></div></div>
+  </div>
+</section>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Выберите свою площадку</p><h2>Три направления в сфере культуры</h2></div>
+    <div class="pg-grid"><article data-reveal style="--d:0.00s"><h3><a href="teatry.html" style="text-decoration:none">Театры и филармонии</a></h3><p>Партер, амфитеатр, бельэтаж, ярусы и ложи в 3D. Зритель выбирает место и видит сцену, а дальние и боковые места перестают казаться «плохими».</p><p style="margin-top:10px"><a href="teatry.html" style="color:var(--gold-ink);font-weight:600;text-decoration:none">Для театров и филармоний →</a></p></article><article data-reveal style="--d:0.08s"><h3><a href="kinoteatry.html" style="text-decoration:none">Кинотеатры</a></h3><p>Диваны, комфорт-ряды и обычные места: вид на экран с каждого ряда. Схема помогает выбрать место и продавать комфорт-ряды увереннее.</p><p style="margin-top:10px"><a href="kinoteatry.html" style="color:var(--gold-ink);font-weight:600;text-decoration:none">Для кинотеатров →</a></p></article><article data-reveal style="--d:0.16s"><h3><a href="doma-kultury.html" style="text-decoration:none">Дома культуры и площадки</a></h3><p>Зал вашего ДК в 3D на сайте за 1–2 недели: афиша, выбор места и переход к покупке или записи на мероприятие.</p><p style="margin-top:10px"><a href="doma-kultury.html" style="color:var(--gold-ink);font-weight:600;text-decoration:none">Для домов культуры →</a></p></article></div>
+  </div>
+</section>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Что получает учреждение</p><h2>Одни и те же преимущества для любого зала</h2></div>
+    <div class="pg-grid"><article data-reveal style="--d:0.00s"><h3>Меньше звонков «а оттуда будет видно?»</h3><p>Зритель сам смотрит сцену с выбранного места: вопросы к кассе и в соцсетях уходят.</p></article><article data-reveal style="--d:0.08s"><h3>Дальние места продаются увереннее</h3><p>Когда видно, что увидишь с места, зритель реже выбирает только первые ряды.</p></article><article data-reveal style="--d:0.16s"><h3>Афиши и реклама в зале</h3><p>Афиши событий и баннеры партнёров размещаются на стенах 3D-зала: новый рекламный носитель.</p></article><article data-reveal style="--d:0.24s"><h3>Работает поверх вашей кассы</h3><p>Билетную систему менять не нужно. Платежи мы не принимаем и комиссию с билетов не берём.</p></article></div>
+  </div>
+</section>
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Стоимость</p><h2>Создание один раз, обслуживание по подписке</h2><p class="lead">Без комиссии с билетов. Цена за один зал при наличии пригодных планов и схем рассадки.</p></div>
+    <div class="pg-plans" data-reveal><article class="plan"><h3>Средний зал</h3><p class="size">301–1 000 мест</p><p class="price">490 000 <small>₽ создание, разово</small></p><p class="sub2">+ подписка 60 000 ₽ в год · <b>первый год 550 000 ₽</b></p><div class="bar"><span>Срок: 2–3 недели</span></div><ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li></ul></article><article class="plan"><h3>Большой зал</h3><p class="size">1 001–3 000 мест</p><p class="price">790 000 <small>₽ создание, разово</small></p><p class="sub2">+ подписка 96 000 ₽ в год · <b>первый год 886 000 ₽</b></p><div class="bar"><span>Срок: 3–4 недели</span></div><ul><li>3D-модель по вашему плану и схема мест</li><li>Вид из кресла, телефон и компьютер</li><li>Переход к покупке на сайте площадки</li></ul></article></div>
+    <p class="note" style="margin-top:18px">Зал до 300 мест (малые сцены) — тариф «Малый зал»: 150 000 ₽ создание и 36 000 ₽ подписка в год.</p>
+    <div class="pg-links"><a href="tarify.html#price">Все тарифы и калькулятор</a></div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">Как это происходит</p><h2>От схемы до продаж за несколько недель</h2></div>
+    <ol class="pg-steps" data-reveal><li><b>Присылаете схему</b><span>План зала, фото и правила категорий.</span></li><li><b>Строим 3D-зал</b><span>Ряды, входы, сцена или поле. Вы согласуете нумерацию.</span></li><li><b>Подключаем</b><span>Виджет на сайт, переход к покупке в вашей кассе.</span></li><li><b>Запуск</b><span>Проверка на реальном событии, инструкция для сотрудников.</span></li></ol>
+  </div>
+</section>
+
+<section style="padding-top:0" id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><p class="eyebrow">FAQ</p><h2>Частые вопросы</h2></div>
+    <div class="faq" data-reveal><details open><summary>С чего начать учреждению культуры?</summary><p>Пришлите схему рассадки и 2–3 фотографии зала. Мы бесплатно соберём превью и покажем его на онлайн-встрече на 15–20 минут. Договор и оплата только после того, как вам понравится.</p></details><details><summary>Нужно ли менять билетную систему?</summary><p>Нет. Цены и занятость берём из вашей системы, заказ возвращается туда же. Билеты и возвраты остаются как были.</p></details><details><summary>Сколько стоит 3D-схема для малого зала?</summary><p>Для зала до 300 мест создание стоит 150 000 ₽, подписка на год 36 000 ₽, первый год 186 000 ₽. Срок запуска 1–2 недели.</p></details><details><summary>Можно ли запустить схему сразу для нескольких учреждений региона?</summary><p>Да, для ведомств и регионов есть пилот на нескольких ведущих площадках с последующим распространением на подведомственные учреждения. Подробнее на странице <a href="partneram.html">«Партнёрам»</a>.</p></details><details><summary>Это официальная схема зала?</summary><p>Для вашего учреждения модель строится по вашей официальной схеме рассадки и фотографиям, нумерация согласуется с вами. Демо на сайте сделаны как примеры.</p></details></div>
+  </div>
+</section>
+<section style="padding-top:0" id="contact">
+  <div class="wrap">
+    <div class="pg-band" data-reveal style="align-items:flex-start">
+      <div style="flex:1;min-width:260px"><h2>Покажем ваш зал в 3D бесплатно</h2><p>Оставьте контакты: бесплатно соберём превью вашего зала с видами из нескольких мест и покажем его на онлайн-встрече на 15 минут, а коммерческое предложение откроется сразу. Договор и оплата — только если вам понравится.</p><p style="margin-top:12px">+7 916 422-32-88 · info@3dryad.ru</p></div>
+      <form id="lead" novalidate style="flex:1;min-width:300px;display:grid;gap:12px;background:var(--panel);color:var(--ink);border-radius:18px;padding:22px">
+        <div class="two"><div class="field"><label for="fName">Имя</label><input id="fName" name="name" autocomplete="name" placeholder="Марина Соколова"><span class="err" id="eName"></span></div><div class="field"><label for="fPhone">Телефон</label><input id="fPhone" name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00"><span class="err" id="ePhone"></span></div></div>
+        <div class="two"><div class="field"><label for="fOrg">Площадка</label><input id="fOrg" name="org" placeholder="Городской дворец культуры"><span class="err" id="eOrg"></span></div><div class="field"><label for="fEmail">Почта</label><input id="fEmail" name="email" type="email" autocomplete="email" placeholder="name@company.ru"><span class="err" id="eEmail"></span></div></div>
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;opacity:0">
+        <label class="consent" style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--muted);cursor:pointer"><input type="checkbox" id="fConsent" name="consent" style="width:18px;height:18px;margin-top:2px;flex:none"><span>Даю <a href="consent.html" target="_blank" rel="noopener" style="text-decoration:underline">согласие на обработку персональных данных</a> и ознакомлен(а) с <a href="privacy.html" target="_blank" rel="noopener" style="text-decoration:underline">Политикой обработки</a></span></label><span class="err" id="eConsent" style="font-size:13px;color:#C2410C"></span>
+        <button class="btn btn-gold" type="submit" style="justify-self:start">Получить коммерческое предложение</button>
+        <p class="fine">Согласие можно отозвать письмом на info@3dryad.ru.</p>
+        <div id="sent" hidden></div>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <a class="logo" href="/" aria-label="РЯДОМ — на главную"><img src="img/logo-dark.svg" alt="РЯДОМ" width="140" height="auto"></a>
+    <span>3D-пространство, которое продаёт</span>
+    <span class="sp">ООО «Северный Характер»</span>
+    <a href="privacy.html" style="text-decoration:underline">Политика обработки персональных данных</a>
+    <a href="crm/" rel="nofollow" style="opacity:.55;font-size:12px">Вход для сотрудников</a>
+    <span class="pg-links" style="flex-basis:100%"><a href="teatry.html">Театры и филармонии</a><a href="kinoteatry.html">Кинотеатры</a><a href="sport.html">Спорт и арены</a><a href="doma-kultury.html">ДК и площадки</a><a href="zastroyshchikam.html">Застройщикам</a><a href="3d-skhema-zala.html">3D-схема зала для сайта</a><a href="vid-s-mesta.html">Вид с места до покупки билета</a><a href="3d-vizualizaciya-zala.html">3D-визуализация зала на заказ</a><a href="skhemy-zalov-3d.html">Демо: схемы залов, арен и стадионов</a><a href="luchshie-mesta-v-teatre.html">Лучшие места в театре</a><a href="luchshie-mesta-v-kinoteatre.html">Лучшие места в кинотеатре</a><a href="luchshie-mesta-na-hokkee.html">Лучшие места на хоккее</a><a href="kak-chitat-skhemu-zala.html">Как читать схему зала</a></span>
+  </div>
+</footer>
+<script src="config.js"></script>
+<script src="lead.js"></script>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window){
+    document.documentElement.classList.add('js');
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+    document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el)});
+  }
+})();
+</script>
+</body>
+</html>
