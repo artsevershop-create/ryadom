@@ -50,23 +50,33 @@
 </header>
 
 <main id="top">
-<section class="hero" id="heroSec">
-  <div class="wrap hero-grid">
-    <div>
-      <p class="eyebrow" style="color:var(--gold);text-transform:none;letter-spacing:.03em;font-size:16px">РЯДОМ: интерактивная 3D-схема зала с видом с места</p><a class="free-hook" href="#contact"><b>Бесплатно</b> покажем ваш зал в 3D до договора</a>
-      <h1 style="margin-top:16px">Зритель видит сцену <em>со своего кресла</em> и&nbsp;покупает билет</h1>
-      <p class="lead">«РЯДом» — 3D-схема вашего зала, арены или стадиона на сайте. Болельщик и зритель выбирают место, смотрят вид из кресла и переходят к покупке в вашей билетной системе. Её менять не нужно — мы работаем поверх неё.</p>
-      <div class="cta">
-        <a class="btn btn-gold" href="#contact">Показать мой зал в 3D бесплатно</a>
-        <a class="btn btn-ghost" href="demo/yamal.html" target="_blank" rel="noopener">Открыть демо зала <span class="arr">↗</span></a>
+<section class="hero3" id="heroSec">
+  <div class="hero3-stage">
+    <canvas id="hall" role="img" aria-label="3D-модель зала: вид на сцену из выбранного кресла"></canvas>
+    <div class="wrap hero3-in">
+      <div class="hero3-txt">
+        <h1>Зритель видит сцену со своего кресла и&nbsp;покупает билет</h1>
+        <p class="lead">«РЯДом» ставит на ваш сайт 3D-схему зала, арены или стадиона. Человек выбирает место, смотрит вид из кресла и переходит к оплате в вашей билетной системе. Менять её не нужно.</p>
+        <div class="cta">
+          <a class="btn btn-gold" href="#contact">Показать мой зал в 3D бесплатно</a>
+          <a class="btn btn-ghost" href="demo/yamal.html" target="_blank" rel="noopener">Открыть полное демо <span class="arr">↗</span></a>
+        </div>
       </div>
-      <p class="note">Демо собрано на реальном зале Ямальской филармонии. Работает в браузере, на телефоне тоже.</p>
-    </div>
-    <div class="shot" id="shot">
-      <div class="frame" id="frame"><div class="wm"><img class="wm-flat" src="img2/flat-hall.svg" width="1600" height="1000" alt="" aria-hidden="true"><img class="wm-3d" src="img2/app-overview.jpg" width="1920" height="1200" fetchpriority="high" alt="3D-модель концертного зала на 686 мест с панелью выбора мероприятия и цен"><i class="wm-line" aria-hidden="true"></i><span class="wm-lab a">Было: плоская схема</span><span class="wm-lab b">Стало: 3D-зал</span><span class="wm-hint">Потяните, чтобы сравнить самому</span></div></div>
-      <div class="ticket" id="tk" aria-live="polite">
-        <div class="main"><b id="tkSeat">Амфитеатр · ряд 10 · место 14</b><span id="tkEv">Эстрадный концерт · 12 ноября, 19:00</span><span class="door" id="tkDoor">Вход 2, левая сторона</span></div>
-        <div class="stub" id="tkPrice">3 000 ₽</div>
+      <div class="hero3-ctl">
+        <canvas id="plan" aria-hidden="true"></canvas>
+        <div class="hero3-side">
+          <p class="hero3-hint">Нажмите на кресло на схеме: зал покажет вид с него</p>
+          <div class="hero3-chips" role="group" aria-label="Откуда смотреть">
+            <button type="button" data-seat="2,6">У сцены</button>
+            <button type="button" data-seat="8,13">Середина</button>
+            <button type="button" data-seat="13,18">Амфитеатр</button>
+            <button type="button" data-seat="all">Весь зал</button>
+          </div>
+          <div class="hticket" id="hallTk" aria-live="polite">
+            <div class="main"><b id="hallSeat">Весь зал, 15 рядов</b><span id="hallNote">Нажмите на кресло на схеме</span></div>
+            <div class="stub" id="hallPrice">3D</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -195,5 +205,6 @@
 
 <script src="config.js"></script>
 <script src="home.js" defer></script>
+<script src="hall.js" defer></script>
 </body>
 </html>

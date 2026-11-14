@@ -47,6 +47,7 @@ try{
     var hero=$('#heroSec')||$('.ph'); if(fab)fab.classList.toggle('on',!!hero&&hero.getBoundingClientRect().bottom<0);
   }
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  var topBar=$('.top'); if(topBar){var ts=function(){topBar.classList.toggle('scrolled',scrollY>8)}; addEventListener('scroll',ts,{passive:true}); ts()}
 
 }catch(e){}
 try{
@@ -57,32 +58,6 @@ try{
     s.className='rip'; s.style.cssText='width:'+d+'px;height:'+d+'px;left:'+(e.clientX-r.left-d/2)+'px;top:'+(e.clientY-r.top-d/2)+'px';
     b.appendChild(s); setTimeout(function(){s.remove()},650);
   });
-
-}catch(e){}
-try{
-  /* ---------- первый экран: наклон кадра, плывущие кресла, билет-карусель ---------- */
-  var hero=$('#heroSec'), frame=$('#frame'), shot=$('#shot');
-  if(!reduce){
-    for(var i=0;i<16;i++){var f=document.createElement('i'); f.className='fl';
-      f.style.cssText='left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(9+Math.random()*9).toFixed(1)+'s;animation-delay:-'+(Math.random()*14).toFixed(1)+'s;transform-origin:center;'+(i%4===0?'background:#FF6A5C':'');
-      hero.insertBefore(f,hero.firstChild);}
-    shot.addEventListener('pointermove',function(e){
-      if(e.pointerType==='touch')return;
-      var r=shot.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
-      frame.style.transform='rotateY('+(x*9).toFixed(2)+'deg) rotateX('+(-y*6).toFixed(2)+'deg)';
-    });
-    shot.addEventListener('pointerleave',function(){frame.style.transform=''});
-  }
-  var T=[
-    {s:'Амфитеатр · ряд 10 · место 14',e:'Эстрадный концерт · 12 ноября, 19:00',d:'Вход 2, левая сторона',p:'3 000 ₽'},
-    {s:'Партер · ряд 4 · место 9',e:'Народный ансамбль · 17 ноября, 19:00',d:'Вход 1, левая сторона',p:'4 000 ₽'},
-    {s:'Партер · ряд 8 · место 22',e:'Рок-концерт · 21 ноября, 18:00',d:'Вход 2, правая сторона',p:'3 600 ₽'},
-    {s:'Амфитеатр · ряд 18 · место 28',e:'Вечер шансона · 28 ноября, 17:00',d:'Вход 2, правая сторона',p:'2 300 ₽'}
-  ], ti=0, tk=$('#tk');
-  if(!reduce) setInterval(function(){
-    tk.classList.add('swap');
-    setTimeout(function(){ti=(ti+1)%T.length; var t=T[ti]; $('#tkSeat').textContent=t.s; $('#tkEv').textContent=t.e; $('#tkDoor').textContent=t.d; $('#tkPrice').textContent=t.p; tk.classList.remove('swap')},380);
-  },3800);
 
 }catch(e){}
 try{
@@ -282,27 +257,6 @@ try{
     if(!reduce&&slides[0]){slides[0].classList.add('was');wasT=setTimeout(function(){slides[0].classList.remove('was');syncBs(slides[0])},2200)}
   })();
 
-
-}catch(e){}
-try{
-  /* ---------- первый экран: ручное сравнение «было / стало» ---------- */
-  (function(){
-    var w=$('.wm'); if(!w)return;
-    var d3=$('.wm-3d',w), line=$('.wm-line',w), la=$('.wm-lab.a',w), lb=$('.wm-lab.b',w), on=false;
-    function set(p){
-      p=Math.max(2,Math.min(98,p)); w.classList.add('drag');
-      d3.style.clipPath='inset(0 '+(100-p)+'% 0 0)'; line.style.animation='none'; line.style.opacity=1; line.style.left='calc('+p+'% - 1.5px)';
-    }
-    function at(e){var r=w.getBoundingClientRect();set((e.clientX-r.left)/r.width*100)}
-    w.addEventListener('pointerdown',function(e){on=true;try{w.setPointerCapture(e.pointerId)}catch(x){}at(e)});
-    w.addEventListener('pointermove',function(e){if(on)at(e)});
-    ['pointerup','pointercancel','lostpointercapture'].forEach(function(ev){w.addEventListener(ev,function(){on=false})});
-    w.addEventListener('dragstart',function(e){e.preventDefault()});
-    w.setAttribute('tabindex','0'); w.setAttribute('role','slider'); w.setAttribute('aria-label','Сравнить плоскую схему и 3D-зал');
-    var cur=50;
-    w.addEventListener('keydown',function(e){if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();var r=w.getBoundingClientRect();cur=(w.classList.contains('drag')?cur:50)+(e.key==='ArrowRight'?8:-8);cur=Math.max(2,Math.min(98,cur));set(cur)}});
-    w.addEventListener('pointerdown',function(){cur=50});
-  })();
 
 }catch(e){}
 try{
