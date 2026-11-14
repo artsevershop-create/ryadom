@@ -1087,13 +1087,36 @@ function desired(){
   var cp=Math.cos(cam.pitch);
   return {pos:cam.eye.clone(),look:cam.eye.clone().add(new T.Vector3(Math.sin(cam.yaw)*cp,Math.sin(cam.pitch),-Math.cos(cam.yaw)*cp)),fov:cam.fov};
 }
+/* ---------- Разрез: трибуны между камерой и полем не закрывают обзор ----------
+   Две плоскости: вертикальная по ближнему краю поля и наклонная «линия взгляда» от камеры к этому краю.
+   Не рисуется только то, что ближе края И выше линии взгляда, то есть ровно то, что могло бы закрыть поле. */
+var CUT={a:new T.Plane(new T.Vector3(0,1,0),1e6),b:new T.Plane(new T.Vector3(0,1,0),1e6),n:0};
+renderer.localClippingEnabled=true;
+function cutApply(){scene.traverse(function(o){var m=o.material;if(!m)return;(Array.isArray(m)?m:[m]).forEach(function(x){if(!x||x.userData.cut||x.isShaderMaterial)return;x.userData.cut=1;x.clippingPlanes=[CUT.a,CUT.b];x.clipIntersection=true;x.needsUpdate=true})})}
+function cutOff(){CUT.a.normal.set(0,1,0);CUT.a.constant=1e6;CUT.b.normal.set(0,1,0);CUT.b.constant=1e6}
+function cutUpdate(){
+  if((CUT.n++%90)===0)cutApply();
+  if(cam.mode!=='orbit'){cutOff();return}
+  var c=camera.position,dx=-c.x,dz=-c.z,l=Math.sqrt(dx*dx+dz*dz);
+  if(l<1e-3){cutOff();return}
+  dx/=l;dz/=l;
+  var R=Math.sqrt(Math.pow(PL*dx,2)+Math.pow(PW*dz,2))+1.5;
+  if(l<=R+1){cutOff();return}
+  var ex=-dx*R,ez=-dz*R,ey=1.2;
+  CUT.a.normal.set(dx,0,dz);CUT.a.constant=-(dx*ex+dz*ez);
+  var vx=c.x-ex,vy=c.y-ey,vz=c.z-ez,tx=-dz,tz=dx;
+  var nx=-tz*vy,ny=tz*vx-tx*vz,nz=tx*vy,nl=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+  nx/=nl;ny/=nl;nz/=nl;if(ny>0){nx=-nx;ny=-ny;nz=-nz}
+  CUT.b.normal.set(nx,ny,nz);CUT.b.constant=-(nx*ex+ny*ey+nz*ez);
+}
+function cutHidden(p){return CUT.a.distanceToPoint(p)<0&&CUT.b.distanceToPoint(p)<0}
 function stepCam(dt){
   var d=desired(), k=1-Math.exp(-dt*(cam.mode==='seat'?9:6));
   cur.pos.lerp(d.pos,k); cur.look.lerp(d.look,k); cur.fov+=(d.fov-cur.fov)*k;
   camera.position.copy(cur.pos);
   camera.position.y+=Math.min(10,Math.max(0,cur.pos.distanceTo(d.pos)-6)*.35);      /* перелёт идёт дугой над трибунами */
   RC.clampCamera(camera,cam.mode,extBd({x:38.8,z:30.3,top:18.4}),floorH,roofObjs);
-  camera.lookAt(cur.look);
+  camera.lookAt(cur.look); cutUpdate();
   if(Math.abs(camera.fov-cur.fov)>.01){camera.fov=cur.fov; camera.updateProjectionMatrix()}
 }
 /* высота пола или ступени трибуны под камерой (трибуны: главная 8 рядов при z>0, противоположная 5 рядов при z<0) */
@@ -1120,7 +1143,7 @@ function pickAt(e){
   var r=canvas.getBoundingClientRect();
   ndc.set(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);
   raycaster.setFromCamera(ndc,camera);
-  var h=raycaster.intersectObjects(crowd&&showCrowd&&crowd.N<3000?[baseMesh,backMesh,crowd.mesh]:[baseMesh,backMesh],false)[0];
+  var h=raycaster.intersectObjects(crowd&&showCrowd&&crowd.N<3000?[baseMesh,backMesh,crowd.mesh]:[baseMesh,backMesh],false).filter(function(x){return !cutHidden(x.point)})[0];
   return h&&h.instanceId!==undefined?h.instanceId:-1;
 }
 var ptrs=new Map(), down=null, pinch0=0, hovBusy=false;
