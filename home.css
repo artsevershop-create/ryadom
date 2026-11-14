@@ -816,3 +816,48 @@ h2.mega{font-size:clamp(30px,4vw,56px);line-height:1.06;letter-spacing:-.03em;ma
 section .sec-head h2.mega,section h2.mega{font-size:clamp(30px,4vw,56px)!important;line-height:1.06}
 @media (max-width:900px){.door-t b{font-size:clamp(14px,4vw,19px)}}
 .door::after{background:linear-gradient(0deg,rgba(14,13,19,.97) 0,rgba(14,13,19,.8) 40%,rgba(14,13,19,0) 72%)}
+
+/* ===== карусель площадок: переключатель-таблетки сверху, спокойная подпись, без автопрокрутки ===== */
+.vshow{display:flex;flex-direction:column;gap:16px}
+.vtabs{order:-1;display:flex;flex-wrap:wrap;gap:8px}
+.vt{display:inline-flex;align-items:center;border-radius:999px;padding:11px 18px;background:transparent;overflow:visible;box-shadow:none}
+.vt i,.vt u,.vt span{display:none}
+.vt b{font:600 15px/1 var(--body)}
+.vt:hover{transform:none;border-color:var(--ink)}
+.vt.on{background:var(--ink);border-color:var(--ink);color:var(--paper);box-shadow:none}
+.vcard .vtag{text-transform:none;letter-spacing:0;font-size:14px;font-weight:600}
+.vcard b{font-size:clamp(24px,3vw,40px)}
+.vchips{gap:10px 22px}
+.vchips span{background:none;border:0;border-left:2px solid var(--gold);border-radius:0;padding:0 0 0 10px;-webkit-backdrop-filter:none;backdrop-filter:none}
+.vcta{margin-top:6px}
+@media (min-width:701px){
+  .vnav{top:auto;bottom:22px;translate:none}
+  .vnav.prev{left:auto;right:82px}.vnav.next{right:22px}
+}
+@media (max-width:900px){.vtabs{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}.vt{flex:none}}
+
+/* ===== заявка: тёмный финал страницы, форма-билет ===== */
+.contact{background:var(--stage);color:var(--stage-ink);position:relative;overflow:hidden}
+.contact::before{content:"";position:absolute;left:-10%;right:40%;bottom:-30%;height:80%;pointer-events:none;
+  background-image:radial-gradient(circle at 50% 60%,rgba(240,185,74,.7) 0 3.5px,transparent 4px);background-size:24px 22px;
+  transform:perspective(700px) rotateX(60deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(0deg,#000,transparent 80%);mask-image:linear-gradient(0deg,#000,transparent 80%);opacity:.35}
+.contact-grid{position:relative;gap:clamp(28px,5vw,72px);align-items:center}
+.contact .eyebrow{color:var(--gold)}
+.contact h2{font-size:clamp(30px,3.8vw,52px);line-height:1.06;letter-spacing:-.03em}
+.contact .lead{color:#CDC8D4}
+.contact .direct{margin-top:34px;gap:18px}
+.contact .direct span{color:var(--stage-muted)}
+.contact .direct a{font:600 clamp(19px,2vw,24px)/1.2 var(--display);text-decoration:none;letter-spacing:-.01em}
+.contact .direct a:hover{color:var(--gold)}
+.contact form{border:0;border-radius:22px;padding:clamp(20px,3vw,32px);gap:16px;box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+.contact .field label{font-size:13px;color:var(--muted)}
+.contact .field input,.contact .field select,.contact .field textarea{padding:14px 15px;border-radius:12px;border-width:1.5px;background:var(--paper)}
+.contact .field input:hover,.contact .field select:hover,.contact .field textarea:hover{border-color:#cdbf9c}
+.contact .consent{position:relative;border-top:2px dashed var(--line);padding-top:18px;margin-top:6px}
+.contact .consent::before,.contact .consent::after{content:"";position:absolute;top:-13px;width:24px;height:24px;border-radius:50%;background:var(--stage)}
+.contact .consent::before{left:calc(-1*clamp(20px,3vw,32px) - 12px)}
+.contact .consent::after{right:calc(-1*clamp(20px,3vw,32px) - 12px)}
+.contact form .btn[type=submit]{justify-self:stretch!important;justify-content:center;padding:17px 22px;font-size:17px}
+.contact .fine{text-align:center}
+@media (max-width:900px){.contact-grid{align-items:start}}
+footer{border-top:1px solid var(--stage-line)}

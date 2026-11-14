@@ -244,7 +244,7 @@ try{
       tabs.forEach(function(t,k){t.classList.toggle('on',k===cur);t.setAttribute('aria-selected',k===cur);var u=t.querySelector('u');u.style.animation='none';void u.offsetWidth;u.style.animation=''});
       if(user)restart();
     }
-    function restart(){clearInterval(timer); if(reduce)return; timer=setInterval(function(){if(!paused&&!document.hidden)go(cur+1)},T)}
+    function restart(){}
     $('.next',box).onclick=function(){go(cur+1,true)}; $('.prev',box).onclick=function(){go(cur-1,true)};
     tabs.forEach(function(t,k){t.onclick=function(){go(k,true)}});
     ['pointerenter','focusin'].forEach(function(ev){box.addEventListener(ev,function(){paused=true;box.classList.add('hold')})});
@@ -254,7 +254,6 @@ try{
     st.addEventListener('pointerdown',function(e){sx=e.clientX});
     st.addEventListener('pointerup',function(e){if(sx===null)return;var d=e.clientX-sx;sx=null;if(Math.abs(d)>50)go(cur+(d<0?1:-1),true)});
     restart();
-    if(!reduce&&slides[0]){slides[0].classList.add('was');wasT=setTimeout(function(){slides[0].classList.remove('was');syncBs(slides[0])},2200)}
   })();
 
 
