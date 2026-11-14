@@ -1,0 +1,57 @@
+/* Страницы направлений, SEO-страницы и статьи (классы pg-*): подключается после встроенных стилей страницы. */
+/* первый экран: текст слева, кадр из демо уходит за правый край */
+.pg-hero{padding-block:clamp(56px,8vw,104px);min-height:min(620px,calc(100svh - 64px));display:grid;align-items:center}
+.pg-hero::before{display:none}
+.pg-hero .wrap{position:relative;z-index:2;width:100%}
+.pg-hero .mega{font-size:clamp(32px,4.4vw,62px);line-height:1.05;letter-spacing:-.035em;max-width:15ch}
+.pg-hero .lead{color:#CDC8D4;max-width:46ch}
+.pg-hero.has-img .wrap>*{max-width:min(100%,600px)}
+.pg-hero-img{position:absolute;inset:0 0 0 38%;z-index:0;overflow:hidden}
+.pg-hero-img img{width:100%;height:100%;object-fit:cover;object-position:center}
+.pg-hero-img::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,var(--stage) 0,rgba(14,13,19,.72) 26%,rgba(14,13,19,.12) 62%,rgba(14,13,19,.3) 100%),linear-gradient(0deg,rgba(14,13,19,.75) 0,rgba(14,13,19,0) 30%)}
+.pg-hero.has-img::after{display:none}
+.pg-hero .wrap>*{animation:h3rise .8s cubic-bezier(.2,.7,.2,1) both}
+.pg-hero .wrap>:nth-child(2){animation-delay:.08s}.pg-hero .wrap>:nth-child(3){animation-delay:.16s}.pg-hero .wrap>:nth-child(4){animation-delay:.24s}.pg-hero .wrap>:nth-child(5){animation-delay:.32s}
+.pg-hero-img{animation:pgimg 1.4s cubic-bezier(.2,.7,.2,1) both}
+@keyframes pgimg{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+/* цифры: спокойные, белые, с золотой чертой */
+.pg-facts{gap:14px clamp(22px,3vw,40px);margin-top:44px}
+.pg-facts>div{border-left:2px solid var(--gold);padding-left:14px}
+.pg-facts b{font-size:clamp(20px,2.2vw,28px);color:var(--stage-ink);letter-spacing:-.02em}
+.pg-facts span{display:block;margin-top:6px;color:#B9B4C2}
+/* возможности: список с линиями вместо карточек */
+.pg-grid{gap:0 clamp(28px,5vw,72px);border-top:1px solid var(--line)}
+.pg-grid article{background:none;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:26px 0;gap:10px;align-content:start}
+.pg-grid article:hover{transform:none;border-color:var(--line)}
+.pg-grid h3{font-size:clamp(18px,1.8vw,22px);letter-spacing:-.015em}
+.pg-grid h3 a{color:inherit}
+.pg-grid article:hover h3{color:var(--gold-ink)}
+/* этапы: линия времени */
+.pg-steps{gap:0;position:relative}
+.pg-steps li{background:none;border:0;border-top:2px solid var(--ink);border-radius:0;padding:22px 24px 0 0;position:relative}
+.pg-steps li::before{font-size:13px;position:absolute;top:-13px;left:0;background:var(--gold);color:#241a05;border-radius:999px;padding:4px 9px;line-height:1.2}
+.pg-steps b{margin-top:8px;font-size:18px}
+/* снимок экрана */
+.pg-shot{border-radius:18px;border:0;box-shadow:0 40px 80px -44px rgba(20,22,31,.7)}
+/* заявка */
+.pg-band{position:relative;overflow:hidden;border-radius:26px}
+.pg-band::before{content:"";position:absolute;left:-10%;right:45%;bottom:-40%;height:90%;pointer-events:none;background-image:radial-gradient(circle at 50% 60%,rgba(240,185,74,.7) 0 3.5px,transparent 4px);background-size:24px 22px;transform:perspective(700px) rotateX(60deg);transform-origin:50% 100%;-webkit-mask-image:linear-gradient(0deg,#000,transparent 80%);mask-image:linear-gradient(0deg,#000,transparent 80%);opacity:.3}
+.pg-band>*{position:relative}
+.pg-band h2{letter-spacing:-.03em;line-height:1.06}
+.pg-band form{border:0!important;border-radius:20px!important;box-shadow:0 30px 60px -30px rgba(0,0,0,.9)}
+.pg-band form .btn[type=submit]{justify-self:stretch!important;justify-content:center;padding:16px 22px}
+.pg-band form .field input{padding:13px 14px;border-radius:12px;border-width:1.5px}
+section h2{letter-spacing:-.025em}
+@media (max-width:860px){
+  .pg-hero{min-height:0;padding-top:0;display:block}
+  .pg-hero-img{position:relative;inset:auto;height:min(62vw,300px);margin-bottom:-40px}
+  .pg-hero-img::after{background:linear-gradient(0deg,var(--stage) 0,rgba(14,13,19,0) 55%)}
+  .pg-hero:not(.has-img){padding-top:48px}
+  .pg-steps{grid-template-columns:minmax(0,1fr)!important}
+  .pg-steps li{border-top:0;border-left:2px solid var(--ink);padding:0 0 24px 22px}
+  .pg-steps li::before{top:0;left:-15px}
+  .pg-steps b{margin-top:0}
+  .pg-grid article{padding:20px 0}
+}
+@media (prefers-reduced-motion:reduce){.pg-hero .wrap>*,.pg-hero-img{animation:none}}
+.pg-hero-img img{height:118%;margin-top:-6%}
