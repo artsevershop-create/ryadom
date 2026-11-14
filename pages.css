@@ -75,3 +75,62 @@ section h2{letter-spacing:-.025em}
 .dv-txt p{color:var(--muted);font-size:17px}
 @media (max-width:860px){.dv{grid-template-columns:minmax(0,1fr);gap:16px}.dv.flip .dv-shot{order:0}}
 @media (prefers-reduced-motion:reduce){.dv-eve,.dv-tog button{transition:none}}
+
+/* ===== блоки в стиле презентаций (Культура, Спорт) ===== */
+.sl h2{font-size:clamp(26px,3.2vw,44px);line-height:1.08;letter-spacing:-.03em;max-width:20ch}
+.sl-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:clamp(24px,5vw,64px);align-items:center}
+.sl-rows,.sl-cards{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:12px}
+.sl-rows li,.sl-cards li{display:flex;gap:16px;align-items:flex-start;color:var(--muted);font-size:16px;line-height:1.45}
+.sl-rows b,.sl-cards b{display:block;color:var(--ink);font:600 18px/1.25 var(--body);margin-bottom:3px}
+.sl i{flex:none;width:48px;height:48px;border-radius:14px;background:var(--panel);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink);font-style:normal}
+.sl i svg{width:24px;height:24px}
+.sl-cmp{margin:0;display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:16px;box-shadow:0 40px 80px -50px rgba(20,22,31,.5)}
+.sl-cmp div{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:4/3;background:#F4EFE3}
+.sl-cmp img{width:100%;height:100%;object-fit:cover}
+.sl-cmp figcaption{position:absolute;left:10px;top:10px;font:700 12.5px/1 var(--body);background:rgba(20,22,31,.84);color:#fff;border-radius:999px;padding:7px 12px}
+.sl-cmp figcaption.on{background:var(--gold);color:#241a05}
+.sl-arrow{width:44px;height:44px;border-radius:50%;background:var(--gold);position:relative}
+.sl-arrow::before{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-top:2.5px solid #241a05;border-right:2.5px solid #241a05;transform:translate(-70%,-50%) rotate(45deg)}
+/* тёмный кадр на всю ширину */
+.sl-dark{position:relative;background:var(--stage);color:var(--stage-ink);overflow:hidden;min-height:min(560px,70vh);display:grid;align-items:center;padding-block:clamp(56px,8vw,96px)}
+.sl-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sl-dark::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(14,13,19,.94) 0,rgba(14,13,19,.78) 34%,rgba(14,13,19,.05) 72%)}
+.sl-dark .wrap{position:relative;z-index:1;width:100%}
+.sl-dark-txt{max-width:480px;display:grid;gap:20px;justify-items:start}
+.sl-dark-txt p{color:#D6D1DC;font-size:18px}
+/* путь от афиши до билета */
+.sl-flow{list-style:none;margin:36px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,4vw,56px)}
+.sl-flow li{position:relative;display:grid;gap:8px;justify-items:start;color:var(--muted);font-size:15px}
+.sl-flow i{width:72px;height:72px;border-radius:20px;margin-bottom:8px}
+.sl-flow i svg{width:32px;height:32px}
+.sl-flow li.on i{background:var(--gold);border-color:var(--gold);color:#241a05}
+.sl-flow b{color:var(--ink);font:600 19px/1.2 var(--body)}
+.sl-flow li:not(:last-child)::after{content:"";position:absolute;left:92px;right:-12px;top:36px;border-top:2px dashed var(--line)}
+.sl-note{margin-top:28px;color:var(--muted);max-width:62ch}
+/* выгоды */
+.sl-val{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(24px,5vw,64px);align-items:start;border-top:1px solid var(--line);padding-top:clamp(40px,6vw,72px)}
+.sl-val .lead{margin-top:18px}
+.sl-cards{margin:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sl-cards li{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;flex-direction:column;gap:14px}
+.sl-cards i{background:var(--paper)}
+/* типы площадок */
+.sl-types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:28px}
+.sl-types a{display:grid;gap:6px;text-decoration:none;color:var(--muted);font-size:15px}
+.sl-types .im{display:block;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:var(--stage);margin-bottom:8px}
+.sl-types img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.sl-types a:hover img,.sl-types a:focus-visible img{transform:scale(1.05)}
+.sl-types b{color:var(--ink);font:600 20px/1.2 var(--display);letter-spacing:-.02em}
+@media (max-width:860px){
+  .sl-two,.sl-val{grid-template-columns:minmax(0,1fr)}
+  .sl-flow{grid-template-columns:minmax(0,1fr);gap:18px}
+  .sl-flow li{grid-template-columns:56px minmax(0,1fr);column-gap:14px;align-items:center}
+  .sl-flow i{width:56px;height:56px;border-radius:16px;margin:0;grid-row:1/3}
+  .sl-flow li:not(:last-child)::after{display:none}
+  .sl-cards,.sl-types{grid-template-columns:minmax(0,1fr)}
+  .sl-dark{min-height:0;align-items:end;padding-top:min(60vw,300px)}
+  .sl-dark::after{background:linear-gradient(0deg,rgba(14,13,19,.97) 0,rgba(14,13,19,.85) 45%,rgba(14,13,19,0) 80%)}
+  .sl-cmp{grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);gap:6px;padding:10px;border-radius:18px}
+  .sl-arrow{width:32px;height:32px}
+  .sl-cmp figcaption{font-size:11px;padding:6px 9px}
+}
+@media (prefers-reduced-motion:reduce){.sl-types img{transition:none}}
