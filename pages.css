@@ -55,3 +55,23 @@ section h2{letter-spacing:-.025em}
 }
 @media (prefers-reduced-motion:reduce){.pg-hero .wrap>*,.pg-hero-img{animation:none}}
 .pg-hero-img img{height:118%;margin-top:-6%}
+
+/* застройщикам: макеты как в презентации */
+.dv{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(22px,4vw,56px);align-items:center;padding-block:clamp(22px,3vw,40px);border-top:1px solid var(--line)}
+.dv.flip .dv-shot{order:2}
+.dv-shot{position:relative;margin:0;border-radius:18px;overflow:hidden;background:var(--stage);aspect-ratio:16/9;box-shadow:0 40px 80px -44px rgba(20,22,31,.7)}
+.dv-shot img{width:100%;height:100%;object-fit:cover}
+.dv-eve{position:absolute;inset:0;opacity:0;transition:opacity .7s}
+.dv-shot.eve .dv-eve{opacity:1}
+.dv-tog{position:absolute;right:14px;top:14px;display:inline-flex;padding:3px;border-radius:999px;background:rgba(20,22,31,.82);border:1px solid rgba(255,255,255,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.dv-tog button{font:700 13px/1 var(--body);color:#fff;background:transparent;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;transition:background .25s,color .25s}
+.dv-tog button[aria-pressed="true"]{background:var(--gold);color:#241a05}
+.dv-two{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:var(--paper)}
+.dv-two span{position:relative;display:block;overflow:hidden}
+.dv-two b{position:absolute;left:12px;bottom:12px;font:700 13px/1 var(--body);color:#fff;background:rgba(20,22,31,.82);border-radius:999px;padding:8px 13px}
+.dv-two span:last-child b{background:var(--gold);color:#241a05}
+.dv-txt{display:grid;gap:14px;align-content:center}
+.dv-txt h3{font:600 clamp(22px,2.4vw,32px)/1.12 var(--display);letter-spacing:-.025em}
+.dv-txt p{color:var(--muted);font-size:17px}
+@media (max-width:860px){.dv{grid-template-columns:minmax(0,1fr);gap:16px}.dv.flip .dv-shot{order:0}}
+@media (prefers-reduced-motion:reduce){.dv-eve,.dv-tog button{transition:none}}

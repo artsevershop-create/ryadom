@@ -83,7 +83,8 @@ h2{font-size:clamp(28px,3.6vw,46px)}
   </div>
 </header>
 <main>
-<section class="pg-hero">
+<section class="pg-hero has-img">
+  <div class="pg-hero-img" aria-hidden="true"><img src="img/dev-n-ext-day.jpg" alt="" style="object-position:50% 50%"></div>
   <div class="wrap">
     <p class="eyebrow">РЯДом: 3D-выбор квартир для застройщиков</p>
     <h1 class="mega">Покупатель выбирает квартиру в 3D, а не в таблице</h1>
@@ -100,25 +101,33 @@ h2{font-size:clamp(28px,3.6vw,46px)}
       <h2 style="margin-top:12px">Таблица не показывает, что за окном и как жить в квартире</h2>
       <ul class="pg-prob"><li>В шахматке видно этаж и цену, но не видно двор, соседний дом и перспективу из окна.</li><li>Планировка на картинке не передаёт, каково ходить по квартире и какая там отделка.</li><li>Покупатель уходит с вопросами к менеджеру или к конкурентам, у которых картинка нагляднее.</li></ul>
     </div>
-    <div class="pg-phones" data-reveal style="--d:.1s;grid-auto-columns:minmax(150px,46%)"><figure><img src="img/dev-free.webp" width="780" height="1560" alt="Свободные квартиры в 3D-модели жилого комплекса" loading="lazy"></figure><figure><img src="img/dev-facade.webp" width="780" height="1560" alt="Выбор квартиры на фасаде дома" loading="lazy"></figure></div>
+    <div class="pg-shot" data-reveal style="--d:.1s"><img src="img/dev-n-house-day.jpg" width="1000" height="684" alt="Дом в 3D: свободные квартиры подсвечены на фасаде" loading="lazy" style="object-position:center"></div>
   </div>
 </section>
 
-<section style="padding-top:0">
+<section style="padding-top:0" id="screens">
   <div class="wrap">
-    <div class="sec-head" data-reveal><p class="eyebrow">Что видит покупатель</p><h2>Семь экранов: от города до кухни</h2><p class="lead">Листайте. Это скриншоты демо-концепта на примере ЖК «Новелла» в Новом Уренгое.</p></div>
-    <div class="pg-phones" data-reveal>
-      <figure><img src="img/dev-city.webp" width="780" height="1560" alt="Весь город и ЖК в окружении" loading="lazy"><figcaption><b>Район и окружение</b>Где стоит дом, что рядом: школы, детские сады, парковки.</figcaption></figure>
-      <figure><img src="img/dev-free.webp" width="780" height="1560" alt="Свободные квартиры" loading="lazy"><figcaption><b>Свободные квартиры</b>Корпуса со свободными квартирами подсвечены, на каждом число.</figcaption></figure>
-      <figure><img src="img/dev-facade.webp" width="780" height="1560" alt="Выбор на фасаде" loading="lazy"><figcaption><b>Выбор на фасаде</b>Корпус, этаж, квартира: касанием по дому или по ячейке.</figcaption></figure>
-      <figure><img src="img/dev-plan.webp" width="780" height="1560" alt="План этажа" loading="lazy"><figcaption><b>План этажа</b>Соседние квартиры со статусами, лифтовый узел.</figcaption></figure>
-      <figure><img src="img/dev-bare.webp" width="780" height="1560" alt="Предчистовая отделка" loading="lazy"><figcaption><b>Как продаем</b>Предчистовая отделка: что покупатель получает по договору.</figcaption></figure>
-      <figure><img src="img/dev-design.webp" width="780" height="1560" alt="Дизайн-проект" loading="lazy"><figcaption><b>Дизайн-проект</b>Та же квартира с мебелью и светом, можно ходить по комнатам.</figcaption></figure>
-      <figure><img src="img/dev-window.webp" width="780" height="1560" alt="Вид из окна" loading="lazy"><figcaption><b>Вид из окна</b>Выбор этажа и окна, день и вечер.</figcaption></figure>
+    <div class="sec-head" data-reveal><p class="eyebrow">Что видит покупатель</p><h2>От квартала до вида из окна</h2><p class="lead">Кадры из демо на примере ЖК «Новелла» в Новом Уренгое. Планировки и цены в демо условные.</p></div>
+    <div class="dv" data-reveal>
+      <figure class="dv-shot"><img src="img/dev-n-ext-day.jpg" width="1600" height="900" alt="Квартал в 3D днём: дом со свободными квартирами" loading="lazy"><img class="dv-eve" src="img/dev-n-ext-eve.jpg" width="1600" height="900" alt="Тот же квартал вечером" loading="lazy"><span class="dv-tog" role="group" aria-label="Время суток"><button type="button" aria-pressed="true" data-dv="day">День</button><button type="button" aria-pressed="false" data-dv="eve">Вечер</button></span></figure>
+      <div class="dv-txt"><h3>Квартал и свободные квартиры</h3><p>Покупатель видит комплекс целиком: корпуса, дворы, окружение. Свободные квартиры подсвечены прямо на фасаде, выбрать можно касанием по дому.</p></div>
     </div>
-    <p class="pg-note">Демо-концепт, не официальный сайт застройщика. Планировки, статусы и цены условные: для запуска нужны ваши поэтажные планы и выгрузка продаж.</p>
+    <div class="dv flip" data-reveal>
+      <figure class="dv-shot dv-two"><span><img src="img/dev-n-int-bare.jpg" width="1600" height="786" alt="Квартира с предчистовой отделкой" loading="lazy"><b>Как продаём</b></span><span><img src="img/dev-n-int-design.jpg" width="1600" height="800" alt="Та же квартира с мебелью по дизайн-проекту" loading="lazy"><b>Дизайн-проект</b></span></figure>
+      <div class="dv-txt"><h3>Отделка по договору и с мебелью</h3><p>Одна и та же квартира: предчистовая отделка, которую покупатель получает по договору, и вариант с мебелью и светом. В пилоте интерьер строится для типовой квартиры.</p></div>
+    </div>
+    <div class="dv" data-reveal>
+      <figure class="dv-shot"><img src="img/dev-n-win-day.jpg" width="1600" height="900" alt="Вид из окна гостиной на восьмом этаже днём" loading="lazy"><img class="dv-eve" src="img/dev-n-win-eve.jpg" width="1600" height="900" alt="Тот же вид вечером" loading="lazy"><span class="dv-tog" role="group" aria-label="Время суток"><button type="button" aria-pressed="true" data-dv="day">День</button><button type="button" aria-pressed="false" data-dv="eve">Вечер</button></span></figure>
+      <div class="dv-txt"><h3>Вид из окна: любой этаж и любое окно</h3><p>Покупатель выбирает этаж и окно и осматривается сам, днём и вечером. Вид из окна — частый вопрос к менеджеру, здесь на него отвечает сервис.</p></div>
+    </div>
+    <div class="dv flip" data-reveal>
+      <figure class="dv-shot"><img src="img/dev-n-walk.jpg" width="1600" height="898" alt="Прогулка по квартире на уровне глаз" loading="lazy"></figure>
+      <div class="dv-txt"><h3>Можно пройтись по квартире</h3><p>Режим прогулки: покупатель ходит по комнатам на уровне глаз, а мини-карта показывает, где он находится.</p><p><a class="btn btn-gold" href="https://artsevershop-create.github.io/udsd-novella-3d/demo/" target="_blank" rel="noopener">Открыть демо ЖК <span class="arr">↗</span></a></p></div>
+    </div>
   </div>
 </section>
+<script>document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-dv]');if(!b)return;var f=b.closest('.dv-shot'),ev=b.getAttribute('data-dv')==='eve';f.classList.toggle('eve',ev);[].forEach.call(f.querySelectorAll('[data-dv]'),function(x){x.setAttribute('aria-pressed',String((x.getAttribute('data-dv')==='eve')===ev))})});</script>
+
 
 <section style="padding-top:0">
   <div class="wrap">
