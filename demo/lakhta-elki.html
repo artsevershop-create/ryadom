@@ -328,9 +328,9 @@ for(var i=0;i<7;i++){var x=-TW/2+.7+i*(TW-1.4)/6,sp=new T.Mesh(new T.CylinderGeo
 var caseM=cmat('#1a1b1e',{roughness:.6}),edgeC=cmat('#a9adb4',{metalness:.7,roughness:.35});
 [[-3.6,.9,.8],[-4.6,.6,.9],[3.8,.8,.9],[4.9,1.1,.7]].forEach(function(c){var b=new T.Mesh(new T.BoxGeometry(c[2]*1.3,c[1],c[2]),caseM);b.position.set(c[0],c[1]/2,1.4);portal.add(b);var e=new T.Mesh(new T.BoxGeometry(c[2]*1.32,.05,c[2]*1.02),edgeC);e.position.set(c[0],c[1],1.4);portal.add(e)});
 // подвесные колонки по краям портала
-var arrM=cmat('#121214',{roughness:.55});
+var LARR=[];var arrM=cmat('#121214',{roughness:.55});
 function lineArray(x,z,y){var g=new T.Group();for(var k=0;k<7;k++){var box=new T.Mesh(new T.BoxGeometry(1.1,.3,.6),arrM);box.position.y=-k*.31;box.rotation.x=k*.035;g.add(box)}
-  var cab=new T.Mesh(new T.CylinderGeometry(.012,.012,WH+DOME*.6-y,4),silverM);cab.position.y=(WH+DOME*.6-y)/2;g.add(cab);g.position.set(x,y,z);g.lookAt(RC[0],y,RC[1]);scene.add(g)}
+  var cab=new T.Mesh(new T.CylinderGeometry(.012,.012,WH+DOME*.6-y,4),silverM);cab.position.y=(WH+DOME*.6-y)/2;g.add(cab);g.position.set(x,y,z);g.lookAt(RC[0],y,RC[1]);scene.add(g);LARR.push(g)}
 [-1,1].forEach(function(s){lineArray(pm[0]+nx*1.0-nz*s*(PW/2+1.4),pm[1]+nz*1.0+nx*s*(PW/2+1.4),8.2)});
 (function(){var g=new T.Group();
   var needle=new T.MeshStandardMaterial({color:new T.Color('#14512b').convertSRGBToLinear(),roughness:.9,flatShading:true});
@@ -656,6 +656,8 @@ function loop(){requestAnimationFrame(loop);var dt=Math.min(clock.getDelta(),.05
   if(seatView){cur.pos.lerp(seatView.eye,.12);var dir=new T.Vector3(Math.sin(seatView.yaw)*Math.cos(seatView.pitch),Math.sin(seatView.pitch),Math.cos(seatView.yaw)*Math.cos(seatView.pitch));cur.look.lerp(seatView.eye.clone().add(dir.multiplyScalar(10)),.2)}
   else if(goal){cur.pos.lerp(goal.pos,.07);cur.look.lerp(goal.look,.09);if(cur.pos.distanceTo(goal.pos)<.05){var off=cur.pos.clone().sub(goal.look);tgt.copy(goal.look);sph.r=off.length();sph.ph=Math.acos(Math.max(-1,Math.min(1,off.y/sph.r)));sph.th=Math.atan2(off.z,off.x);goal=null}}
   else{cur.pos.lerp(camFromSph(),.25);cur.look.lerp(tgt,.25)}
+  var behind=nx*(cur.pos.x-pm[0])+nz*(cur.pos.z-pm[1])<-.3;backdrop.visible=portal.visible=!behind;LARR.forEach(function(g){g.visible=!behind&&Math.hypot(cur.pos.x-g.position.x,cur.pos.z-g.position.z)>7});
+  DOORS.forEach(function(d){if(d.k!=='t'||!d.g)return;var dc=Math.hypot(cur.pos.x-(d.x+d.bx)/2,cur.pos.z-(d.z+d.bz)/2),out=wallT(cur.pos.x,cur.pos.z)>wallT(d.x,d.z);d.g.visible=seatView?true:!(out&&dc<9)});
   var above=cur.pos.y>WH+DOME*.8;dome.visible=roof.visible=!above;crown.visible=!above;beams.forEach(function(b){b.visible=!above});
   cam.position.copy(cur.pos);cam.lookAt(cur.look);R.render(scene,cam);window.__ready=true}
 loop();
