@@ -271,31 +271,21 @@ fronts.forEach(function(q,i){dm.position.set(q.x+Math.sin(q.f)*.62,q.y,q.z+Math.
 /* ---------- манеж, дорожка и задник (по фото и видео) ---------- */
 function insideStage(x,z){var c=false,Q=D.stage;for(var i=0,j=Q.length-1;i<Q.length;j=i++){var a=Q[i],b=Q[j];if((a[1]>z)!=(b[1]>z)&&x<(b[0]-a[0])*(z-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
 function cmat(hex,o){o=o||{};o.color=new T.Color(hex).convertSRGBToLinear();return new T.MeshStandardMaterial(o)}
-// дорожка артистов от манежа к порталу — на уровне пола, ковровое покрытие
+// единый помост: манеж, дорожка и большая сцена на одной высоте; борта обтянуты светлой тканью, ограждений нет
 var stShape=new T.Shape();D.stage.forEach(function(p,i){i?stShape.lineTo(p[0],p[1]):stShape.moveTo(p[0],p[1])});
-var stH=.05;var stGeo=new T.ExtrudeGeometry(stShape,{depth:stH,bevelEnabled:false});stGeo.rotateX(Math.PI/2);stGeo.translate(0,stH,0);
-var stageTop=cmat('#5b5d62',{roughness:.95,side:T.DoubleSide}),sideM=cmat('#2a2c30',{roughness:.8,side:T.DoubleSide});
-var stage=new T.Mesh(stGeo,[stageTop,sideM]);scene.add(stage);
-// манеж: ковёр и белый барьер из секций, на барьере золотые столбики с красным канатом и белые шары
+var stH=.9;var stGeo=new T.ExtrudeGeometry(stShape,{depth:stH,bevelEnabled:false});stGeo.rotateX(Math.PI/2);stGeo.translate(0,stH,0);
+var stageTop=cmat('#6d7076',{roughness:.95,side:T.DoubleSide}),skirtM=cmat('#d9d7d2',{roughness:.8,side:T.DoubleSide});
+var stage=new T.Mesh(stGeo,[stageTop,skirtM]);scene.add(stage);
 var ringR=RC[2];
-var carpet=new T.Mesh(new T.CylinderGeometry(ringR,ringR,.06,64),cmat('#d9d4ca',{roughness:.95}));carpet.position.set(RC[0],.03,RC[1]);scene.add(carpet);
-var barM=cmat('#f2f2f0',{roughness:.6}),NB=Math.max(12,Math.round(ringR*2*Math.PI/1.2));
-for(var i=0;i<NB;i++){var a=(i+.5)/NB*Math.PI*2,px=RC[0]+Math.cos(a)*(ringR+.2),pz=RC[1]+Math.sin(a)*(ringR+.2);
-  var seg=new T.Mesh(new T.BoxGeometry(ringR*2*Math.PI/NB*1.02,.5,.4),barM);seg.position.set(px,.25,pz);seg.rotation.y=-a+Math.PI/2;scene.add(seg)}
-var postM=cmat('#d8b04a',{metalness:.85,roughness:.25}),ropeM=cmat('#b3121f',{roughness:.6}),ballM=new T.MeshStandardMaterial({color:0xffffff,emissive:0xfff3dd,emissiveIntensity:.35,roughness:.3});
-var NPOST=Math.max(8,Math.round(NB/2)),postXZ=[];
-for(var i=0;i<NPOST;i++){var a=i/NPOST*Math.PI*2,px=RC[0]+Math.cos(a)*(ringR+.2),pz=RC[1]+Math.sin(a)*(ringR+.2);postXZ.push([px,pz]);
-  var post=new T.Mesh(new T.CylinderGeometry(.035,.05,.9,10),postM);post.position.set(px,.95,pz);scene.add(post);
-  var cap=new T.Mesh(new T.SphereGeometry(.06,10,8),postM);cap.position.set(px,1.42,pz);scene.add(cap);
-  if(i%2){var ball=new T.Mesh(new T.SphereGeometry(.16,14,10),ballM);var b2=(i+.5)/NPOST*Math.PI*2;ball.position.set(RC[0]+Math.cos(b2)*(ringR+.2),.66,RC[1]+Math.sin(b2)*(ringR+.2));scene.add(ball)}}
-for(var i=0;i<NPOST;i++){var A=postXZ[i],B=postXZ[(i+1)%NPOST],pts=[];for(var k=0;k<=8;k++){var u=k/8;pts.push(new T.Vector3(A[0]+(B[0]-A[0])*u,1.32-Math.sin(u*Math.PI)*.28,A[1]+(B[1]-A[1])*u))}
-  scene.add(new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),12,.025,6,false),ropeM))}
-
+var ringTop=new T.Mesh(new T.CircleGeometry(ringR,72),cmat('#9a9da2',{roughness:.7,metalness:.2}));ringTop.rotation.x=-Math.PI/2;ringTop.position.set(RC[0],stH+.012,RC[1]);scene.add(ringTop);
+var ringSkirt=new T.Mesh(new T.CylinderGeometry(ringR,ringR,stH,72,1,true),skirtM);ringSkirt.position.set(RC[0],stH/2,RC[1]);scene.add(ringSkirt);
+var ringEdge=new T.Mesh(new T.TorusGeometry(ringR,.05,6,72),cmat('#e9e7e1',{roughness:.6}));ringEdge.rotation.x=Math.PI/2;ringEdge.position.set(RC[0],stH+.02,RC[1]);scene.add(ringEdge);
 var far=D.stage.reduce(function(m,p){var d=Math.hypot(p[0]-RC[0],p[1]-RC[1]);return d>m.d?{d:d,p:p}:m},{d:0,p:null});
 var dirX=far.p[0]-RC[0],dirZ=far.p[1]-RC[1],dl=Math.hypot(dirX,dirZ);dirX/=dl;dirZ/=dl;
 var bx=far.p[0]-dirX*1.2,bz=far.p[1]-dirZ*1.2;
+var tF=.9;
 
-// дамаст: розово-красная ткань с крупным тёмным медальоном, как на фото
+// дамаст: розово-красная ткань с крупным тёмным медальоном
 var damaskBig=canvasTex(512,512,function(g,w,h){g.fillStyle='#b23a46';g.fillRect(0,0,w,h);
   function motif(cx,cy,s){g.save();g.translate(cx,cy);g.scale(s,s);g.fillStyle='#3a0b14';
     for(var m=-1;m<=1;m+=2){g.save();g.scale(m,1);g.beginPath();g.moveTo(0,-118);g.bezierCurveTo(28,-100,22,-70,48,-62);g.bezierCurveTo(86,-52,92,-14,70,6);g.bezierCurveTo(98,22,92,64,60,74);
@@ -305,24 +295,24 @@ var damaskBig=canvasTex(512,512,function(g,w,h){g.fillStyle='#b23a46';g.fillRect
   motif(128,128,.85);motif(384,128,.85);motif(0,384,.85);motif(256,384,.85);motif(512,384,.85);
   for(var x=0;x<w;x+=2){var v=.05+.05*Math.sin(x*.07)+.03*Math.sin(x*.21);g.fillStyle='rgba(30,0,5,'+v+')';g.fillRect(x,0,2,h)}});
 damaskBig.wrapS=damaskBig.wrapT=T.RepeatWrapping;
-// задник: дуга по дальнему краю дорожки, от торца трибуны 101 до торца 201, высотой до пояса над ложами; мягкие складки
-var tF=0;D.stage.forEach(function(p){tF=Math.max(tF,wallT(p[0],p[1]))});tF=Math.min(.97,tF+.015);
-var stA=Math.atan2(far.p[1],far.p[0]);
-function wallPt(a){var p=polar(a,WA*tF,WB*tF);return p}
-function nearSeat(x,z){for(var i=0;i<P.length;i++){if(Math.hypot(P[i].x-x,P[i].z-z)<1.3)return true}return false}
-var aL=stA,aR=stA;while(aL>stA-Math.PI*.95){var p=wallPt(aL-.02);if(nearSeat(p[0],p[1]))break;aL-=.02}while(aR<stA+Math.PI*.95){var p=wallPt(aR+.02);if(nearSeat(p[0],p[1]))break;aR+=.02}
-// края задника — у торцов трибун 101 и 201, к краям дуга отходит к стене
-var trA=P.filter(function(q){return /Трибуна/.test(q.s)}).map(function(q){var a=Math.atan2(q.z,q.x);return a<-Math.PI/2?a+2*Math.PI:a}),gapL=-1e9,gapR=1e9;trA.forEach(function(a){if(a<stA&&a>gapL)gapL=a;if(a>stA&&a<gapR)gapR=a});
-aL=Math.max(aL,gapL+.03);aR=Math.min(aR,gapR-.03);
-function tAt(a){var e=Math.min((a-aL)/.45,(aR-a)/.45,1);e=e<0?0:e;var s=e*e*(3-2*e);return .965+(tF-.965)*s}
-var DH=WIN1+.6,dSeg=96,dPos=[],dUv=[],dIdx=[],arcLen=0,prev=null;
-for(var i=0;i<=dSeg;i++){var a=aL+(aR-aL)*i/dSeg,p=polar(a,WA*tAt(a),WB*tAt(a)),fold=.12*Math.sin(i*1.9);var k=1+fold/Math.hypot(p[0],p[1]);if(prev)arcLen+=Math.hypot(p[0]-prev[0],p[1]-prev[1]);prev=p;
-  dPos.push(p[0]*k,0,p[1]*k,p[0]*k,DH,p[1]*k);dUv.push(arcLen/5.6,0,arcLen/5.6,DH/5.6);if(i){var j=i*2;dIdx.push(j-2,j-1,j,j-1,j+1,j)}}
+// задник: ткань стоит вплотную к дальнему краю помоста и продолжается до стены зала (по вершинам 5–8 контура сцены)
+function toWall(p,t){var k=t/wallT(p[0],p[1]);return[p[0]*k,p[1]*k]}
+function outward(p,d){var l=Math.hypot(p[0],p[1]);return[p[0]+p[0]/l*d,p[1]+p[1]/l*d]}
+var bk=[5,6,7,8].map(function(i){return outward(D.stage[i],.3)});
+var path=[toWall(D.stage[5],.975)].concat(bk).concat([toWall(D.stage[8],.975)]);
+var DH=8.8,dPos=[],dUv=[],dIdx=[],arcLen=0,sub=[];
+for(var s=0;s<path.length-1;s++){var A=path[s],B=path[s+1],n=Math.max(3,Math.ceil(Math.hypot(B[0]-A[0],B[1]-A[1])/.5));for(var k=(s?1:0);k<=n;k++)sub.push([A[0]+(B[0]-A[0])*k/n,A[1]+(B[1]-A[1])*k/n])}
+sub.forEach(function(p,i){if(i)arcLen+=Math.hypot(p[0]-sub[i-1][0],p[1]-sub[i-1][1]);var l=Math.hypot(p[0],p[1]),f=.1*Math.sin(i*1.9)/l,hh=DH*(1-.07*Math.pow(Math.abs(Math.sin(i*.31)),2));
+  dPos.push(p[0]*(1+f),0,p[1]*(1+f),p[0]*(1+f),hh,p[1]*(1+f));dUv.push(arcLen/5.6,0,arcLen/5.6,hh/5.6);if(i){var j=i*2;dIdx.push(j-2,j-1,j,j-1,j+1,j)}});
 var dg=new T.BufferGeometry();dg.setAttribute('position',new T.Float32BufferAttribute(dPos,3));dg.setAttribute('uv',new T.Float32BufferAttribute(dUv,2));dg.setIndex(dIdx);dg.computeVertexNormals();
 var backdrop=new T.Mesh(dg,new T.MeshStandardMaterial({map:damaskBig,roughness:.9,side:T.DoubleSide}));scene.add(backdrop);
-// портал выхода артистов: ферма-ворота с прожекторами, ламбрекен с фестонами, красный занавес в складку
-var pp=wallPt(stA);var portal=new T.Group();portal.position.set(pp[0]*.995,0,pp[1]*.995);portal.lookAt(RC[0],0,RC[1]);scene.add(portal);
-var silverM=cmat('#cfd2d8',{metalness:.8,roughness:.3}),velvetM=cmat('#7d1420',{roughness:.75,side:T.DoubleSide}),velvetD=cmat('#5a0c16',{roughness:.8,side:T.DoubleSide});
+var stA=Math.atan2((bk[1][1]+bk[2][1])/2,(bk[1][0]+bk[2][0])/2);
+function wallPt(a){return polar(a,WA*tF,WB*tF)}
+// портал выхода артистов — посередине дальнего края помоста: ферма-ворота с прожекторами, ламбрекен, красный занавес
+var pm=[(bk[1][0]+bk[2][0])/2,(bk[1][1]+bk[2][1])/2],ex=bk[2][0]-bk[1][0],ez=bk[2][1]-bk[1][1],el=Math.hypot(ex,ez),nx=-ez/el,nz=ex/el;
+if(nx*(RC[0]-pm[0])+nz*(RC[1]-pm[1])<0){nx=-nx;nz=-nz}
+var portal=new T.Group();portal.position.set(pm[0]+nx*.12,stH,pm[1]+nz*.12);portal.lookAt(pm[0]+nx,stH,pm[1]+nz);scene.add(portal);
+var postM=cmat('#d8b04a',{metalness:.85,roughness:.25}),silverM=cmat('#cfd2d8',{metalness:.8,roughness:.3}),velvetM=cmat('#7d1420',{roughness:.75,side:T.DoubleSide}),velvetD=cmat('#5a0c16',{roughness:.8,side:T.DoubleSide});
 var PW=5.6,PH=4.6;
 var cg=new T.PlaneGeometry(PW,PH,160,1),cp=cg.attributes.position;for(var i=0;i<cp.count;i++){var x=cp.getX(i);cp.setZ(i,.09*Math.sin(x*15)+.03*Math.sin(x*41))}cg.computeVertexNormals();
 var curtain=new T.Mesh(cg,velvetM);curtain.position.set(0,PH/2,.25);portal.add(curtain);
@@ -335,15 +325,13 @@ var TW=PW+.8,TH=PH+1.6;[-1,1].forEach(function(s){var leg=trussBox(.3,TH,.3);leg
 var trTop=trussBox(.3,TW,.3);trTop.rotation.z=Math.PI/2;trTop.position.set(0,TH,.6);portal.add(trTop);
 var spotM=cmat('#111214',{roughness:.5}),lensM=new T.MeshBasicMaterial({color:0xfff4d8});
 for(var i=0;i<7;i++){var x=-TW/2+.7+i*(TW-1.4)/6,sp=new T.Mesh(new T.CylinderGeometry(.13,.16,.36,12),spotM);sp.position.set(x,TH+.32,.6);portal.add(sp);var ln=new T.Mesh(new T.CircleGeometry(.11,12),lensM);ln.position.set(x,TH+.32,.79);portal.add(ln)}
-// кофры у основания портала
 var caseM=cmat('#1a1b1e',{roughness:.6}),edgeC=cmat('#a9adb4',{metalness:.7,roughness:.35});
 [[-3.6,.9,.8],[-4.6,.6,.9],[3.8,.8,.9],[4.9,1.1,.7]].forEach(function(c){var b=new T.Mesh(new T.BoxGeometry(c[2]*1.3,c[1],c[2]),caseM);b.position.set(c[0],c[1]/2,1.4);portal.add(b);var e=new T.Mesh(new T.BoxGeometry(c[2]*1.32,.05,c[2]*1.02),edgeC);e.position.set(c[0],c[1],1.4);portal.add(e)});
-// подвесные линейные массивы колонок: слева и справа от портала и над дорожкой
+// подвесные колонки по краям портала
 var arrM=cmat('#121214',{roughness:.55});
 function lineArray(x,z,y){var g=new T.Group();for(var k=0;k<7;k++){var box=new T.Mesh(new T.BoxGeometry(1.1,.3,.6),arrM);box.position.y=-k*.31;box.rotation.x=k*.035;g.add(box)}
   var cab=new T.Mesh(new T.CylinderGeometry(.012,.012,WH+DOME*.6-y,4),silverM);cab.position.y=(WH+DOME*.6-y)/2;g.add(cab);g.position.set(x,y,z);g.lookAt(RC[0],y,RC[1]);scene.add(g)}
-
-[-1,1].forEach(function(s){var p=wallPt(stA+s*.22);lineArray(p[0]*.93,p[1]*.93,8.2)});
+[-1,1].forEach(function(s){lineArray(pm[0]+nx*1.0-nz*s*(PW/2+1.4),pm[1]+nz*1.0+nx*s*(PW/2+1.4),8.2)});
 (function(){var g=new T.Group();
   var needle=new T.MeshStandardMaterial({color:new T.Color('#14512b').convertSRGBToLinear(),roughness:.9,flatShading:true});
   for(var i=0;i<7;i++){var r=2.3-i*.3,c=new T.Mesh(new T.ConeGeometry(r,1.8,14,1),needle);c.geometry.attributes.position.array.forEach(function(v,k,a){if(k%3===1&&v<0){}});c.position.y=1.3+i*.95;c.rotation.y=i*.4;g.add(c)}
@@ -365,9 +353,12 @@ var swagTex=canvasTex(512,128,function(g,w,h){g.clearRect(0,0,w,h);for(var i=0;i
   g.beginPath();g.moveTo(x,0);g.lineTo(x+128,0);g.lineTo(x+128,40);g.quadraticCurveTo(x+64,150,x,40);g.closePath();g.fill();g.strokeStyle='#d8b04a';g.lineWidth=4;g.beginPath();g.moveTo(x+128,40);g.quadraticCurveTo(x+64,150,x,40);g.stroke()}});
 swagTex.wrapS=T.RepeatWrapping;swagTex.repeat.set(9,1);
 var swag=new T.Mesh(new T.CylinderGeometry(crownR*.98,crownR*.98,2.2,72,1,true),new T.MeshStandardMaterial({map:swagTex,transparent:true,alphaTest:.3,side:T.DoubleSide,roughness:.8}));swag.position.set(RC[0],crownY-1.1,RC[1]);crown.add(swag);
-var mheads=new T.InstancedMesh(new T.BoxGeometry(.32,.42,.32),new T.MeshStandardMaterial({color:0xe6e7ea,roughness:.4}),36);for(var i=0;i<36;i++){var a=i/36*Math.PI*2;m4.makeTranslation(RC[0]+Math.cos(a)*crownR*1.12,crownY-3.45,RC[1]+Math.sin(a)*crownR*1.12);mheads.setMatrixAt(i,m4)}crown.add(mheads);
+var lampH=new T.InstancedMesh(new T.CylinderGeometry(.16,.2,.5,10),new T.MeshStandardMaterial({color:0x2a2c31,metalness:.5,roughness:.45}),48),lampL=new T.InstancedMesh(new T.CircleGeometry(.13,10),new T.MeshBasicMaterial({color:0xfff2d0,side:T.DoubleSide}),48);
+for(var i=0;i<48;i++){var a=i/48*Math.PI*2,rr=crownR*1.12;m4.makeTranslation(RC[0]+Math.cos(a)*rr,crownY-3.55,RC[1]+Math.sin(a)*rr);lampH.setMatrixAt(i,m4);m4.makeRotationX(Math.PI/2).setPosition(RC[0]+Math.cos(a)*rr,crownY-3.82,RC[1]+Math.sin(a)*rr);lampL.setMatrixAt(i,m4)}crown.add(lampH);crown.add(lampL);
+var mheads=new T.InstancedMesh(new T.BoxGeometry(.32,.42,.32),new T.MeshStandardMaterial({color:0xe6e7ea,roughness:.4}),0);for(var i=0;i<36;i++){var a=i/36*Math.PI*2;m4.makeTranslation(RC[0]+Math.cos(a)*crownR*1.12,crownY-3.45,RC[1]+Math.sin(a)*crownR*1.12);mheads.setMatrixAt(i,m4)}crown.add(mheads);
 for(var i=0;i<6;i++){var a=i/6*Math.PI*2,cb=new T.Mesh(new T.CylinderGeometry(.015,.015,DOME+WH-crownY,4),silver);cb.position.set(RC[0]+Math.cos(a)*crownR,crownY+(DOME+WH-crownY)/2,RC[1]+Math.sin(a)*crownR);crown.add(cb)}
-var drape=new T.Mesh(new T.CylinderGeometry(crownR*.8,crownR*.98,2.4,64,1,true),new T.MeshStandardMaterial({color:0x7a0f18,side:T.DoubleSide,roughness:.75}));drape.position.set(RC[0],crownY+1.2,RC[1]);crown.add(drape);
+var dgeo=new T.CylinderGeometry(crownR*.82,crownR*.98,3.1,144,6,true),dp=dgeo.attributes.position;for(var i=0;i<dp.count;i++){var x=dp.getX(i),z=dp.getZ(i),r=Math.hypot(x,z),an=Math.atan2(z,x),pl=1+.045*Math.sin(an*60)+.02*Math.sin(an*23);dp.setX(i,x*pl);dp.setZ(i,z*pl)}dgeo.computeVertexNormals();
+var drape=new T.Mesh(dgeo,new T.MeshStandardMaterial({color:new T.Color("#8d1220").convertSRGBToLinear(),side:T.DoubleSide,roughness:.7}));drape.position.set(RC[0],crownY+1.1,RC[1]);crown.add(drape);
 var beamCone=new T.ConeGeometry(1.6,crownY,24,1,true);beamCone.translate(0,-crownY/2,0);
 var beams=[];for(var i=0;i<8;i++){var bm=new T.Mesh(beamCone,new T.MeshBasicMaterial({color:0xbfd8ff,transparent:true,opacity:.025,depthWrite:false,side:T.DoubleSide,blending:T.AdditiveBlending}));var a=i/8*Math.PI*2;bm.position.set(RC[0]+Math.cos(a)*crownR,crownY,RC[1]+Math.sin(a)*crownR);beams.push(bm);scene.add(bm)}
 var spot=new T.PointLight(0xfff1dd,.7,40,1.6);spot.position.set(RC[0],crownY-2,RC[1]);scene.add(spot);
@@ -404,7 +395,7 @@ var A5=1.213,YA=2.75;   // проход между 5-м и 6-м рядами т�
 var DOORS=[{n:1,ang:-126,k:'t',name:'Трибуны 201 и 202'},{n:2,ang:-53,k:'t',name:'Трибуны 202 и 203'},{n:3,ang:-17,k:'t',name:'Трибуна 203 и трибуна A'},{n:4,ang:17,k:'t',name:'Трибуна A и трибуна 101'},
   {n:5,ang:56,k:'t',name:'Трибуна 101, у сцены'},{n:6,ang:-155,k:'t',name:'Трибуна 201, у сцены'},{n:7,ang:72,k:'f',name:'Партер, со стороны трибуны 101'},{n:8,ang:-170,k:'f',name:'Партер, со стороны трибуны 201'}];
 var T8=1.364+.04;
-DOORS.forEach(function(d){d.a=d.ang*Math.PI/180;if(d.k==='t'){var p=polar(d.a,WA*.985,WB*.985);d.x=d.wx=p[0];d.z=d.wz=p[1];d.y=LOW}
+DOORS.forEach(function(d){d.a=(d.ang+(d.k==='t'?3.5:0))*Math.PI/180;if(d.k==='t'){var p=polar(d.a,D.ell[0]*.93,D.ell[1]*.93);d.x=d.wx=p[0];d.z=d.wz=p[1];d.y=0}
   else{var p=polar(d.a,WA*.985,WB*.985);d.x=d.wx=p[0];d.z=d.wz=p[1];d.y=0}});
 var doorOf=P.map(function(q){var best=null,bd=1e9,isF=/Партер|Диваны/.test(q.s),qa=Math.atan2(q.z,q.x);
   DOORS.forEach(function(d){if((d.k==='f')!==isF)return;var v=isF?Math.hypot(d.x-q.x,d.z-q.z):Math.abs(Math.atan2(Math.sin(qa-d.a),Math.cos(qa-d.a)));if(v<bd){bd=v;best=d}});return best});
@@ -447,9 +438,8 @@ var stairM=new T.MeshStandardMaterial({color:0x111214,roughness:.7}),edgeM=new T
 /* ---------- путь от входа до места ---------- */
 var routeG=new T.Group();scene.add(routeG);var routeDots=null,routeCurve=null,route2d=[];
 function routeFor(i){var q=P[i],d=doorOf[i],pts=[],qy=(q.sofa!=null?0:q.y)+.12;
-  if(d.k==='t'){pts.push([d.x,d.y+.08,d.z]);var qa=Math.atan2(q.z,q.x),da=d.a,dd=Math.atan2(Math.sin(qa-da),Math.cos(qa-da)),tq=Math.hypot(q.x/D.ell[0],q.z/D.ell[1]),lodge=/^Ложа/.test(q.s);
-    var top=polar(da,D.ell[0]*T8,D.ell[1]*T8);pts.push([top[0],H5(8)+.1,top[1]]);
-    if(!lodge){var rr=q.r;for(var r=8;r>=rr;r--){var tr=1+(r<=5?(r-1)*.032:.17+(r-6)*.032)+.016;if(r<rr)break;var p=polar(da,D.ell[0]*tr,D.ell[1]*tr);pts.push([p[0],H5(r)+.1,p[1]])}}
+  if(d.k==='t'){pts.push([d.x,.1,d.z]);var qa=Math.atan2(q.z,q.x),da=d.a,dd=Math.atan2(Math.sin(qa-da),Math.cos(qa-da)),tq=Math.hypot(q.x/D.ell[0],q.z/D.ell[1]),lodge=/^Ложа/.test(q.s);
+    var TRr=[1.0,1.032,1.062,1.094,1.126,1.30,1.33,1.364],rmax=lodge?8:q.r;for(var r=1;r<=rmax;r++){var p=polar(da,D.ell[0]*TRr[r-1]*(r===1?.97:1),D.ell[1]*TRr[r-1]*(r===1?.97:1));pts.push([p[0],H5(r)+.1,p[1]])}
     var tw=lodge?tq-.01:tq+.012,yw=lodge?q.y+.1:qy,n=Math.max(2,Math.ceil(Math.abs(dd)/.03));for(var k=0;k<=n;k++){var p=polar(da+dd*k/n,D.ell[0]*tw,D.ell[1]*tw);pts.push([p[0],yw,p[1]])}pts.push([q.x,qy,q.z])}
   else{pts.push([d.x,.1,d.z]);var mates=P.filter(function(o){return o.s===q.s&&o.r===q.r});var e1=mates.reduce(function(m,o){return o.p<m.p?o:m}),e2=mates.reduce(function(m,o){return o.p>m.p?o:m});
     var end=Math.hypot(e1.x-d.x,e1.z-d.z)<Math.hypot(e2.x-d.x,e2.z-d.z)?e1:e2,oth=end===e1?e2:e1,ux=end.x-oth.x,uz=end.z-oth.z,ul=Math.hypot(ux,uz)||1;
@@ -519,13 +509,13 @@ function clampPos(p){if(outside){if(p.y<WH+DOME+2)p.y=WH+DOME+2;return p}var t=w
   var hMax=WH+DOME*Math.sqrt(Math.max(0,1-t*t))-1.2;if(p.y>hMax)p.y=hMax;if(p.y<.6)p.y=.6;return p}
 function secCenter(name,row){var a=P.filter(function(q){return q.s===name&&(!row||q.r===row)}),x=0,y=0,z=0;a.forEach(function(q){x+=q.x;y+=q.y;z+=q.z});return new T.Vector3(x/a.length,y/a.length,z/a.length)}
 var board=0;
-function preset(n){exitSeat(true);outside=n==='top';var look=new T.Vector3(RC[0],1.2,RC[1]),pos;
+function preset(n){exitSeat(true);outside=n==="top";var look=new T.Vector3(RC[0],stH+1.2,RC[1]),pos;
   if(n==='over'){tgt.set(RC[0]+2,0,RC[1]);sph.r=27;sph.th=-2.25;sph.ph=1.06;pos=camFromSph();look=tgt.clone()}
   else if(n==='top'){tgt.set(3,0,0);sph.r=62;sph.th=Math.PI/2;sph.ph=.01;pos=camFromSph();look=tgt.clone()}
   else if(n==='parter'){var c=secCenter('Партер C',9);pos=new T.Vector3(c.x,1.7,c.z)}
   else if(n==='tribune'){var c=secCenter('Трибуна 202',8);pos=new T.Vector3(c.x,c.y+1.9,c.z)}
   else if(n==='lodge'){var c=secCenter('Ложа 18');pos=new T.Vector3(c.x,c.y+1.8,c.z)}
-  else if(n==='stage'){pos=new T.Vector3(bx-dirX*2.5,stH+2.2,bz-dirZ*2.5);look=new T.Vector3(0,2.5,0)}
+  else if(n==='stage'){pos=new T.Vector3(bx-dirX*2.5,stH+1.9,bz-dirZ*2.5);look=new T.Vector3(0,2.5,0)}
   else if(n==='posters'||n==='ads'){var arr=n==='posters'?POSTERS:ADS,m=arr[board%arr.length];board++;flyTo(m);return}
   goal={pos:clampPos(pos),look:look};
   [].forEach.call(document.querySelectorAll('#dock [data-p]'),function(b){b.classList.toggle('on',b.dataset.p===n)})}
@@ -564,7 +554,7 @@ function setDoor(d){hlDoor=d;hlSec=null;paint();if(!d)return;exitSeat(true);outs
 
 /* ---------- вид из кресла ---------- */
 var eyeOff=0;
-function fromSeat(i){var q=P[i];stopTour();var eye=new T.Vector3(q.x,SEATY(q)+.72+eyeOff,q.z),look=new T.Vector3(RC[0],1.2,RC[1]),d=look.clone().sub(eye);
+function fromSeat(i){var q=P[i];stopTour();var eye=new T.Vector3(q.x,SEATY(q)+.72+eyeOff,q.z),look=new T.Vector3(RC[0],stH+1.2,RC[1]),d=look.clone().sub(eye);
   seatView={i:i,eye:eye,yaw:Math.atan2(d.x,d.z),pitch:Math.atan2(d.y,Math.hypot(d.x,d.z))};outside=false;cam.fov=+$('fovR').value;cam.updateProjectionMatrix();
   $('seatName').textContent=label(q)+' · '+status(i)+' · вход '+doorOf[i].n;$('seatCtl').style.display='block';
   if(mobile)view.scrollIntoView({behavior:'smooth'})}
