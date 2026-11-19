@@ -286,6 +286,7 @@ button{cursor:pointer}
 <meta name="theme-color" content="#0E0D13">
 <script src="/config.js"></script>
 <script src="/metrika.js" defer></script>
+<script src="/demo-cta.js" defer></script>
 <meta name="description" content="Живое демо на реальном зале Ямальской филармонии: 686 мест, выбор места в 3D, вид на сцену из кресла, входы и путь к месту. Работает в браузере и на телефоне.">
 <link rel="canonical" href="https://3dryad.ru/demo/yamal.html">
 <meta property="og:type" content="website">
@@ -1021,7 +1022,7 @@ function buildHallOrig(){
     });
     wallPanel(-HX+.08,6.6,-11+k*5.6,3.6,5.04,Math.PI/2,map);
   });
-  [['ВАШ БРЕНД','здесь','#F0B94A','#1a1204',-9],['ПАРТНЁР','вечера','#ffffff','#14161F',-1.5],['СПОНСОР','зала','#F0B94A','#1a1204',6]].forEach(function(b){
+  (HALLS.concert.ads||[['ВАШ БРЕНД','здесь','#F0B94A','#1a1204'],['ПАРТНЁР','вечера','#ffffff','#14161F'],['СПОНСОР','зала','#F0B94A','#1a1204']]).map(function(a,i){return [a[0],a[1],a[2],a[3],[-9,-1.5,6][i]]}).forEach(function(b){
     var map=wtex(720,360,function(g,w,h){g.fillStyle=b[2];g.fillRect(0,0,w,h);g.strokeStyle=b[3];g.lineWidth=8;g.strokeRect(14,14,w-28,h-28);g.fillStyle=b[3];g.textAlign='center';g.font='800 74px sans-serif';g.fillText(b[0],w/2,170);g.font='600 56px sans-serif';g.fillText(b[1],w/2,250)});
     wallPanel(HX-.08,6.4,b[4],6.4,3.2,-Math.PI/2,map);
   });
@@ -1599,7 +1600,7 @@ function summaryHTML(){
     '<div class="total"><span>Итого</span><span id="sTotal">'+fmt(payTotal())+'</span></div></div>';
 }
 function qtHTML(){
-  var ev=EV(), url=H().qtBase+ev.qt;
+  var ev=EV(), url=ev.url||(H().qtBase+ev.qt);
   var seatsTxt=sel.map(function(i){var s=seats[i]; return 'ряд '+s.row+', место '+s.num}).join('; ');
   return '<div class="qt"><b>Сейчас билеты продаются через билетную систему площадки</b><p>Откройте этот сеанс и отметьте на схеме те же места: '+esc(seatsTxt)+'. Льготу по «Морошке» сейчас оформляют через раздел «Афиша» в приложении «Морошка» — он ведёт на Quick Tickets.</p>'+
     '<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener">Открыть сеанс в Quick Tickets ↗</a></div>';
@@ -2065,12 +2066,31 @@ function buildHall(){buildHallOrig(); camera.far=2800; camera.near=Math.max(.3,c
 
 function applyEvent(){applyEventOrig(); if(typeof renderSectors==='function'){renderSectors(); updateMap()}}
 
+/* настройки зала из кабинета заказчика: афиша, цены, реклама; при недоступности сервера работают встроенные значения */
+var CFG_URL=(window.HALL_CFG_URL||'https://lead.3dryad.ru/hall/yamal/config.json')+((/[?&]cfg=([w-]+)/.exec(location.search)||[])[1]?'?preview='+/[?&]cfg=([w-]+)/.exec(location.search)[1]:'');
+function isoLabel(iso){var d=new Date(iso+'T00:00:00Z'),R=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],W=['вс','пн','вт','ср','чт','пт','сб'];return d.getUTCDate()+' '+R[d.getUTCMonth()]+', '+W[d.getUTCDay()]}
+function applyCfg(c){
+  var H0=HALLS.concert;
+  if(c.events){
+    var t=new Date(Date.now()+5*3600e3).toISOString().slice(0,10), list=c.events.filter(function(e){return c.preview||e.date>=t});
+    H0.events.length=0; list.forEach(function(e){H0.events.push({title:e.title,sub:e.sub||'',date:isoLabel(e.date),time:e.time,pal:e.pal,seed:e.seed||1,mult:e.mult||1,sold:e.sold==null?.35:e.sold,url:e.url||'',qt:''})});
+  }
+  if(c.cats)c.cats.forEach(function(k,i){if(H0.cats[i]){H0.cats[i].name=k.name;H0.cats[i].price=k.price}});
+  if(c.ads)H0.ads=c.ads.map(function(a){return [a.t1,a.t2,a.bg,a.fg]});
+  if(c.preview){var b=document.createElement('div');b.textContent='Предпросмотр: изменения ещё не опубликованы';b.style.cssText='position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:60;background:#F0B94A;color:#241a05;padding:6px 14px;border-radius:999px;font:600 13px Onest,sans-serif';document.body.appendChild(b)}
+}
+function startHall(){
 buildHall(); renderAll(); applyPreset(H().presets[0]); setVm(uiMob?'3d':'both');
 /* вступление: камера пролетает со сцены над залом, затем «проявляются» цены */
 cur.pos.set(0,7.5,-12); cur.look.set(0,3,16); HQ.introEnd=reduce?0:performance.now()+4200;
 setTimeout(function(){HQ.target=1},reduce?0:2600);
 resize(); loop();
 setTimeout(function(){$('#loading').classList.add('off')},400);
+}
+(function(){
+  var done=false, go=function(){if(done)return; done=true; startHall()}, tm=setTimeout(go,2500);
+  try{ fetch(CFG_URL,{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(c){if(c&&!done){try{applyCfg(c)}catch(e){console.error('config',e)}}}).catch(function(){}).then(function(){clearTimeout(tm);go()}); }catch(e){clearTimeout(tm);go()}
+})();
 })();
 </script>
 
