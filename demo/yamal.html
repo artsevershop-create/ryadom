@@ -247,12 +247,17 @@ button{cursor:pointer}
 #vm button.on{background:var(--accent);color:var(--accent-ink)}
 #mini{position:absolute;top:58px;left:12px;z-index:4;width:270px;background:rgba(14,13,20,.94);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column}
 #mini .mh{display:flex;justify-content:space-between;align-items:center;padding:7px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.cabLink{margin-left:auto;font-size:12px;color:var(--mute);text-decoration:underline;text-underline-offset:3px;align-self:center;white-space:nowrap}.cabLink:hover{color:var(--accent)}
 #mini .mh button{border:0;background:rgba(255,255,255,.08);color:var(--fg);width:22px;height:22px;border-radius:50%;line-height:1}
 #mapSvg{display:block;width:100%;height:auto;aspect-ratio:244/168;touch-action:manipulation}
 #mapSvg polygon{cursor:pointer;transition:fill-opacity .2s}
 #mapSvg polygon:hover{stroke:#fff;stroke-width:.9}
 #mapSvg text{pointer-events:none;font-family:Onest,sans-serif;font-weight:700;fill:#fff;text-anchor:middle;dominant-baseline:central}
 #mini .mn{padding:2px 10px 8px;font-size:11px;color:var(--mute)}
+#mini .mb{display:flex;gap:4px}#mini #mapSvg{touch-action:none}#mini.big #mapSvg{cursor:grab}#mini.big #mapSvg:active{cursor:grabbing}
+#mini #mapSvg .sn{font-family:Onest,sans-serif;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;fill:#14120a}
+#mini #mapSvg .rn{font-family:Onest,sans-serif;font-weight:600;dominant-baseline:central;fill:#9d98a8;pointer-events:none}
+#mini #mapSvg circle.st{cursor:pointer}
 #mini.big{inset:56px 68px 76px 12px;width:auto;z-index:6;background:#0d0c13}
 #mini.big #mapSvg{flex:1;min-height:0;height:100%;aspect-ratio:auto}
 #mini.big .mh{font-size:12px;padding:10px 14px 4px}
@@ -286,7 +291,6 @@ button{cursor:pointer}
 <meta name="theme-color" content="#0E0D13">
 <script src="/config.js"></script>
 <script src="/metrika.js" defer></script>
-<script src="/demo-cta.js" defer></script>
 <meta name="description" content="Живое демо на реальном зале Ямальской филармонии: 686 мест, выбор места в 3D, вид на сцену из кресла, входы и путь к месту. Работает в браузере и на телефоне.">
 <link rel="canonical" href="https://3dryad.ru/demo/yamal.html">
 <meta property="og:type" content="website">
@@ -336,7 +340,7 @@ button{cursor:pointer}
     </div>
     <button id="panelToggle" class="chip" type="button" aria-expanded="true">Скрыть панель ▸</button>
     <div id="vm" role="tablist" aria-label="Режим выбора мест"><button type="button" data-m="3d">3D</button><button type="button" data-m="both">3D + схема</button><button type="button" data-m="map">Схема</button></div>
-    <div id="mini" hidden><div class="mh"><span id="miniT">Схема секторов</span><button id="miniX" type="button" aria-label="Свернуть схему">–</button></div><svg id="mapSvg" viewBox="-122 -84 244 168" role="img" aria-label="Схема секторов"></svg><div class="mn" id="mapNote">Нажмите на сектор: он подсветится, а 3D подлетит к нему.</div></div>
+    <div id="mini" hidden><div class="mh"><span id="miniT">Схема секторов</span><span class="mb"><button id="miniZ" type="button" aria-label="Приблизить схему" hidden>+</button><button id="miniO" type="button" aria-label="Отдалить схему" hidden>−</button><button id="miniBig" type="button" aria-label="Развернуть схему с номерами мест" title="Развернуть схему с номерами мест">⤢</button><button id="miniX" type="button" aria-label="Свернуть схему">–</button></span></div><svg id="mapSvg" viewBox="-122 -84 244 168" role="img" aria-label="Схема секторов"></svg><div class="mn" id="mapNote">Нажмите на сектор: он подсветится, а 3D подлетит к нему.</div></div>
     <button id="exitSeat" class="chip" hidden>← Выйти из вида</button>
     <div id="seatBadge" hidden></div>
     <div id="tip" hidden></div>
@@ -345,7 +349,7 @@ button{cursor:pointer}
   </main>
   <aside id="panel">
     <header>
-      <div class="brand">Ямальская филармония<span>3D</span></div>
+      <div class="brand">Ямальская филармония<span>3D</span></div><a class="cabLink" href="https://lead.3dryad.ru/cabinet" target="_blank" rel="noopener" title="Вход для сотрудников зала: афиша, цены, реклама">Вход в личный кабинет</a>
       <div class="seg" id="venueSeg" hidden>
         <button data-v="concert" class="on">Концертный зал</button>
         <button data-v="cinema">Кинозал</button>
@@ -1759,7 +1763,7 @@ function buildMap(){
   x0=Math.min(x0,f.x-f.w/2);x1=Math.max(x1,f.x+f.w/2);z0=Math.min(z0,f.z-f.h/2);z1=Math.max(z1,f.z+f.h/2);
   var w=(x1-x0)*1.1+6,h=(z1-z0)*1.1+6,cx=(x0+x1)/2,cz=(z0+z1)/2,ar=244/168;
   if(w/h<ar)w=h*ar;else h=w/ar;
-  mapVB=[cx-w/2,cz-h/2,w,h];
+  mapVB=[cx-w/2,cz-h/2,w,h]; mapFull=mapVB.slice();
   $('#mapSvg').setAttribute('viewBox',mapVB.map(function(v){return v.toFixed(1)}).join(' '));
   var sw=Math.max(.15,w/480), g='<rect x="'+mapVB[0]+'" y="'+mapVB[1]+'" width="'+w+'" height="'+h+'" fill="#0d0c13"/>'+
     '<rect x="'+(f.x-f.w/2).toFixed(1)+'" y="'+(f.z-f.h/2).toFixed(1)+'" width="'+f.w+'" height="'+f.h+'" rx="'+f.r+'" fill="#25222f" stroke="#7d7890" stroke-width="'+(sw*1.4).toFixed(2)+'"/>'+
@@ -1775,9 +1779,51 @@ function buildMap(){
        '<text data-t="'+esc(k)+'" x="'+m.cx.toFixed(1)+'" y="'+m.cz.toFixed(1)+'" font-size="'+fs.toFixed(1)+'">'+esc(k)+'</text>';
   });
   g+='<g pointer-events="none"><circle id="camTgt" r="'+(w/90).toFixed(2)+'" fill="none" stroke="#fff" stroke-width="'+(sw*1.6).toFixed(2)+'"/><path id="camArr" d="M0,-1 L2.3,0 L0,1 Z" fill="#f0b94a" stroke="#0d0c13" stroke-width=".15" transform="scale('+(w/90*1.3).toFixed(2)+')"/></g>';
-  $('#mapSvg').innerHTML=g; mapReady=true; updateMap();
+  $('#mapSvg').innerHTML=g; seatLayer=null; mapReady=true; if(vmode==='map')setMapMode(true); updateMap();
+}
+/* ---- схема мест: каждое место кружком с номером, слева и справа номера рядов ---- */
+var seatMapOn=false, seatLayer=null, seatEls=[];
+function buildSeatMap(){
+  var svg=$('#mapSvg'), NS='http://www.w3.org/2000/svg', g=document.createElementNS(NS,'g'); g.setAttribute('id','seatLayer'); seatEls=[];
+  var rows={};
+  seats.forEach(function(s,i){
+    if(!s.row)return;
+    var c=document.createElementNS(NS,'circle'); c.setAttribute('class','st'); c.setAttribute('cx',s.x.toFixed(2)); c.setAttribute('cy',s.z.toFixed(2)); c.setAttribute('r','.27'); c.setAttribute('data-i',i);
+    var t=document.createElementNS(NS,'title'); c.appendChild(t); g.appendChild(c);
+    var n=document.createElementNS(NS,'text'); n.setAttribute('class','sn'); n.setAttribute('x',s.x.toFixed(2)); n.setAttribute('y',(s.z+.02).toFixed(2)); n.setAttribute('font-size','.3'); n.textContent=s.num; n.style.display='none'; g.appendChild(n);
+    seatEls[i]={c:c,t:t,n:n};
+    var r=rows[s.row]||(rows[s.row]={x0:1e9,x1:-1e9,z:s.z,k:0}); r.x0=Math.min(r.x0,s.x); r.x1=Math.max(r.x1,s.x); r.z=(r.z*r.k+s.z)/(r.k+1); r.k++;
+  });
+  Object.keys(rows).forEach(function(k){ var r=rows[k];
+    [[r.x0-.75,'end'],[r.x1+.75,'start']].forEach(function(p){ var t=document.createElementNS(NS,'text'); t.setAttribute('class','rn'); t.setAttribute('x',p[0].toFixed(2)); t.setAttribute('y',r.z.toFixed(2)); t.setAttribute('font-size','.45'); t.setAttribute('text-anchor',p[1]); t.textContent=k; g.appendChild(t) }) });
+  seatLayer=g; svg.appendChild(g); seatMapOn=true; paintSeatMap();
+}
+function paintSeatMap(){
+  if(!seatLayer||!sold)return; var cats=H().cats;
+  seats.forEach(function(s,i){ var e=seatEls[i]; if(!e)return; var isSold=sold[i], isSel=sel.indexOf(i)>=0, d=dimC(s);
+    e.c.setAttribute('fill',isSel?'#8dff7a':isSold?'#4a4955':(cats[s.cat]?cats[s.cat].color:'#888'));
+    e.c.setAttribute('fill-opacity',isSel?1:isSold?.8:d?.22:1);
+    e.n.setAttribute('fill',isSold?'#9d98a8':'#14120a'); e.n.style.opacity=isSold?.7:d?.3:1;
+    e.t.textContent='Ряд '+s.row+', место '+s.num+' · '+(isSold?'занято':fmt(priceOf(s))+' · '+(cats[s.cat]?cats[s.cat].name:'')); });
+}
+function seatMapZoom(){ if(!seatLayer)return; var show=!!mapFull&&mapVB[2]<=mapFull[2]*.6; Array.prototype.forEach.call(seatLayer.querySelectorAll('.sn'),function(n){n.style.display=show?'':'none'}); }
+/* вписать места в экран схемы по размеру панели (пропорции панели ≠ пропорции мини-схемы) */
+function fitSeatMap(){
+  var svg=$('#mapSvg'),r=svg.getBoundingClientRect(); if(!r.width||!r.height||vmode!=='map')return;
+  var x0=1e9,x1=-1e9,z0=1e9,z1=-1e9; seats.forEach(function(s){if(!s.row)return;x0=Math.min(x0,s.x);x1=Math.max(x1,s.x);z0=Math.min(z0,s.z);z1=Math.max(z1,s.z)});
+  var f=mapFocus(); z0=Math.min(z0,f.z-f.h/2-1); var w=(x1-x0)+7, h=(z1-z0)+3, ar=r.width/r.height; if(w/h<ar)w=h*ar; else h=w/ar;
+  mapFull=[(x0+x1)/2-w/2,(z0+z1)/2-h/2,w,h]; mapVB=mapFull.slice(); svg.setAttribute('viewBox',mapVB.map(function(v){return v.toFixed(2)}).join(' ')); seatMapZoom();
+}
+function setMapMode(big){
+  var svg=$('#mapSvg'); if(!seatLayer&&seats.length)buildSeatMap();
+  Array.prototype.forEach.call(svg.querySelectorAll('polygon,text[data-t]'),function(e){e.style.display=big?'none':''});
+  if(seatLayer)seatLayer.style.display=big?'':'none';
+  $('#miniZ').hidden=$('#miniO').hidden=!big; $('#miniBig').hidden=big;
+  $('#mapNote').textContent=big?'Колесо мыши или щипок — масштаб, перетаскивание — сдвиг. Нажмите на место, чтобы выбрать; двойной щелчок — вид с этого места.':'Нажмите на сектор: он подсветится, а 3D подлетит к нему.';
+  if(big){seatMapZoom(); requestAnimationFrame(function(){requestAnimationFrame(fitSeatMap)})}
 }
 function updateMap(){
+  if(seatLayer&&vmode==='map')paintSeatMap();
   if(!mapReady||!sold)return;
   var st={},svg=$('#mapSvg');
   seats.forEach(function(s,i){
@@ -1807,13 +1853,33 @@ function updateCamMark(){
 function setVm(m){
   vmode=m; var mini=$('#mini');
   mini.hidden=(m==='3d'); mini.classList.toggle('big',m==='map');
-  $('#miniT').textContent=m==='map'?'Схема: нажмите на сектор':'Схема секторов';
+  $('#miniT').textContent=m==='map'?'Схема мест: ряды и места':'Схема секторов';
   $('#miniX').hidden=(m==='map');
   Array.prototype.forEach.call(document.querySelectorAll('#vm button'),function(b){b.classList.toggle('on',b.dataset.m===m)});
+  if(m!=='3d'&&mapReady){ if(mapFull){mapVB=mapFull.slice(); $('#mapSvg').setAttribute('viewBox',mapVB.map(function(v){return v.toFixed(2)}).join(' '))} setMapMode(m==='map'); }
   if(m!=='3d')updateMap();
 }
 $('#vm').addEventListener('click',function(e){var b=e.target.closest('button'); if(b)setVm(b.dataset.m)});
 $('#miniX').addEventListener('click',function(){setVm('3d')});
+$('#miniBig').addEventListener('click',function(){setVm('map')});
+/* масштаб и сдвиг схемы мест */
+var mapFull=null; function fullVB(){ if(!mapFull)return mapVB.slice(); return mapFull.slice(); }
+function mapZoomAt(f,px,py){ var svg=$('#mapSvg'),r=svg.getBoundingClientRect(),vb=mapVB, sc=Math.max(vb[2]/r.width,vb[3]/r.height); /* meet: масштаб одинаковый по осям */
+  var ox=(r.width-vb[2]/sc)/2, oy=(r.height-vb[3]/sc)/2, mx=vb[0]+(px-r.left-ox)*sc, my=vb[1]+(py-r.top-oy)*sc;
+  var nw=Math.max(8,Math.min(mapFull[2],vb[2]*f)), k=nw/vb[2], nh=vb[3]*k; vb=[mx-(mx-vb[0])*k,my-(my-vb[1])*k,nw,nh]; mapVB=vb; svg.setAttribute('viewBox',vb.map(function(v){return v.toFixed(2)}).join(' ')); seatMapZoom(); }
+(function(){ var svg=$('#mapSvg'),ptrs=new Map(),drag=null,moved=0,pinch0=0;
+  svg.addEventListener('wheel',function(e){ if(vmode!=='map')return; e.preventDefault(); if(!mapFull)mapFull=mapVB.slice(); mapZoomAt(e.deltaY<0?.8:1.25,e.clientX,e.clientY) },{passive:false});
+  svg.addEventListener('pointerdown',function(e){ if(vmode!=='map')return; if(!mapFull)mapFull=mapVB.slice(); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=0; if(ptrs.size===1)drag={x:e.clientX,y:e.clientY,vb:mapVB.slice()}; if(ptrs.size===2){var a=Array.from(ptrs.values());pinch0=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)} });
+  svg.addEventListener('pointermove',function(e){ if(vmode!=='map'||!ptrs.has(e.pointerId))return; ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(ptrs.size===2){var a=Array.from(ptrs.values()),d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y); if(pinch0&&Math.abs(d-pinch0)>2){mapZoomAt(pinch0/d,(a[0].x+a[1].x)/2,(a[0].y+a[1].y)/2); pinch0=d; moved=99} return}
+    if(drag&&ptrs.size===1){var r=svg.getBoundingClientRect(),vb=drag.vb,sc=Math.max(vb[2]/r.width,vb[3]/r.height),dx=e.clientX-drag.x,dy=e.clientY-drag.y; moved=Math.max(moved,Math.abs(dx)+Math.abs(dy)); if(moved>5){mapVB=[vb[0]-dx*sc,vb[1]-dy*sc,vb[2],vb[3]]; svg.setAttribute('viewBox',mapVB.map(function(v){return v.toFixed(2)}).join(' '))}} });
+  var up=function(e){ ptrs.delete(e.pointerId); if(ptrs.size<2)pinch0=0; if(!ptrs.size)drag=null };
+  svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up);
+  svg.addEventListener('click',function(e){ if(vmode!=='map'||moved>5)return; var c=e.target.closest('circle.st'); if(c)toggleSeat(+c.getAttribute('data-i')) },true);
+  svg.addEventListener('dblclick',function(e){ if(vmode!=='map')return; var c=e.target.closest('circle.st'); if(!c)return; var i=+c.getAttribute('data-i'); setVm('both'); viewFrom(i) });
+  $('#miniZ').addEventListener('click',function(){ var r=svg.getBoundingClientRect(); if(!mapFull)mapFull=mapVB.slice(); mapZoomAt(.7,r.left+r.width/2,r.top+r.height/2) });
+  $('#miniO').addEventListener('click',function(){ var r=svg.getBoundingClientRect(); if(!mapFull)mapFull=mapVB.slice(); mapZoomAt(1.4,r.left+r.width/2,r.top+r.height/2) });
+})();
 $('#mapSvg').addEventListener('click',function(e){
   var pg=e.target.closest('polygon'); if(!pg)return;
   if(vmode==='map')setVm('both');
