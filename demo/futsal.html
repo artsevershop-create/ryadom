@@ -790,6 +790,17 @@ var EVENTS=[
  {title:'Факел Ямал · кубковый матч',sub:'Футзал · матч на вылет',date:'21 ноября, сб',time:'16:00',mode:'football',pal:['#f2c14e','#d9302c','#1a1206'],seed:21,mult:1.2,sold:.65},
  {title:'Турнир ЮФЛ Футзал U18',sub:'Юношеский футзал · вход по билетам',date:'5 декабря, сб',time:'12:00',mode:'football',pal:['#7bd88f','#1f4fb0','#10251a'],seed:5,mult:.6,sold:.3},
  {title:'Новогодний праздник спорта',sub:'Шоу и мастер-классы · 0+',date:'26 декабря, сб',time:'14:00',mode:'football',pal:['#ff4d8d','#f2c14e','#2b1055'],seed:26,mult:.7,sold:.4}];
+/* афиша: прошедшие события скрываются сами (дата «21 ноября, сб» сравнивается с сегодняшним днём по Екатеринбургу; если все прошли, остаются последние) */
+function upcomingEvents(list){
+  var M={января:0,февраля:1,марта:2,апреля:3,мая:4,июня:5,июля:6,августа:7,сентября:8,октября:9,ноября:10,декабря:11};
+  var n=new Date(Date.now()+5*3600e3), today=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate());
+  function at(e){var m=/(\d+)\s+([а-яё]+)/i.exec(e.date||'');if(!m||M[m[2].toLowerCase()]===undefined)return null;
+    var d=Date.UTC(n.getUTCFullYear(),M[m[2].toLowerCase()],+m[1]); if(d<today-120*864e5)d=Date.UTC(n.getUTCFullYear()+1,M[m[2].toLowerCase()],+m[1]); return d}
+  var keep=list.filter(function(e){var d=at(e);return d===null||d>=today});
+  if(!keep.length)keep=list.slice(-1);
+  list.length=0; keep.forEach(function(e){list.push(e)}); return list;
+}
+upcomingEvents(EVENTS);
 var MODES={
  football:{kind:'football',venue:'Факел-Арена, Новый Уренгой',events:EVENTS,
   cats:[

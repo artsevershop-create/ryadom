@@ -819,6 +819,17 @@ var HALLS={
 var kind='concert', evIdx=0, seats=[], sold=null, sel=[], filter=-1, doorF=-1, hover=-1, bestN=2;
 var walls=[];
 var tourOn=false, tourT=null, tourI=0, holdEnd=0, holdTimer=null;
+/* афиша: прошедшие события скрываются сами (дата «21 ноября, сб» сравнивается с сегодняшним днём по Екатеринбургу; если все прошли, остаются последние) */
+function upcomingEvents(list){
+  var M={января:0,февраля:1,марта:2,апреля:3,мая:4,июня:5,июля:6,августа:7,сентября:8,октября:9,ноября:10,декабря:11};
+  var n=new Date(Date.now()+5*3600e3), today=Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate());
+  function at(e){var m=/(\d+)\s+([а-яё]+)/i.exec(e.date||'');if(!m||M[m[2].toLowerCase()]===undefined)return null;
+    var d=Date.UTC(n.getUTCFullYear(),M[m[2].toLowerCase()],+m[1]); if(d<today-120*864e5)d=Date.UTC(n.getUTCFullYear()+1,M[m[2].toLowerCase()],+m[1]); return d}
+  var keep=list.filter(function(e){var d=at(e);return d===null||d>=today});
+  if(!keep.length)keep=list.slice(-1);
+  list.length=0; keep.forEach(function(e){list.push(e)}); return list;
+}
+Object.keys(HALLS).forEach(function(k){if(HALLS[k].events)upcomingEvents(HALLS[k].events)});
 var H=function(){return HALLS[kind]};
 var EV=function(){return H().events[evIdx]};
 var priceOf=function(s){return Math.round(H().cats[s.cat].price*EV().mult/50)*50};
