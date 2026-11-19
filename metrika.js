@@ -1,5 +1,5 @@
 /* Яндекс Метрика и цели. Номер счётчика — window.RYADOM_YM в config.js; пока он 0, ничего не загружается.
-   Цели (идентификаторы JavaScript-событий в Метрике): lead_sent, lead_fallback, form_start, click_phone, click_email, download_kp, open_demo, demo_60s */
+   Цели (идентификаторы JavaScript-событий в Метрике): lead_sent, lead_fallback, form_start, click_phone, click_email, download_kp, open_demo, demo_60s, demo_cta (кнопка заявки в демо, demo-cta.js) */
 (function(){
   var id=+window.RYADOM_YM||0;
   window.ryadomGoal=function(name,params){try{if(id&&window.ym)ym(id,'reachGoal',name,params||{})}catch(e){}};
