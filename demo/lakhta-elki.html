@@ -433,13 +433,13 @@ function adTex(t){return canvasTex(360,512,function(g,w,h){g.fillStyle='#14121c'
 var POSTERS=[],ADS=[];
 function wallBoard(ang,tex,arr){var a=ang*Math.PI/180,p=polar(a,WA*.97,WB*.97),yy=WIN1+1.45,m=new T.Mesh(new T.PlaneGeometry(2.1,2.9),new T.MeshBasicMaterial({map:tex}));m.position.set(p[0],yy,p[1]);m.lookAt(0,yy,0);scene.add(m);m.userData.board=arr===POSTERS?'poster':'ad';arr.push(m)}
 // бегущая строка: светодиодная лента по поясу стены над ложами (вместо афиш)
-var TICK='Голос Белого царства  ·  музыкально-цирковая сказка 0+  ·  Лахта Холл  ·  20 декабря – 13 января  ·  Здесь может быть ваша реклама  ·  ';
+var TICKSIDE=T.BackSide;var TICK='Голос Белого царства  ·  музыкально-цирковая сказка 0+  ·  Лахта Холл  ·  20 декабря – 13 января  ·  Здесь может быть ваша реклама  ·  ';
 var tickTex=canvasTex(4096,128,function(g,w,h){g.fillStyle='#05070c';g.fillRect(0,0,w,h);g.textBaseline='middle';var fs=76;g.font='700 '+fs+'px Onest,system-ui,sans-serif';var tw=g.measureText(TICK).width;g.save();g.scale(w/tw,1);g.fillStyle='#ffc857';g.fillText(TICK,0,h/2+4);g.restore();
   g.fillStyle='rgba(0,0,0,.32)';for(var x=0;x<w;x+=6)g.fillRect(x,0,1,h);for(var y=0;y<h;y+=6)g.fillRect(0,y,w,1)});
 tickTex.wrapS=T.RepeatWrapping;
 (function(){var n=240,y0=WIN1+1.75,y1=WIN1+2.65,pos=[],uv=[],idx=[],len=0,pr=null;for(var i=0;i<=n;i++){var p=polar(i/n*Math.PI*2,WA*.972,WB*.972);if(pr)len+=Math.hypot(p[0]-pr[0],p[1]-pr[1]);pr=p;pos.push(p[0],y0,p[1],p[0],y1,p[1]);uv.push(len,0,len,1);if(i){var j=i*2;idx.push(j-2,j-1,j,j-1,j+1,j)}}
   var rp=Math.round(len/28);for(var k=0;k<uv.length;k+=2)uv[k]*=rp/len;var g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
-  var m=new T.Mesh(g,new T.MeshBasicMaterial({map:tickTex,toneMapped:false,side:T.DoubleSide}));scene.add(m);window.TICKM=m})();
+  var m=new T.Mesh(g,new T.MeshBasicMaterial({map:tickTex,toneMapped:false,side:TICKSIDE}));scene.add(m);window.TICKM=m})();
 
 /* ---------- номера лож, таблички секторов, динамики, лестницы (по видео) ---------- */
 function txtTex(s,fs,col,bg){return canvasTex(256,128,function(g,w,h){if(bg){g.fillStyle=bg;g.fillRect(0,0,w,h)}else g.clearRect(0,0,w,h);g.fillStyle=col;g.font='700 '+fs+'px Onest,system-ui,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText(s,w/2,h/2+4)})}
@@ -542,12 +542,18 @@ $('miniX').onclick=function(){$('mini').classList.toggle('min');this.textContent
 /* ---------- камера ---------- */
 var tgt=new T.Vector3(RC[0],1,RC[1]),sph={r:27,th:-2.25,ph:1.06},seatView=null,goal=null,outside=false,cur={pos:new T.Vector3(),look:new T.Vector3()};
 function camFromSph(){return clampPos(new T.Vector3(tgt.x+sph.r*Math.sin(sph.ph)*Math.cos(sph.th),tgt.y+sph.r*Math.cos(sph.ph),tgt.z+sph.r*Math.sin(sph.ph)*Math.sin(sph.th)))}
-function clampPos(p){if(outside){if(p.y<WH+DOME+2)p.y=WH+DOME+2;return p}var t=wallT(p.x,p.z),lim=.94;if(t>lim){p.x*=lim/t;p.z*=lim/t;t=lim}
+function clampPos(p){if(outside&&p.y<WH+DOME+2&&wallT(p.x,p.z)<.8)outside=false;if(outside){if(p.y<WH+DOME+2)p.y=WH+DOME+2;return p}var t=wallT(p.x,p.z),lim=.94;if(t>lim){p.x*=lim/t;p.z*=lim/t;t=lim}
   var hMax=WH+DOME*Math.sqrt(Math.max(0,1-t*t))-1.2;if(p.y>hMax)p.y=hMax;if(p.y<.6)p.y=.6;return p}
 function secCenter(name,row){var a=P.filter(function(q){return q.s===name&&(!row||q.r===row)}),x=0,y=0,z=0;a.forEach(function(q){x+=q.x;y+=q.y;z+=q.z});return new T.Vector3(x/a.length,y/a.length,z/a.length)}
 var board=0;
-function preset(n){exitSeat(true);outside=n==="top";var look=new T.Vector3(RC[0],stH+1.2,RC[1]),pos;
-  if(n==='over'){tgt.set(RC[0]+2,0,RC[1]);sph.r=27;sph.th=-2.25;sph.ph=1.06;pos=camFromSph();look=tgt.clone()}
+// обзор: подбираем центр и расстояние, чтобы все места и сцена попали в кадр
+var fitCam=new T.PerspectiveCamera(55,1,.1,400);
+function fitOver(){sph.th=Math.PI/2;sph.ph=.68;tgt.set(3,0,1);var pt=P.filter(function(q,i){return i%3===0}).map(function(q){return new T.Vector3(q.x,q.y+1,q.z)}).concat(D.stage.map(function(p){return new T.Vector3(p[0],.9,p[1])})),v=new T.Vector3();fitCam.aspect=cam.aspect;fitCam.updateProjectionMatrix();
+  function ext(){fitCam.position.set(tgt.x,tgt.y+sph.r*Math.cos(sph.ph),tgt.z+sph.r*Math.sin(sph.ph));fitCam.lookAt(tgt);fitCam.updateMatrixWorld();var e=[9,-9,9,-9];pt.forEach(function(p){v.copy(p).project(fitCam);e[0]=Math.min(e[0],v.x);e[1]=Math.max(e[1],v.x);e[2]=Math.min(e[2],v.y);e[3]=Math.max(e[3],v.y)});return e}
+  for(sph.r=34;sph.r<89;sph.r+=1){for(var k=0;k<3;k++){var e=ext(),h=sph.r*Math.tan(27.5*Math.PI/180);tgt.x+=(e[0]+e[1])/2*h*cam.aspect;tgt.z-=((e[2]+e[3])/2-.02)*h/Math.cos(sph.ph)}e=ext();if(e[0]>-.96&&e[1]<.96&&e[2]>-.78&&e[3]<.86)break}}
+var overAuto=false;   // обзор не трогали руками — при смене размера окна подгоняем под кадр
+function preset(n){overAuto=false;exitSeat(true);outside=n==="top"||n==="over";var look=new T.Vector3(RC[0],stH+1.2,RC[1]),pos;
+  if(n==='over'){overAuto=true;fitOver();pos=camFromSph();look=tgt.clone()}
   else if(n==='top'){tgt.set(3,0,0);sph.r=62;sph.th=Math.PI/2;sph.ph=.01;pos=camFromSph();look=tgt.clone()}
   else if(n==='parter'){var c=secCenter('Партер C',9);pos=new T.Vector3(c.x,1.7,c.z)}
   else if(n==='tribune'){var c=secCenter('Трибуна 202',8);pos=new T.Vector3(c.x,c.y+1.9,c.z)}
@@ -557,9 +563,9 @@ function preset(n){exitSeat(true);outside=n==="top";var look=new T.Vector3(RC[0]
   goal={pos:clampPos(pos),look:look};
   [].forEach.call(document.querySelectorAll('#dock [data-p]'),function(b){b.classList.toggle('on',b.dataset.p===n)})}
 var drag=null,pts=new Map();
-cv.addEventListener('pointerdown',function(e){cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={b:e.button,moved:0,pinch:0};stopTour()});
+cv.addEventListener('pointerdown',function(e){overAuto=false;cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={b:e.button,moved:0,pinch:0};stopTour()});
 cv.addEventListener('pointermove',function(e){var p=pts.get(e.pointerId);hover(e);if(!p||!drag)return;var dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;drag.moved+=Math.abs(dx)+Math.abs(dy);
-  if(pts.size===2){var a=[];pts.forEach(function(v){a.push(v)});var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(drag.pinch&&!seatView)sph.r=Math.max(3,Math.min(outside?90:70,sph.r*drag.pinch/d));drag.pinch=d;if(!seatView)pan(dx/2,dy/2);goal=null;return}
+  if(pts.size===2){var a=[];pts.forEach(function(v){a.push(v)});var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(drag.pinch&&!seatView){sph.r=Math.max(3,Math.min(90,sph.r*drag.pinch/d));if(!outside&&drag.pinch>d&&sph.r*Math.cos(sph.ph)>WH+DOME+2)outside=true}drag.pinch=d;if(!seatView)pan(dx/2,dy/2);goal=null;return}
   if(seatView){seatView.yaw-=dx*.004;seatView.pitch=Math.max(-.9,Math.min(.7,seatView.pitch-dy*.004));return}
   goal=null;if(drag.b===2||e.shiftKey)pan(dx,dy);else{sph.th+=dx*.006;sph.ph=Math.max(.01,Math.min(1.55,sph.ph-dy*.005))}});
 cv.addEventListener('pointerup',function(e){pts.delete(e.pointerId);if(drag&&drag.moved<6&&pts.size===0)pick(e);if(pts.size===0)drag=null});
@@ -567,7 +573,7 @@ cv.addEventListener('dblclick',function(e){var h=hit(e);if(h!=null){if(sel.index
   if(w){var p=w.point,d=new T.Vector3(-p.x,0,-p.z).normalize();exitSeat(true);goal={pos:clampPos(p.clone().addScaledVector(d,8).setY(Math.max(3,p.y-1))),look:p.clone()}}});
 cv.addEventListener('contextmenu',function(e){e.preventDefault()});
 cv.addEventListener('wheel',function(e){e.preventDefault();zoom(1+e.deltaY*.001)},{passive:false});
-function zoom(k){if(seatView){cam.fov=Math.max(30,Math.min(80,cam.fov*k));cam.updateProjectionMatrix();$('fovR').value=cam.fov;return}goal=null;sph.r=Math.max(3,Math.min(outside?90:70,sph.r*k))}
+function zoom(k){overAuto=false;if(seatView){cam.fov=Math.max(30,Math.min(80,cam.fov*k));cam.updateProjectionMatrix();$('fovR').value=cam.fov;return}goal=null;sph.r=Math.max(3,Math.min(90,sph.r*k));if(k>1&&!outside&&sph.r*Math.cos(sph.ph)>WH+DOME+2)outside=true}
 function pan(dx,dy){var s=sph.r*.0015,fw=new T.Vector3(Math.cos(sph.th),0,Math.sin(sph.th)),rt=new T.Vector3(-fw.z,0,fw.x);tgt.addScaledVector(rt,dx*s).addScaledVector(fw,dy*s);var t=wallT(tgt.x,tgt.z);if(t>.85){tgt.x*=.85/t;tgt.z*=.85/t}}
 
 /* ---------- выбор мест ---------- */
@@ -667,16 +673,16 @@ function stopTour(){if(tourI<0)return;tourI=-1;clearTimeout(tourT);$('tourBar').
 $('tourBtn').onclick=function(){if(tourI>=0){stopTour();return}$('tourBar').style.display='flex';this.classList.add('on');tourStep()};$('tourNext').onclick=tourStep;$('tourX').onclick=stopTour;
 
 /* ---------- цикл ---------- */
-function resize(){var w=view.clientWidth,h=view.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+function resize(){var w=view.clientWidth,h=view.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();if(overAuto&&!seatView)preset('over')}
 window.addEventListener('resize',resize);resize();
 buildCrowd();renderEvents();setMode(mobile?'3d':'mix');paint();
-cur.pos.copy(camFromSph().add(new T.Vector3(0,20,0)));cur.look.copy(tgt);preset('over');
+preset('over');cur.pos.copy(goal.pos).multiplyScalar(1.15);cur.look.copy(tgt);
 $('loading').style.display='none';
 try{if(!localStorage.getItem('lakhtaHint'))showHint()}catch(e){showHint()}
 var clock=new T.Clock(),tt=0;
 // что мешает обзору с этой точки — прячем
 function updOcc(){
-  var behind=crossBack(cur.pos.x,cur.pos.z)||(nearBack(cur.pos.x,cur.pos.z)<4.5&&(cur.look.x-cur.pos.x)*(RC[0]-cur.pos.x)+(cur.look.z-cur.pos.z)*(RC[1]-cur.pos.z)>0);backdrop.visible=portal.visible=!behind;LARR.forEach(function(g){g.visible=!behind&&Math.hypot(cur.pos.x-g.position.x,cur.pos.z-g.position.z)>7});
+  var behind=crossBack(cur.pos.x,cur.pos.z)||nx*(cur.pos.x-pm[0])+nz*(cur.pos.z-pm[1])<-.3||(nearBack(cur.pos.x,cur.pos.z)<4.5&&(cur.look.x-cur.pos.x)*(RC[0]-cur.pos.x)+(cur.look.z-cur.pos.z)*(RC[1]-cur.pos.z)>0);backdrop.visible=portal.visible=!behind;LARR.forEach(function(g){g.visible=!behind&&Math.hypot(cur.pos.x-g.position.x,cur.pos.z-g.position.z)>7});
   DOORS.forEach(function(d){if(d.k!=='t'||!d.g)return;var dc=Math.hypot(cur.pos.x-(d.x+d.bx)/2,cur.pos.z-(d.z+d.bz)/2),out=wallT(cur.pos.x,cur.pos.z)>wallT(d.x,d.z);d.g.visible=seatView?true:!(out&&dc<9)});
   SCRMESH.forEach(function(g){g.getWorldDirection(occV);g.visible=occV.x*(cur.pos.x-g.position.x)+occV.z*(cur.pos.z-g.position.z)>0});}
 var occV=new T.Vector3();
@@ -687,7 +693,7 @@ function loop(){requestAnimationFrame(loop);var dt=Math.min(clock.getDelta(),.05
   else if(goal){cur.pos.lerp(goal.pos,.07);cur.look.lerp(goal.look,.09);if(cur.pos.distanceTo(goal.pos)<.05){var off=cur.pos.clone().sub(goal.look);tgt.copy(goal.look);sph.r=off.length();sph.ph=Math.acos(Math.max(-1,Math.min(1,off.y/sph.r)));sph.th=Math.atan2(off.z,off.x);goal=null}}
   else{cur.pos.lerp(camFromSph(),.25);cur.look.lerp(tgt,.25)}
   updOcc();
-  var above=cur.pos.y>WH+DOME*.8;dome.visible=roof.visible=!above;
+  var above=cur.pos.y>WH+DOME*.8;dome.visible=roof.visible=spk.visible=!above;
   cam.position.copy(cur.pos);cam.lookAt(cur.look);R.render(scene,cam);window.__ready=true}
 loop();
 </script>
