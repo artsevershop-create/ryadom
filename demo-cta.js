@@ -32,8 +32,9 @@
   var host=document.getElementById('view')||document.body;
   var btn=document.createElement('button'); btn.id='rdCta'; btn.type='button';
   btn.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span class="l">Хочу такое для своего зала</span><span class="s">Хочу для своего зала</span>';
-  if(host===document.body)btn.style.position='fixed';
-  host.appendChild(btn);
+  var slot=document.getElementById('rdCtaSlot');   // страница сама указала место — кнопка стоит в нём и не закрывает модель
+  if(slot){btn.style.cssText='position:static;transform:none;width:100%;justify-content:center';slot.appendChild(btn)}
+  else{if(host===document.body)btn.style.position='fixed';host.appendChild(btn)}
 
   var m=document.createElement('div'); m.id='rdM'; m.hidden=true; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true'); m.setAttribute('aria-labelledby','rdT');
   m.innerHTML='<div class="b"><div class="hd"><h2 id="rdT">3D-схема вашего зала</h2><button class="x" type="button" aria-label="Закрыть">×</button></div>'+
