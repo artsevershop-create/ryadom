@@ -176,7 +176,7 @@ svg.map text{font-family:var(--font-body);pointer-events:none}
   <div id="tip"></div>
   <div id="hint"><div class="box"><h2>Как пользоваться моделью</h2><div class="note">Это живая 3D-модель Лахта Холла в конфигурации «Ёлки 2026»: её можно крутить, приближать и садиться в любое кресло.</div>
    <div class="hg"><div><b>Вид из кресла</b><span>Двойной клик по месту: манеж и сцена глазами зрителя</span></div><div><b>Вращать</b><span>Зажмите левую кнопку мыши и тяните</span></div>
-    <div><b>Приблизить</b><span>Колесо мыши или кнопки + и −</span></div><div><b>Выбрать место</b><span>Клик по креслу: сектор, ряд, место, цена, вход</span></div>
+    <div><b>Приблизить</b><span>Колесо мыши или кнопки + и −</span></div><div><b>Выбрать место</b><span>Клик по креслу подлетает к нему, вблизи клик выбирает место</span></div>
     <div><b>Схема</b><span>Режимы «3D + схема» и «Схема» слева вверху</span></div><div><b>Панель с билетами</b><span>Сеанс, цены, секторы, входы и оплата</span></div><div><b>★ Подобрать места</b><span>Число людей, зона и цена: до четырёх лучших вариантов рядом</span></div><div><b>Выступление и спецэффекты</b><span>Условное шоу с полным залом, снег, лучи, дым, искры, конфетти</span></div><div><b>Цвета зала</b><span>Кнопка 🎨: цены или настоящие цвета кресел</span></div></div>
    <div class="row2" style="justify-content:space-between"><span class="note">Подсказку всегда можно открыть кнопкой «?»</span><button class="btn pri" id="hintOk">Понятно, смотрим</button></div></div></div>
   <div id="modal"><div class="box" id="mBody"></div></div>
@@ -676,7 +676,7 @@ cv.addEventListener('pointermove',function(e){var p=pts.get(e.pointerId);hover(e
   if(seatView){seatView.yaw-=dx*.004;seatView.pitch=Math.max(-.9,Math.min(.7,seatView.pitch-dy*.004));return}
   goal=null;if(drag.b===2||e.shiftKey)pan(dx,dy);else{sph.th+=dx*.006;sph.ph=Math.max(.01,Math.min(outside?1.0:1.5,sph.ph-dy*.005))}});
 cv.addEventListener('pointerup',function(e){pts.delete(e.pointerId);if(drag&&drag.moved<6&&pts.size===0)pick(e);if(pts.size===0)drag=null});
-cv.addEventListener('dblclick',function(e){var h=hit(e);if(h!=null){if(sel.indexOf(h)<0&&isFree(h))toggleSel(h);fromSeat(h);return}var w=ray.intersectObject(scene,true).find(function(x){return x.object.material&&x.object.material.side===T.BackSide&&x.object!==dome});
+cv.addEventListener('dblclick',function(e){var h=performance.now()-lastPick.t<900&&lastPick.i>=0?lastPick.i:hit(e);if(h!=null){fromSeat(h);return}var w=ray.intersectObject(scene,true).find(function(x){return x.object.material&&x.object.material.side===T.BackSide&&x.object!==dome});
   if(w){var p=w.point,d=new T.Vector3(-p.x,0,-p.z).normalize();exitSeat(true);goal={pos:clampPos(p.clone().addScaledVector(d,8).setY(Math.max(3,p.y-1))),look:p.clone()}}});
 cv.addEventListener('contextmenu',function(e){e.preventDefault()});
 cv.addEventListener('wheel',function(e){e.preventDefault();zoom(1+e.deltaY*.001)},{passive:false});
@@ -689,13 +689,17 @@ function hit(e){var r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.wid
   var h=ray.intersectObjects([hitM,cushM],false)[0];if(!h)return null;return h.object===cushM?NCH+h.instanceId:h.instanceId}
 function label(q){return q.s+' · ряд '+q.r+' · место '+q.p+(q.sofa!=null?' (диван)':'')}
 function status(i){return sold[i]===2?'не продаётся на Яндексе':sold[i]?'занято':fmt(P[i].pr)}
-function showTip(i,e){var q=P[i],r=view.getBoundingClientRect();tip.innerHTML='<b>'+label(q)+'</b><br>'+status(i)+' · вход '+doorOf[i].n;tip.style.left=Math.min(e.clientX-r.left+14,r.width-220)+'px';tip.style.top=(e.clientY-r.top+14)+'px';tip.style.display='block'}
+function showTip(i,e){var q=P[i],r=view.getBoundingClientRect();tip.innerHTML='<b>'+label(q)+'</b><br>'+status(i)+' · вход '+doorOf[i].n+(isFree(i)?'<br><span style="color:#8dffb9">'+(sel.indexOf(i)>=0?'Выбрано · клик, чтобы снять':mode!=='map'&&farPick(i)?'Клик, чтобы подлететь':'Клик, чтобы выбрать')+'</span>':'');tip.style.left=Math.min(e.clientX-r.left+14,r.width-220)+'px';tip.style.top=(e.clientY-r.top+14)+'px';tip.style.display='block'}
 var hovE=null,hovQ=false;function hover(e){if(seatView||drag){tip.style.display='none';return}hovE={clientX:e.clientX,clientY:e.clientY};if(hovQ)return;hovQ=true;requestAnimationFrame(function(){hovQ=false;if(hovE&&!drag)hover2(hovE)})}
 function hover2(e){var h=hit(e);if(h==null){tip.style.display='none';return}showTip(h,e)}
 function boardHit(e){var r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,cam);var h=ray.intersectObjects(POSTERS.concat(ADS),false)[0];return h?h.object:null}
 function flyTo(m){exitSeat(true);outside=false;var d=new T.Vector3(-m.position.x,0,-m.position.z).normalize(),pos=m.position.clone().addScaledVector(d,6.5);pos.y=m.position.y-.6;goal={pos:clampPos(pos),look:m.position.clone()};
   [].forEach.call(document.querySelectorAll('#dock [data-p]'),function(b){b.classList.toggle('on',b.dataset.p===(m.userData.board==='poster'?'posters':'ads'))})}
-function pick(e){if(seatView)return;var b=boardHit(e),h=hit(e);if(b&&(h==null||ray.intersectObject(b)[0].distance<(ray.intersectObjects([hitM,cushM])[0]||{distance:1e9}).distance)){flyTo(b);return}if(h!=null)toggleSel(h)}
+var NEAR=14,lastPick={i:-1,t:0};
+function farPick(i){if(seatView)return false;var q=P[i];return cur.pos.distanceTo(new T.Vector3(q.x,SEATY(q),q.z))>NEAR}
+function flyNear(i){var q=P[i],v=new T.Vector3(q.x-RC[0],0,q.z-RC[1]),d=v.length();v.normalize();stopTour();overAuto=false;outside=false;var flat=q.y<.3,k=Math.min(flat?4.6:6.2,Math.max(2,d-.5));goal={pos:clampPos(new T.Vector3(q.x-v.x*k,SEATY(q)+(flat?5.6:3.9),q.z-v.z*k)),look:new T.Vector3(q.x,SEATY(q),q.z)};[].forEach.call(document.querySelectorAll('#dock [data-p]'),function(b){b.classList.remove('on')});toast('Подлетаем ближе: теперь нажмите на нужное место')}
+function showMySeats(){if($('panel').classList.contains('hide')){$('panel').classList.remove('hide');resize()}setTimeout(function(){var h=$('mySeats').previousElementSibling,sc=$('scroll');if(sc.scrollHeight>sc.clientHeight+4)sc.scrollTo({top:Math.max(0,h.offsetTop-sc.offsetTop-8),behavior:'smooth'})},80)}
+function pick(e){if(seatView)return;var b=boardHit(e),h=hit(e);if(b&&(h==null||ray.intersectObject(b)[0].distance<(ray.intersectObjects([hitM,cushM])[0]||{distance:1e9}).distance)){flyTo(b);return}if(h!=null){lastPick={i:h,t:performance.now()};if(farPick(h))flyNear(h);else{var n=sel.length;toggleSel(h);if(sel.length>n)showMySeats()}}}
 var holdEnd=0;
 function toggleSel(i){var k=sel.indexOf(i);if(k>=0){sel.splice(k,1)}else{if(!isFree(i)){toast(sold[i]===2?'Эта ложа не продаётся на Яндексе':'Место уже занято');return}if(sel.length>=8){toast('Не больше 8 мест в заказе');return}sel.push(i);if(!holdEnd)holdEnd=Date.now()+600000}
   if(!sel.length)holdEnd=0;last=sel.length?sel[sel.length-1]:-1;showRoute(last);paint()}
