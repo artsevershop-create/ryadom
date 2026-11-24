@@ -247,10 +247,31 @@ var priceCol={},priceOn={};prices.forEach(function(p){priceCol[p]=YAC[p]||'#8888
 var tMax=0;P.forEach(function(q){var t=Math.hypot(q.x/D.ell[0],q.z/D.ell[1]);if(t>tMax)tMax=t});
 var WA=36.5,WB=26.5,WH=11.5,DOME=10;   // по плану «вид сверху»
 // радиус ряда r под углом a: усреднение всех трибун с учётом симметрии зала
-var RB=null;function rowR(r,a){if(!RB){RB=[];P.forEach(function(q){if(!/Трибуна/.test(q.s)||q.sofa!=null)return;var b=RB[q.r]=RB[q.r]||{},k=Math.round(Math.atan2(Math.abs(q.z),Math.abs(q.x))*57.2958/2);(b[k]=b[k]||[]).push(Math.hypot(q.x,q.z))});
-    RB.forEach(function(b,r){var ks=Object.keys(b).map(Number).sort(function(x,y){return x-y});RB[r]={k:ks,v:ks.map(function(k){return b[k].reduce(function(x,y){return x+y})/b[k].length})}})}
-  var b=RB[r],u=Math.atan2(Math.abs(Math.sin(a)),Math.abs(Math.cos(a)))*57.2958/2,i=0;while(i<b.k.length-2&&b.k[i+1]<u)i++;var f=(u-b.k[i])/(b.k[i+1]-b.k[i]);f=Math.max(0,Math.min(1,f));return b.v[i]+(b.v[i+1]-b.v[i])*f}
+var RB=null;function rbEval(b,u){var n=b.k.length,i=0;while(i<n-2&&b.k[i+1]<u)i++;var f=(u-b.k[i])/(b.k[i+1]-b.k[i]);return b.v[i]+(b.v[i+1]-b.v[i])*Math.max(-3,Math.min(3,f))}
+function rowR(r,a){var v=rowR0(r,a);if(r!==1&&r!==6){var m=rowR(r-1,a)+.56;if(v<m)v=m}return v}   // между рядами не меньше 56 см
+function rowR0(r,a){if(!RB){RB=[];P.forEach(function(q){if(!/Трибуна/.test(q.s)||q.sofa!=null)return;var o=RB[q.r]=RB[q.r]||[{},{}],b=o[q.s==='Трибуна A'?0:1],k=Math.round(Math.atan2(Math.abs(q.z),Math.abs(q.x))*57.2958/2);(b[k]=b[k]||[]).push(Math.hypot(q.x,q.z))});
+    RB.forEach(function(o,r){RB[r]=o.map(function(b,side){var ks=Object.keys(b).map(Number).sort(function(x,y){return x-y}),v=ks.map(function(k){return b[k].reduce(function(x,y){return x+y})/b[k].length});
+      for(var n=0;n<2;n++){var w=v.slice();for(var i=1;i<v.length-1;i++)w[i]=v[i]*.5+(v[i-1]+v[i+1])*.25;v=w}return{k:ks,v:v}})})}
+  var ph=Math.atan2(Math.abs(Math.sin(a)),Math.abs(Math.cos(a)))*57.2958,o=RB[r],w=Math.max(0,Math.min(1,(ph-15.6)/2.4));if(w<=0)return rbEval(o[0],ph/2);if(w>=1)return rbEval(o[1],ph/2);w=w*w*(3-2*w);return rbEval(o[0],ph/2)*(1-w)+rbEval(o[1],ph/2)*w}
+function rowNrm(r,a){var h=.012,p=rowR(r,a-h),q=rowR(r,a+h),tx=Math.cos(a+h)*q-Math.cos(a-h)*p,tz=Math.sin(a+h)*q-Math.sin(a-h)*p,l=Math.hypot(tx,tz),nx=tz/l,nz=-tx/l;if(nx*Math.cos(a)+nz*Math.sin(a)>0){nx=-nx;nz=-nz}return[nx,nz]}   // внутрь зала
 function rowIn(r,a){return rowR(r,a)-(r===1?.75:r===6?.85:.29)}
+var SNAPMAX=0;(function(){var G={};P.forEach(function(q){if(/Трибуна/.test(q.s)&&q.sofa==null){var k=q.s+'|'+q.r;(G[k]=G[k]||[]).push(q)}});
+  Object.keys(G).forEach(function(k){var a=G[k],r=a[0].r;a.forEach(function(q){q.an=Math.atan2(q.z,q.x)});a.sort(function(x,y){return x.an-y.an});var runs=[[a[0]]];for(var i=1;i<a.length;i++){if(Math.hypot(a[i].x-a[i-1].x,a[i].z-a[i-1].z)>.8)runs.push([]);runs[runs.length-1].push(a[i])}
+    runs.forEach(function(u){var n=u.length,a0=u[0].an,a1=u[n-1].an,S=240,cum=[0],px=Math.cos(a0)*rowR(r,a0),pz=Math.sin(a0)*rowR(r,a0);for(var i=1;i<=S;i++){var b=a0+(a1-a0)*i/S,x=Math.cos(b)*rowR(r,b),z=Math.sin(b)*rowR(r,b);cum.push(cum[i-1]+Math.hypot(x-px,z-pz));px=x;pz=z}
+      var tot=cum[S],j=0;u.forEach(function(q,i){var w=n>1?tot*i/(n-1):0;while(j<S-1&&cum[j+1]<w)j++;var f=n>1?(w-cum[j])/Math.max(1e-6,cum[j+1]-cum[j]):0,b=a0+(a1-a0)*(j+f)/S,R=rowR(r,b),x=Math.cos(b)*R,z=Math.sin(b)*R;SNAPMAX=Math.max(SNAPMAX,Math.hypot(x-q.x,z-q.z));q.x=x;q.z=z;q.an=b;var m=rowNrm(r,b);q.f=Math.atan2(m[0],m[1]);q.wx=Math.min(1,((n>1?tot/(n-1):.5)-.04)/.49)})})})})();
+P.forEach(function(q){if(/^Ложа/.test(q.s)){var m=rowNrm(8,Math.atan2(q.z,q.x));q.f=Math.atan2(m[0],m[1]);q.wx=.92}});
+// трибуна A по плану: лестница внутри платформы (перед крайним креслом), между платформами — проход в партер
+var PASS={};(function(){function ends(s,r,sg){return P.filter(function(q){return q.s==='Трибуна '+s&&q.r===r&&q.sofa==null}).map(function(q){return q.an*sg}).sort(function(x,y){return x-y})}
+  [1,-1].forEach(function(sg){var o={lo:[],hi:[],st:[]},nb=sg>0?'101':'203';for(var r=3;r<=5;r++){var e=ends('A',r,sg),n=e.length;o.lo[r]=e[n-1]+.36/rowR(r,e[n-1]);o.st[r]=(e[n-1]+e[n-2])/2}
+    [2,1].forEach(function(r){o.lo[r]=o.lo[3]-(o.lo[5]-o.lo[3])/2*(3-r);o.st[r]=o.st[3]-(o.st[5]-o.st[3])/2*(3-r)});for(var r=1;r<=5;r++){var h=ends(nb,r,sg)[0];o.hi[r]=h-.4/rowR(r,h)}
+    var DA=2*Math.PI/1080;for(var r=1;r<=5;r++){o.lo[r]=Math.round(o.lo[r]/DA)*DA;o.hi[r]=Math.round(o.hi[r]/DA)*DA}o.lo[6]=o.lo[5];o.hi[6]=o.hi[5];PASS[sg]=o})})();
+var LA0=-156*Math.PI/180,LA1=56.5*Math.PI/180;
+function inPassA(a,r){var o=PASS[a>=0?1:-1],u=Math.abs(a);return u>o.lo[r]&&u<o.hi[r+1]}
+// высота пола и трибун в точке: камера не опускается ниже
+function groundY(x,z){var a=Math.atan2(z,x),R=Math.hypot(x,z);if(R>=rowIn(6,a)-.1){if(R>rowR(8,a)+.5)return H5(8)+1.15;return R>=rowIn(8,a)?H5(8):R>=rowIn(7,a)?H5(7):H5(6)}
+  if(a>LA0&&a<LA1)for(var r=5;r>=1;r--)if(R>=rowIn(r,a)-.1)return H5(r);
+  if(insideStage(x,z)||Math.hypot(x-RC[0],z-RC[1])<RC[2])return .9;return 0}
+function floorClamp(p,h){var g=0;[[0,0],[.5,0],[-.5,0],[0,.5],[0,-.5]].forEach(function(o){g=Math.max(g,groundY(p.x+o[0],p.z+o[1]))});if(p.y<g+h)p.y=g+h;return p}
 function wallT(x,z){return Math.hypot(x/WA,z/WB)}
 function polar(a,A,B){var c=Math.cos(a),s=Math.sin(a),r=1/Math.sqrt(c*c/(A*A)+s*s/(B*B));return[c*r,s*r]}
 function canvasTex(w,h,draw){var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d');draw(g,w,h);var t=new T.CanvasTexture(c);t.encoding=T.sRGBEncoding;t.anisotropy=4;return t}
@@ -399,10 +420,10 @@ function rbox(w,h,d,r){var s=new T.Shape(),x=-d/2,y=-h/2;s.moveTo(x+r,y);s.lineT
 var seatGeo=rbox(.46,.09,.44,.035);seatGeo.translate(0,.46,.02);var backGeo=rbox(.46,.5,.07,.03);backGeo.rotateX(-.12);backGeo.translate(0,.74,-.21);
 var cMat=new T.MeshStandardMaterial({roughness:.85,envMapIntensity:.6});
 var seatsM=new T.InstancedMesh(seatGeo,cMat,NCH),backsM=new T.InstancedMesh(backGeo,cMat,NCH);
-for(var i=0;i<NCH;i++){var q=P[i];dm.position.set(q.x,q.y,q.z);dm.rotation.set(0,q.f,0);dm.scale.set(1,1,1);dm.updateMatrix();seatsM.setMatrixAt(i,dm.matrix);backsM.setMatrixAt(i,dm.matrix)}
+for(var i=0;i<NCH;i++){var q=P[i];dm.position.set(q.x,q.y,q.z);dm.rotation.set(0,q.f,0);dm.scale.set(q.wx||1,1,1);dm.updateMatrix();seatsM.setMatrixAt(i,dm.matrix);backsM.setMatrixAt(i,dm.matrix)}
 scene.add(seatsM);scene.add(backsM);var hitGeo=new T.BoxGeometry(.5,.95,.5);hitGeo.translate(0,.48,-.02);var hitM=new T.InstancedMesh(hitGeo,new T.MeshBasicMaterial(),NCH);hitM.visible=false;for(var hi=0;hi<NCH;hi++){seatsM.getMatrixAt(hi,dm.matrix);hitM.setMatrixAt(hi,dm.matrix)}
 var frameGeo=new T.BoxGeometry(.035,.62,.4);frameGeo.translate(.255,.31,-.04);var frames=new T.InstancedMesh(frameGeo,new T.MeshStandardMaterial({color:0x8e9298,metalness:.7,roughness:.35}),NCH);
-for(var i=0;i<NCH;i++){var q=P[i];dm.position.set(q.x,q.y,q.z);dm.rotation.set(0,q.f,0);dm.scale.set(1,1,1);dm.updateMatrix();frames.setMatrixAt(i,dm.matrix)}scene.add(frames);
+for(var i=0;i<NCH;i++){var q=P[i];dm.position.set(q.x,q.y,q.z);dm.rotation.set(0,q.f,0);dm.scale.set(q.wx||1,1,1);dm.updateMatrix();frames.setMatrixAt(i,dm.matrix)}scene.add(frames);
 var sofaM=new T.MeshStandardMaterial({color:0x121316,roughness:.35});
 var plinthM=new T.MeshStandardMaterial({color:0x0c0c0e,roughness:.6});
 D.sofas.forEach(function(o){var g=new T.Group();var pl=new T.Mesh(new T.BoxGeometry(1.9,.16,1.25),plinthM);pl.position.set(0,.08,-.05);g.add(pl);var base=new T.Mesh(new T.BoxGeometry(1.6,.36,.78),sofaM);base.position.y=.18;g.add(base);var bk=new T.Mesh(new T.BoxGeometry(1.6,.5,.16),sofaM);bk.position.set(0,.6,-.31);g.add(bk);
@@ -412,13 +433,13 @@ var cushM=new T.InstancedMesh(cushGeo,new T.MeshStandardMaterial({roughness:.45}
 for(var j=0;j<NS;j++){var q=P[NCH+j];dm.position.set(q.x,0,q.z);dm.rotation.set(0,q.f,0);dm.updateMatrix();cushM.setMatrixAt(j,dm.matrix)}scene.add(cushM);
 
 /* ---------- зрители на занятых местах ---------- */
-var bodyGeo=new T.CylinderGeometry(.17,.21,.62,8);bodyGeo.translate(0,.82,-.04);var headGeo=new T.SphereGeometry(.12,10,8);headGeo.translate(0,1.25,-.02);
+var bodyGeo=new T.CylinderGeometry(.17,.21,.62,6);bodyGeo.translate(0,.82,-.04);var headGeo=new T.SphereGeometry(.12,7,5);headGeo.translate(0,1.25,-.02);
 var crowdU={uT:{value:0},uA:{value:0}};function liveCrowd(m){m.onBeforeCompile=function(s){s.uniforms.uT=crowdU.uT;s.uniforms.uA=crowdU.uA;s.vertexShader='uniform float uT;uniform float uA;\n'+s.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n#ifdef USE_INSTANCING\nfloat ph=instanceMatrix[3].x*3.1+instanceMatrix[3].z*5.7;transformed.y+=uA*.05*abs(sin(uT*5.+ph));transformed.x+=uA*.03*sin(uT*2.3+ph);\n#endif')};return m}
 var figMat=liveCrowd(new T.MeshStandardMaterial({roughness:.8}));var bodies=new T.InstancedMesh(bodyGeo,figMat,P.length),heads=new T.InstancedMesh(headGeo,liveCrowd(new T.MeshStandardMaterial({color:0xffffff,roughness:.85})),P.length);
 bodies.setColorAt(0,new T.Color(1,1,1));heads.setColorAt(0,new T.Color(1,1,1));scene.add(bodies);scene.add(heads);var crowdOn=true,crowdIdx=[];
 var showOn=false;function buildCrowd(){crowdIdx=[];var r=rng(ev+5),cols=['#b4474a','#3f6fa8','#d9a441','#5c8a5a','#8a5a9c','#c9cdd6','#4a5568','#d27f9b','#2f7f86','#7a5a44'],skin=['#c99a78','#b98563','#d8ab88','#a8734f'];
   P.forEach(function(q,i){var u=r();if(sold[i]===1||(showOn&&!q.u&&sel.indexOf(i)<0&&u<.88))crowdIdx.push(i)});bodies.count=heads.count=crowdIdx.length;
-  crowdIdx.forEach(function(i,k){var q=P[i];dm.position.set(q.x,q.sofa!=null?-.04:q.y,q.z);dm.rotation.set(0,q.f,0);dm.updateMatrix();bodies.setMatrixAt(k,dm.matrix);heads.setMatrixAt(k,dm.matrix);bodies.setColorAt(k,new T.Color(cols[Math.floor(r()*cols.length)]).convertSRGBToLinear());heads.setColorAt(k,new T.Color(skin[Math.floor(r()*skin.length)]).convertSRGBToLinear())});if(heads.instanceColor)heads.instanceColor.needsUpdate=true;
+  dm.scale.set(1,1,1);crowdIdx.forEach(function(i,k){var q=P[i];dm.position.set(q.x,q.sofa!=null?-.04:q.y,q.z);dm.rotation.set(0,q.f,0);dm.updateMatrix();bodies.setMatrixAt(k,dm.matrix);heads.setMatrixAt(k,dm.matrix);bodies.setColorAt(k,new T.Color(cols[Math.floor(r()*cols.length)]).convertSRGBToLinear());heads.setColorAt(k,new T.Color(skin[Math.floor(r()*skin.length)]).convertSRGBToLinear())});if(heads.instanceColor)heads.instanceColor.needsUpdate=true;
   bodies.instanceMatrix.needsUpdate=heads.instanceMatrix.needsUpdate=true;if(bodies.instanceColor)bodies.instanceColor.needsUpdate=true;bodies.visible=heads.visible=crowdOn}
 
 /* ---------- входы и выходы: 1–6 — наверху лестниц между секторами (план v6 и фото IMG_0392, IMG_0373), 7–8 — проходы на уровне пола у трибуны A (фото IMG_0373). Номера условные ---------- */
@@ -429,8 +450,8 @@ function aisleAt(d,r){if(d.s.length===2){var A=rowSeats(d.s[0],r),B=rowSeats(d.s
     var x=(m.p.x+m.q.x)/2,z=(m.p.z+m.q.z)/2;if(d.sh&&r<=5){var k=d.sh*Math.min(.75,m.l/2-.45)/m.l;x+=(m.q.x-m.p.x)*k;z+=(m.q.z-m.p.z)*k}return[x,z]}
   var up=d.s[0]==='101',a=rowSeats(d.s[0],r).sort(function(p,q){return (Math.atan2(q.z,q.x)-Math.atan2(p.z,p.x))*(up?1:-1)}),e=a[0],n=a[1],l=Math.hypot(e.x-n.x,e.z-n.z);return[e.x+(e.x-n.x)/l*1.15,e.z+(e.z-n.z)/l*1.15]}
 var YF=H5(8)+.05;
-DOORS.forEach(function(d){if(d.k==='t'){d.a=d.ang*Math.PI/180;var tx=-Math.sin(d.a)*d.off,tz=Math.cos(d.a)*d.off,p=polar(d.a,D.ell[0]*.985,D.ell[1]*.985),pb=polar(d.a,D.ell[0]*1.2,D.ell[1]*1.2);d.x=p[0]+tx;d.z=p[1]+tz;d.bx=pb[0]+tx;d.bz=pb[1]+tz;d.wx=d.bx;d.wz=d.bz;d.y=0;return}
-  d.ais=[null];for(var r=1;r<=8;r++)d.ais.push(aisleAt(d,r));if(d.sh)[2,1].forEach(function(r){d.ais[r]=[0,1].map(function(k){return d.ais[3][k]-(d.ais[5][k]-d.ais[3][k])/2*(3-r)})});var e=d.ais[8],u=d.ais[6],dx=e[0]-u[0],dz=e[1]-u[1],l=Math.hypot(dx,dz);dx/=l;dz/=l;var k=0;while(wallT(e[0]+dx*k,e[1]+dz*k)<.975&&k<20)k+=.05;
+DOORS.forEach(function(d){if(d.k==='t'){var sg=d.ang<0?-1:1,o=PASS[sg],m1=sg*(o.lo[1]+o.hi[1])/2,m5=sg*(o.lo[5]+o.hi[5])/2,R1=rowIn(1,m1)-.4,R5=rowIn(6,m5)-.35;d.a=m1;d.x=Math.cos(m1)*R1;d.z=Math.sin(m1)*R1;d.bx=d.wx=Math.cos(m5)*R5;d.bz=d.wz=Math.sin(m5)*R5;d.m5=m5;d.sg=sg;d.y=0;return}
+  d.ais=[null];for(var r=1;r<=8;r++){if(d.sh&&r<=5){var sa=(d.n===3?-1:1)*PASS[d.n===3?-1:1].st[r];d.ais.push([Math.cos(sa)*rowR(r,sa),Math.sin(sa)*rowR(r,sa)])}else d.ais.push(aisleAt(d,r))}var e=d.ais[8],u=d.ais[6],dx=e[0]-u[0],dz=e[1]-u[1],l=Math.hypot(dx,dz);dx/=l;dz/=l;var k=0;while(wallT(e[0]+dx*k,e[1]+dz*k)<.975&&k<20)k+=.05;
   d.x=d.wx=d.bx=e[0]+dx*k;d.z=d.wz=d.bz=e[1]+dz*k;d.dx=dx;d.dz=dz;d.y=YF;d.a=Math.atan2(e[1],e[0])});
 var doorOf=P.map(function(q){var best=null,bd=1e9,isF=/Партер|Диваны/.test(q.s),qa=Math.atan2(q.z,q.x);
   DOORS.forEach(function(d){if((d.k==='t')!==isF)return;var v=isF?Math.hypot(d.x-q.x,d.z-q.z):Math.abs(Math.atan2(Math.sin(qa-d.a),Math.cos(qa-d.a)));if(v<bd){bd=v;best=d}});return best});
@@ -440,16 +461,11 @@ var tunWall=new T.MeshStandardMaterial({color:new T.Color('#3a3c41').convertSRGB
   tunFloor=new T.MeshStandardMaterial({color:new T.Color('#55575c').convertSRGBToLinear(),roughness:.9}),doorM=new T.MeshStandardMaterial({color:new T.Color('#24262a').convertSRGBToLinear(),roughness:.6,metalness:.2});
 var stepD=new T.MeshStandardMaterial({color:new T.Color('#2a2c30').convertSRGBToLinear(),roughness:.85}),stepL=new T.MeshStandardMaterial({color:new T.Color('#c9ab74').convertSRGBToLinear(),roughness:.75});
 DOORS.forEach(function(d){var g=new T.Group();
-  if(d.k==='t'){var L=Math.hypot(d.bx-d.x,d.bz-d.z),HW=.6,HT=2.55;g.position.set((d.x+d.bx)/2,0,(d.z+d.bz)/2);g.lookAt(d.bx,0,d.bz);   // локальная z — вглубь прохода
-    [-1,1].forEach(function(s){var w=new T.Mesh(new T.BoxGeometry(.1,HT+.5,L),s<0?tunWall:tunCloth);var wp=w.geometry.attributes.position;for(var vi=0;vi<wp.count;vi++)if(wp.getZ(vi)<0&&wp.getY(vi)>0)wp.setY(vi,-(HT+.5)/2+1.5);w.position.set(s*(HW+.05),(HT+.5)/2,0);g.add(w)});
-    var ceil=new T.Mesh(new T.BoxGeometry(HW*2+.2,.22,L*.34),tunWall);ceil.position.set(0,HT+.11,L*.33);g.add(ceil);
-    var lint=new T.Mesh(new T.BoxGeometry(HW*2+.32,.5,.2),new T.MeshStandardMaterial({color:new T.Color('#d8c39a').convertSRGBToLinear(),roughness:.6}));lint.position.set(0,HT+.3,L*.16);g.add(lint);
-    var fl=new T.Mesh(new T.PlaneGeometry(HW*2,L),tunFloor);fl.rotation.x=-Math.PI/2;fl.position.y=.01;g.add(fl);
-    var back=new T.Mesh(new T.BoxGeometry(HW*2+.32,HT+.5,.12),tunWall);back.position.set(0,(HT+.5)/2,L/2);g.add(back);
-    var dr=new T.Mesh(new T.BoxGeometry(1.05,2.1,.05),doorM);dr.position.set(0,1.05,L/2-.08);g.add(dr);
-    var hd=new T.Mesh(new T.BoxGeometry(.14,.03,.04),new T.MeshStandardMaterial({color:0xb0b4ba,metalness:.8,roughness:.3}));hd.position.set(.36,1.02,L/2-.12);g.add(hd);
-    var sg=new T.Mesh(new T.PlaneGeometry(.9,.34),new T.MeshBasicMaterial({map:signTex(d.n)}));sg.position.set(0,2.3,L/2-.09);sg.rotation.y=Math.PI;g.add(sg);doorGlow.push(sg);var sg2=new T.Mesh(new T.PlaneGeometry(1.3,.48),sg.material);sg2.scale.set(.82,.82,1);sg2.position.set(0,HT-.24,L*.16-.14);sg2.rotation.y=Math.PI;g.add(sg2);
-    var lt=new T.PointLight(0x9fe8c0,.45,4);lt.position.set(0,2,L*.2);g.add(lt);
+  if(d.k==='t'){g.position.set(d.bx,0,d.bz);g.lookAt(d.x,0,d.z);   // +z — в зал
+    var dr=new T.Mesh(new T.BoxGeometry(1.1,2.1,.06),doorM);dr.position.set(0,1.05,.04);g.add(dr);var hd=new T.Mesh(new T.BoxGeometry(.14,.03,.05),new T.MeshStandardMaterial({color:0xb0b4ba,metalness:.8,roughness:.3}));hd.position.set(.38,1.02,.09);g.add(hd);
+    var sg=new T.Mesh(new T.PlaneGeometry(.95,.35),new T.MeshBasicMaterial({map:signTex(d.n)}));doorGlow.push(sg);
+    var Rs=rowR(5,d.m5)+.2,s2=new T.Mesh(new T.PlaneGeometry(1.1,.4),sg.material);s2.position.set(Math.cos(d.m5)*Rs,2.36,Math.sin(d.m5)*Rs);s2.lookAt(d.x,2.36,d.z);scene.add(s2);
+    var lt=new T.PointLight(0xdfe8e4,.5,5);lt.position.set(0,2.2,1);g.add(lt);
     scene.add(g);d.g=g;return}
   var W=1.9,H=2.35;
   var hole=new T.Mesh(new T.PlaneGeometry(W,H),new T.MeshBasicMaterial({color:0x050506}));hole.position.y=H/2;g.add(hole);
@@ -494,20 +510,28 @@ for(var i=0;i<24;i++){var a=i/24*Math.PI*2,p=polar(a,WA*.975,WB*.975);dm.positio
   function Geo(){this.p=[];this.u=[]}
   Geo.prototype.q=function(a,b,c,d,uv){var P4=[a,b,c,a,c,d],U=[uv[0],uv[1],uv[2],uv[0],uv[2],uv[3]];for(var i=0;i<6;i++){this.p.push(P4[i][0],P4[i][1],P4[i][2]);this.u.push(U[i][0],U[i][1])}};
   Geo.prototype.mesh=function(m){var g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(this.p,3));g.setAttribute('uv',new T.Float32BufferAttribute(this.u,2));g.computeVertexNormals();var o=new T.Mesh(g,m);scene.add(o);return o};
-  var Z=[[0,0],[0,0],[0,0],[0,0]],tr=new Geo(),ri=new Geo(),cp=new Geo(),pa=new Geo();
-  var pas=DOORS.filter(function(d){return d.k==='t'}).map(function(d){var L=Math.hypot(d.bx-d.x,d.bz-d.z);return{x:d.x,z:d.z,ux:(d.bx-d.x)/L,uz:(d.bz-d.z)/L,L:L}});
-  function inPass(a,R){var x=Math.cos(a)*R,z=Math.sin(a)*R;return pas.some(function(p){var dx=x-p.x,dz=z-p.z,al=dx*p.ux+dz*p.uz,pe=Math.abs(-dx*p.uz+dz*p.ux);return al>-2.5&&al<p.L+.3&&pe<.66})}
+  var RAILS=[],Z=[[0,0],[0,0],[0,0],[0,0]],tr=new Geo(),ri=new Geo(),cp=new Geo(),pa=new Geo();
   function norm(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a}
   // слои: [ряд, внутренний радиус, внешний радиус, высота]
   var LY=[];for(var r=1;r<=8;r++)(function(r){
     if(r===5){LY.push({r:5,low:1,h:H5(5),a:function(x){return rowIn(5,x)},b:function(x){return rowR(5,x)+.38}});LY.push({r:5,low:1,walk:1,h:H5(5),a:function(x){return rowR(5,x)+.38},b:function(x){return rowIn(6,x)}});return}
     LY.push({r:r,low:r<5,h:H5(r),a:function(x){return rowIn(r,x)},b:r===8?function(x){var w=polar(x,WA*.995,WB*.995);return Math.hypot(w[0],w[1])}:function(x){return rowIn(r+1,x)}})})(r);
-  var inc=LY.map(function(l){var o=[];for(var i=0;i<N;i++){var a=norm((i+.5)/N*2*Math.PI);o.push(!l.low||(a>A0&&a<A1&&(l.walk||!inPass(a,(l.a(a)+l.b(a))/2))))}return o});
+  var inc=LY.map(function(l){var o=[];for(var i=0;i<N;i++){var a=norm((i+.5)/N*2*Math.PI);o.push(!l.low||(a>A0&&a<A1&&(l.walk||!inPassA(a,l.r))))}return o});
   LY.forEach(function(l,k){for(var i=0;i<N;i++){var on=inc[k][i],a=i/N*2*Math.PI,b=(i+1)/N*2*Math.PI;
-      if(on!==inc[k][(i+N-1)%N])cp.q(pos(a,l.a(a),0),pos(a,l.b(a),0),pos(a,l.b(a),l.h),pos(a,l.a(a),l.h),Z);
+      if(on!==inc[k][(i+N-1)%N]&&!(l.low&&Math.abs(norm(a))<.4))cp.q(pos(a,l.a(a),0),pos(a,l.b(a),0),pos(a,l.b(a),l.h),pos(a,l.a(a),l.h),Z);
       if(!on)continue;
       tr.q(pos(a,l.a(a),l.h),pos(a,l.b(a),l.h),pos(b,l.b(b),l.h),pos(b,l.a(b),l.h),Z);
       var yb=k&&inc[k-1][i]?LY[k-1].h:(l.walk?2.6:0);if(yb<l.h-.001){var u0=a*l.a(a)/3,u1=b*l.a(a)/3;ri.q(pos(a,l.a(a),yb),pos(b,l.a(b),yb),pos(b,l.a(b),l.h),pos(a,l.a(a),l.h),[[u0,yb/1.2],[u1,yb/1.2],[u1,l.h/1.2],[u0,l.h/1.2]])}}});
+  // под галереей между рядами 5 и 6: боковые стены и задняя стена прохода в партер
+  [1,-1].forEach(function(sg){var o=PASS[sg],e=[sg*o.lo[5],sg*o.hi[5]];e.forEach(function(x){cp.q(pos(x,rowR(5,x)+.3,0),pos(x,rowIn(6,x),0),pos(x,rowIn(6,x),H5(5)),pos(x,rowR(5,x)+.3,H5(5)),Z)});var n=10;for(var i=0;i<n;i++){var a=e[0]+(e[1]-e[0])*i/n,b=e[0]+(e[1]-e[0])*(i+1)/n;cp.q(pos(a,rowIn(6,a)-.08,0),pos(b,rowIn(6,b)-.08,0),pos(b,rowIn(6,b)-.08,H5(5)),pos(a,rowIn(6,a)-.08,H5(5)),Z);cp.q(pos(a,rowR(5,a)+.38,H5(5)-.22),pos(b,rowR(5,b)+.38,H5(5)-.22),pos(b,rowIn(6,b),H5(5)-.22),pos(a,rowIn(6,a),H5(5)-.22),Z)}
+    // поручни по краям платформ у прохода
+    e.forEach(function(x,k){for(var r=1;r<5;r++){var A=sg*(k?o.hi[r]:o.lo[r])+(k?1:-1)*sg*.004,B=sg*(k?o.hi[r+1]:o.lo[r+1])+(k?1:-1)*sg*.004,u=new T.Vector3(Math.cos(A)*rowR(r,A),H5(r)+.95,Math.sin(A)*rowR(r,A)),v=new T.Vector3(Math.cos(B)*rowR(r+1,B),H5(r+1)+.95,Math.sin(B)*rowR(r+1,B));RAILS.push([u,v,.022],[u.clone().setY(u.y-.95),u,.02]);if(r===4)RAILS.push([v.clone().setY(v.y-.95),v,.02])}})});
+  // наружная стенка чаши
+  for(var i=0;i<N;i+=4){var a=i/N*2*Math.PI,b=(i+4)/N*2*Math.PI,wa=polar(a,WA*.997,WB*.997),wb=polar(b,WA*.997,WB*.997);cp.q([wa[0],0,wa[1]],[wb[0],0,wb[1]],[wb[0],H5(8),wb[1]],[wa[0],H5(8),wa[1]],Z)}
+  [1,-1].forEach(function(sg){var o=PASS[sg];LY.forEach(function(l){if(!l.low||l.walk)return;var r=l.r,lo0=sg*o.lo[r],lo1=sg*o.lo[r+1],hi0=sg*o.hi[r],hi1=sg*o.hi[r+1],h=l.h;
+    tr.q(pos(lo0,l.a(lo0),h),pos(lo0,l.b(lo0),h),pos(lo1,l.b(lo1),h),pos(lo1,l.b(lo1),h),Z);cp.q(pos(lo0,l.a(lo0),0),pos(lo1,l.b(lo1),0),pos(lo1,l.b(lo1),h),pos(lo0,l.a(lo0),h),Z);
+    tr.q(pos(hi0,l.a(hi0),h),pos(hi1,l.a(hi1),h),pos(hi1,l.b(hi1),h),pos(hi1,l.b(hi1),h),Z);cp.q(pos(hi0,l.a(hi0),0),pos(hi1,l.b(hi1),0),pos(hi1,l.b(hi1),h),pos(hi0,l.a(hi0),h),Z);
+    var yb=r===1?0:H5(r-1);ri.q(pos(hi0,l.a(hi0),yb),pos(hi1,l.a(hi1),yb),pos(hi1,l.a(hi1),h),pos(hi0,l.a(hi0),h),[[0,0],[.1,0],[.1,.35],[0,.35]])})});
   // лестницы в проходах
   var ups=DOORS.filter(function(d){return d.k==='u'}),AIS=ups.map(function(d){return{low:1,w:d.sh?.8:1.25,ang:function(r){return Math.atan2(d.ais[r][1],d.ais[r][0])},exit:Math.atan2(d.z,d.x)}});
   [122,150].forEach(function(g){AIS.push({low:0,w:1.25,ang:function(){return g*DG}})});
@@ -518,6 +542,7 @@ for(var i=0;i<24;i++){var a=i/24*Math.PI*2,p=polar(a,WA*.975,WB*.975);dm.positio
   function dirAt(a,r){var p=pos(a-.01,rowR(r,a-.01),0),q=pos(a+.01,rowR(r,a+.01),0),tx=q[0]-p[0],tz=q[2]-p[2],l=Math.hypot(tx,tz),nx=tz/l,nz=-tx/l;if(nx*Math.cos(a)+nz*Math.sin(a)>0){nx=-nx;nz=-nz}return[nx,nz]}   // внутрь зала
   var bxG=new T.BoxGeometry(1,1,1),stepsA=[],nos=[];
   function step(a,r,off,w,y0,h,dep){var n=dirAt(a,r),R=rowIn(r,a),x=Math.cos(a)*R+n[0]*(off+dep/2),z=Math.sin(a)*R+n[1]*(off+dep/2);stepsA.push([x,y0+h/2,z,Math.atan2(n[0],n[1]),w,h,dep]);nos.push([x+n[0]*(dep/2-.02),y0+h+.006,z+n[1]*(dep/2-.02),Math.atan2(n[0],n[1]),w,.012,.045])}
+  RAILS.forEach(function(q){var c=new T.Mesh(new T.CylinderGeometry(q[2],q[2],q[0].distanceTo(q[1]),6),railM);c.position.copy(q[0]).add(q[1]).multiplyScalar(.5);c.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),q[1].clone().sub(q[0]).normalize());scene.add(c)});
   AIS.forEach(function(s){for(var r=2;r<=8;r++){if(!s.low&&r<=6)continue;var a=s.ang(r),d=H5(r)-H5(r-1);if(r===6){for(var k=1;k<=3;k++)step(s.ang(6),6,(k-1)*.3,1.25,H5(5),d*(1-k/4),.3)}else step(a,r,0,r>6?1.25:s.w,H5(r-1),d/2,.24)}
     if(s.low){var a1=s.ang(1);for(var k=1;k<=4;k++)step(a1,1,(k-1)*.3,s.w,0,1.2*(1-k/5),.3);
       var n=dirAt(a1,1),R=rowIn(1,a1),tx=-n[1],tz=n[0];[-1,1].forEach(function(q){var sx=tx*q*(s.w/2+.04),sz=tz*q*(s.w/2+.04),p0=new T.Vector3(Math.cos(a1)*R+sx,1.2,Math.sin(a1)*R+sz),p1=new T.Vector3(p0.x+n[0]*1.2,0,p0.z+n[1]*1.2);
@@ -625,7 +650,7 @@ $('miniX').onclick=function(){$('mini').classList.toggle('min');this.textContent
 var tgt=new T.Vector3(RC[0],1,RC[1]),sph={r:27,th:-2.25,ph:1.06},seatView=null,goal=null,outside=false,cur={pos:new T.Vector3(),look:new T.Vector3()};
 function camFromSph(){return clampPos(new T.Vector3(tgt.x+sph.r*Math.sin(sph.ph)*Math.cos(sph.th),tgt.y+sph.r*Math.cos(sph.ph),tgt.z+sph.r*Math.sin(sph.ph)*Math.sin(sph.th)))}
 function clampPos(p){if(outside&&p.y<WH+DOME+2&&wallT(p.x,p.z)<.8)outside=false;if(outside){if(p.y<WH+DOME+2)p.y=WH+DOME+2;return p}var t=wallT(p.x,p.z),lim=.94;if(t>lim){p.x*=lim/t;p.z*=lim/t;t=lim}
-  var hMax=WH+DOME*Math.sqrt(Math.max(0,1-t*t))-1.2;if(p.y>hMax)p.y=hMax;if(p.y<.6)p.y=.6;return p}
+  var hMax=WH+DOME*Math.sqrt(Math.max(0,1-t*t))-1.2;if(p.y>hMax)p.y=hMax;return floorClamp(p,1.25)}
 function secCenter(name,row){var a=P.filter(function(q){return q.s===name&&(!row||q.r===row)}),x=0,y=0,z=0;a.forEach(function(q){x+=q.x;y+=q.y;z+=q.z});return new T.Vector3(x/a.length,y/a.length,z/a.length)}
 var board=0;
 // обзор: подбираем центр и расстояние, чтобы все места и сцена попали в кадр
@@ -649,7 +674,7 @@ cv.addEventListener('pointerdown',function(e){overAuto=false;cv.setPointerCaptur
 cv.addEventListener('pointermove',function(e){var p=pts.get(e.pointerId);hover(e);if(!p||!drag)return;var dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;drag.moved+=Math.abs(dx)+Math.abs(dy);
   if(pts.size===2){var a=[];pts.forEach(function(v){a.push(v)});var d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);if(drag.pinch&&!seatView){sph.r=Math.max(3,Math.min(90,sph.r*drag.pinch/d));if(!outside&&drag.pinch>d&&sph.r*Math.cos(sph.ph)>WH+DOME+2)outside=true}drag.pinch=d;if(!seatView)pan(dx/2,dy/2);goal=null;return}
   if(seatView){seatView.yaw-=dx*.004;seatView.pitch=Math.max(-.9,Math.min(.7,seatView.pitch-dy*.004));return}
-  goal=null;if(drag.b===2||e.shiftKey)pan(dx,dy);else{sph.th+=dx*.006;sph.ph=Math.max(.01,Math.min(1.55,sph.ph-dy*.005))}});
+  goal=null;if(drag.b===2||e.shiftKey)pan(dx,dy);else{sph.th+=dx*.006;sph.ph=Math.max(.01,Math.min(outside?1.0:1.5,sph.ph-dy*.005))}});
 cv.addEventListener('pointerup',function(e){pts.delete(e.pointerId);if(drag&&drag.moved<6&&pts.size===0)pick(e);if(pts.size===0)drag=null});
 cv.addEventListener('dblclick',function(e){var h=hit(e);if(h!=null){if(sel.indexOf(h)<0&&isFree(h))toggleSel(h);fromSeat(h);return}var w=ray.intersectObject(scene,true).find(function(x){return x.object.material&&x.object.material.side===T.BackSide&&x.object!==dome});
   if(w){var p=w.point,d=new T.Vector3(-p.x,0,-p.z).normalize();exitSeat(true);goal={pos:clampPos(p.clone().addScaledVector(d,8).setY(Math.max(3,p.y-1))),look:p.clone()}}});
@@ -851,6 +876,7 @@ function loop(){requestAnimationFrame(loop);var dt=Math.min(clock.getDelta(),.05
   if(seatView){cur.pos.lerp(seatView.eye,.12);var dir=new T.Vector3(Math.sin(seatView.yaw)*Math.cos(seatView.pitch),Math.sin(seatView.pitch),Math.cos(seatView.yaw)*Math.cos(seatView.pitch));cur.look.lerp(seatView.eye.clone().add(dir.multiplyScalar(10)),.2)}
   else if(goal){cur.pos.lerp(goal.pos,.07);cur.look.lerp(goal.look,.09);if(cur.pos.distanceTo(goal.pos)<.05){var off=cur.pos.clone().sub(goal.look);tgt.copy(goal.look);sph.r=off.length();sph.ph=Math.acos(Math.max(-1,Math.min(1,off.y/sph.r)));sph.th=Math.atan2(off.z,off.x);goal=null}}
   else{cur.pos.lerp(camFromSph(),.25);cur.look.lerp(tgt,.25)}
+  if(wallT(cur.pos.x,cur.pos.z)<.99)floorClamp(cur.pos,seatView?.75:1.2);
   updOcc();
   var above=cur.pos.y>WH+DOME*.8;dome.visible=roof.visible=spk.visible=!above;
   cam.position.copy(cur.pos);cam.lookAt(cur.look);R.render(scene,cam);window.__ready=true}
