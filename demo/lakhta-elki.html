@@ -137,17 +137,21 @@ svg.map text{font-family:var(--font-body);pointer-events:none}
 /* телефон: крупная схема в два шага, меньше кнопок поверх зала */
 @media (max-width:820px){
   #view{height:80vh}
-  #tourBtn,#pauseBtn,#panelToggle,#colBtn,#crowdBtn,#showBtn,#fxBtn,#crowdBtn2,#vm [data-m="mix"]{display:none!important}
-  #vm button{min-width:84px;font-size:14px}
+  #tourBtn,#pauseBtn,#panelToggle,#colBtn,#crowdBtn{display:none!important}
+  #vm button{min-width:72px;font-size:14px}
+  /* четыре кнопки в два ряда: все видны без прокрутки */
+  #fxBar{display:grid;grid-template-columns:1fr 1fr;overflow:visible}#fxBar button{height:36px;padding:0 6px}
+  #fxMenu{bottom:152px}#mbar.on{bottom:152px}#mapFull{bottom:152px}#view.hasSel #mapFull,#view.hasSel #tourBar{bottom:208px}#tourBar{bottom:154px}
   #view.mapOn #tools,#view.mapOn #dock{display:none}
-  #view.mapOn #fxBar{bottom:6px;right:10px}#view.mapOn #fxBar button{flex:1}
-  #view.mapOn #mapFull{inset:60px 6px 54px 6px;display:flex!important;flex-direction:column;gap:6px;padding:8px;background:#100f17}
-  #view.mapOn.hasSel #mapFull{bottom:112px}#view.mapOn #mbar.on{bottom:56px;right:10px}
+  #view.mapOn #fxBar{bottom:6px;right:10px}
+  #view.mapOn #mapFull{inset:60px 6px 96px 6px;display:flex!important;flex-direction:column;gap:6px;padding:8px;background:#100f17}
+  #view.mapOn.hasSel #mapFull{bottom:154px}#view.mapOn #mbar.on{bottom:98px;right:10px}
   #mapWrap{flex:1;min-height:0;height:auto}
   #mapFull.sec #mapWrap{overflow:auto;-webkit-overflow-scrolling:touch}#mapFull.sec #mapWrap svg{max-width:none}
   #mapBack:not([hidden]){align-self:flex-start;height:40px;flex:none;font-weight:700}
   #mapFull .hd{font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--fg)}
 }
+@media (max-width:820px) and (max-height:640px){#mini{width:140px}#mini .hd{font-size:9px}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/img/mark.svg">
@@ -656,34 +660,35 @@ function drawMap(svg,full){var o='',vb=[BX[0],BZ[0],BX[1]-BX[0],BZ[1]-BZ[0]];svg
   o+='</g>';
   o=o.replace(/<text x="([^"]+)" y="([^"]+)"/g,function(m,x,y){return '<text dominant-baseline="central" x="'+x+'" y="'+y+'"'});
   svg.innerHTML=o}
-var mode='mix',mSec=null,MPX=66;   // MPX — точек экрана на метр в секторе: кресло около 30 точек
+var mode='mix',mFit=false,mAt=null,MPX=66;   // MPX — точек экрана на метр на крупной схеме телефона: кресло около 30 точек
 function secName(k){return k.replace('Диваны, партер ','Диваны ')}
-function drawPhone(){var svg=$('fullSvg'),box=$('mapFull'),hd=box.querySelector('.hd');box.classList.toggle('sec',!!mSec);$('mapBack').hidden=!mSec;var o='';
-  if(!mSec){hd.textContent='Коснитесь сектора — он откроется крупно';svg.style.width=svg.style.height='';
-    var xs=[],zs=[];SHAPES.forEach(function(sh){sh.pts.forEach(function(p){xs.push(p[0]);zs.push(p[1])})});D.stage.forEach(function(p){xs.push(p[0]);zs.push(p[1])});
-    var x0=Math.min.apply(0,xs)-1,z0=Math.min.apply(0,zs)-1;svg.setAttribute('viewBox',[x0,z0,Math.max.apply(0,xs)+1-x0,Math.max.apply(0,zs)+1-z0].join(' '));
-    o+='<polygon class="st" points="'+D.stage.map(function(p){return p.join(',')}).join(' ')+'"/><circle cx="'+RC[0]+'" cy="'+RC[1]+'" r="'+RC[2]+'" fill="#4a4d54"/><text x="'+(far.p[0]*.6+RC[0]*.4)+'" y="'+(far.p[1]*.6+RC[1]*.4)+'" font-size="3" fill="#fff" text-anchor="middle" dominant-baseline="central">Сцена</text>';
-    SHAPES.slice().sort(function(a,b){return /Диваны|^Ложа/.test(a.s)-/Диваны|^Ложа/.test(b.s)}).forEach(function(sh){var sc=SECS[sh.s],free=sc.idx.filter(isFree).length,small=/Диваны|^Ложа/.test(sh.s);if(small&&free)o+='<polygon data-s="'+sh.s+'" fill="transparent" stroke="transparent" stroke-width="3.4" pointer-events="all" points="'+sh.pts.map(function(p){return p[0].toFixed(2)+','+p[1].toFixed(2)}).join(' ')+'"/>';o+='<polygon class="sec" data-s="'+sh.s+'" fill="'+(free?priceCol[sc.min]:'#3a3744')+'" fill-opacity="'+(free?.85:.6)+'" points="'+sh.pts.map(function(p){return p[0].toFixed(2)+','+p[1].toFixed(2)}).join(' ')+'"/>'});
-    Object.keys(SECS).forEach(function(k){if(/^Ложа/.test(k))return;var s=SECS[k];o+='<text x="'+s.x.toFixed(1)+'" y="'+s.z.toFixed(1)+'" font-size="'+(/Диваны/.test(k)?2.2:3.2)+'" fill="#fff" stroke="#000" stroke-width=".5" paint-order="stroke" font-weight="800" text-anchor="middle" dominant-baseline="central">'+shortName(k)+'</text>'});
-    svg.innerHTML=o;return}
-  var idx=SECS[mSec].idx,xs=idx.map(function(i){return P[i].x}),zs=idx.map(function(i){return P[i].z}),m=1.1,x0=Math.min.apply(0,xs)-m,z0=Math.min.apply(0,zs)-m,w=Math.max.apply(0,xs)+m-x0,h=Math.max.apply(0,zs)+m-z0,cx=x0+w/2,cz=z0+h/2;
-  var dir=Math.round(Math.atan2(far.p[1]*.6+RC[1]*.4-cz,far.p[0]*.6+RC[0]*.4-cx)/(Math.PI/4));
-  hd.textContent=secName(mSec)+' · сцена '+['→','↘','↓','↙','←','↖','↑','↗','←'][(dir+8)%8]+' · двигайте пальцем';
-  svg.setAttribute('viewBox',[x0,z0,w,h].join(' '));svg.style.width=Math.round(w*MPX)+'px';svg.style.height=Math.round(h*MPX)+'px';
-  var rows={};idx.forEach(function(i){(rows[P[i].r]=rows[P[i].r]||[]).push(i)});
-  Object.keys(rows).forEach(function(r){var a=rows[r].slice().sort(function(a,b){return P[a].p-P[b].p}),A=P[a[0]],B=P[a[a.length>1?1:0]],dx=A.x-B.x,dz=A.z-B.z,l=Math.hypot(dx,dz)||1;if(a.length<2){dx=-1;dz=0;l=1}
-    o+='<text x="'+(A.x+dx/l*.62).toFixed(2)+'" y="'+(A.z+dz/l*.62).toFixed(2)+'" font-size=".24" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">ряд '+r+'</text>'});
-  Object.keys(rows).forEach(function(r){rows[r].slice().sort(function(a,b){return P[a].p-P[b].p}).forEach(function(i,k){if(k%6!==3)return;var q=P[i];o+='<text x="'+(q.x+Math.sin(q.f)*.42).toFixed(2)+'" y="'+(q.z+Math.cos(q.f)*.42).toFixed(2)+'" font-size=".19" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">р.'+r+'</text>'})});
-  idx.forEach(function(i){var q=P[i],on=sel.indexOf(i)>=0,free=isFree(i);o+='<circle class="seat" data-i="'+i+'" cx="'+q.x.toFixed(2)+'" cy="'+q.z.toFixed(2)+'" r=".23" fill="'+colorOf(i)+'"'+(on?' stroke="#3ddc84" stroke-width=".09"':'')+'/>';
-    if(free||on)o+='<text x="'+q.x.toFixed(2)+'" y="'+q.z.toFixed(2)+'" font-size=".21" font-weight="800" fill="'+(on?'#04210f':'#fff')+'"'+(on?'':' stroke="#000" stroke-width=".045" paint-order="stroke"')+' text-anchor="middle" dominant-baseline="central">'+q.p+'</text>'});
-  svg.innerHTML=o}
-function openSec(k){mSec=k;drawPhone();var w=$('mapWrap'),s=$('fullSvg');w.scrollLeft=Math.max(0,(s.clientWidth-w.clientWidth)/2);w.scrollTop=Math.max(0,(s.clientHeight-w.clientHeight)/2);
-  // открываем у свободного места, ближайшего к середине сектора
-  var vb=s.viewBox.baseVal,free=SECS[k].idx.filter(isFree),mx=vb.x+vb.width/2,mz=vb.y+vb.height/2;if(free.length){var b=free.reduce(function(a,i){return Math.hypot(P[i].x-mx,P[i].z-mz)<Math.hypot(P[a].x-mx,P[a].z-mz)?i:a});w.scrollLeft=(P[b].x-vb.x)*MPX-w.clientWidth/2;w.scrollTop=(P[b].z-vb.y)*MPX-w.clientHeight/2}}
-$('mapBack').onclick=function(){mSec=null;drawPhone()};
+function stagePt(){return[far.p[0]*.6+RC[0]*.4,far.p[1]*.6+RC[1]*.4]}
+function phoneBox(){var xs=[],zs=[];P.forEach(function(q){xs.push(q.x);zs.push(q.z)});D.stage.forEach(function(p){xs.push(p[0]);zs.push(p[1])});
+  var x0=Math.min.apply(0,xs)-1.2,z0=Math.min.apply(0,zs)-1.2;return[x0,z0,Math.max.apply(0,xs)+1.2-x0,Math.max.apply(0,zs)+1.2-z0]}
+function nearSeat(x,z,freeOnly){var best=-1,bd=1e9;P.forEach(function(q,i){if(freeOnly&&!isFree(i))return;var d=Math.hypot(q.x-x,q.z-z);if(d<bd){bd=d;best=i}});return best}
+function phoneHead(){var hd=$('mapFull').querySelector('.hd');if(mFit){hd.textContent='Коснитесь зала — места откроются крупно';return}
+  var i=nearSeat(mAt[0],mAt[1]);if(i<0)return;var s=stagePt(),dir=Math.round(Math.atan2(s[1]-mAt[1],s[0]-mAt[0])/(Math.PI/4));
+  hd.textContent=secName(P[i].s)+' · сцена '+['→','↘','↓','↙','←','↖','↑','↗','←'][(dir+8)%8]+' · двигайте пальцем'}
+function drawPhone(){var svg=$('fullSvg'),w=$('mapWrap'),vb=phoneBox(),s=stagePt(),o='';$('mapFull').classList.toggle('sec',!mFit);$('mapBack').hidden=false;$('mapBack').textContent=mFit?'Крупно, с номерами':'← Весь зал';
+  // первый показ: середина сектора, где больше всего свободных мест, чтобы экран был заполнен креслами
+  if(!mAt){var top=null,tn=0;Object.keys(SECS).forEach(function(k){var n=SECS[k].idx.filter(isFree).length;if(n>tn){tn=n;top=SECS[k]}});var f=top?nearSeat(top.x,top.z,true):-1;mAt=f<0?[RC[0],RC[1]]:[P[f].x,P[f].z]}
+  svg.setAttribute('viewBox',vb.join(' '));svg.style.width=mFit?'':Math.round(vb[2]*MPX)+'px';svg.style.height=mFit?'':Math.round(vb[3]*MPX)+'px';
+  o+='<polygon class="st" points="'+D.stage.map(function(p){return p.join(',')}).join(' ')+'"/><circle cx="'+RC[0]+'" cy="'+RC[1]+'" r="'+RC[2]+'" fill="#4a4d54"/><text x="'+s[0]+'" y="'+s[1]+'" font-size="2.4" fill="#fff" text-anchor="middle" dominant-baseline="central">Сцена</text>';
+  if(!mFit){var rows={};P.forEach(function(q,i){var k=q.s+'|'+q.r;(rows[k]=rows[k]||[]).push(i)});
+    Object.keys(rows).forEach(function(k){var a=rows[k].sort(function(a,b){return P[a].p-P[b].p}),A=P[a[0]],B=P[a[a.length>1?1:0]],dx=A.x-B.x,dz=A.z-B.z,l=Math.hypot(dx,dz)||1,r=A.r;if(a.length<2){dx=-1;dz=0;l=1}
+      if(!/Ложа|Диваны/.test(A.s)){o+='<text x="'+(A.x+dx/l*.62).toFixed(2)+'" y="'+(A.z+dz/l*.62).toFixed(2)+'" font-size=".22" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">ряд '+r+'</text>';
+        a.forEach(function(i,n){if(n%6!==3)return;var q=P[i];o+='<text x="'+(q.x+Math.sin(q.f)*.42).toFixed(2)+'" y="'+(q.z+Math.cos(q.f)*.42).toFixed(2)+'" font-size=".19" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">р.'+r+'</text>'})}})}
+  P.forEach(function(q,i){var on=sel.indexOf(i)>=0,free=isFree(i);o+='<circle class="seat" data-i="'+i+'" cx="'+q.x.toFixed(2)+'" cy="'+q.z.toFixed(2)+'" r="'+(mFit&&on?.6:.23)+'" fill="'+colorOf(i)+'"'+(on?' stroke="#3ddc84" stroke-width="'+(mFit?.3:.09)+'"':'')+'/>';
+    if(!mFit)o+='<text x="'+q.x.toFixed(2)+'" y="'+q.z.toFixed(2)+'" font-size=".21" font-weight="800" fill="'+(on?'#04210f':free?'#fff':'#8d8a99')+'"'+(on||!free?'':' stroke="#000" stroke-width=".045" paint-order="stroke"')+' text-anchor="middle" dominant-baseline="central">'+q.p+'</text>'});
+  svg.innerHTML=o;
+  if(!mFit){w.scrollLeft=(mAt[0]-vb[0])*MPX-w.clientWidth/2;w.scrollTop=(mAt[1]-vb[1])*MPX-w.clientHeight/2}
+  phoneHead()}
+// запоминаем, на что смотрит пользователь: после выбора места и смены режима схема остаётся там же
+$('mapWrap').addEventListener('scroll',function(){var w=$('mapWrap');if(mFit||!w.clientWidth||!mAt)return;var vb=phoneBox();mAt=[vb[0]+(w.scrollLeft+w.clientWidth/2)/MPX,vb[1]+(w.scrollTop+w.clientHeight/2)/MPX];phoneHead()},{passive:true});
+$('mapBack').onclick=function(){mFit=!mFit;drawPhone()};
 function drawMaps(){if(mode==='mix')drawMap($('miniSvg'),false);if(mode==='map'){if(mobile)drawPhone();else drawMap($('fullSvg'),true)}}
-function mapClick(e){var t=e.target.closest('[data-i],[data-s],[data-d]');if(!t)return;if(t.dataset.i!=null){var i=+t.dataset.i,n=sel.length;toggleSel(i);if(mobile&&sel.length>n)toast('Выбрано: '+label(P[i])+' · '+fmt(P[i].pr));return}
-  if(mobile&&mode==='map'&&t.dataset.s){openSec(t.dataset.s);return}
+function mapClick(e){if(mobile&&mode==='map'&&mFit){var m=$('fullSvg').getScreenCTM();if(!m)return;var pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());mAt=[pt.x,pt.y];mFit=false;drawPhone();return}
+  var t=e.target.closest('[data-i],[data-s],[data-d]');if(!t)return;if(t.dataset.i!=null){var i=+t.dataset.i,n=sel.length;toggleSel(i);if(mobile&&sel.length>n)toast('Выбрано: '+label(P[i])+' · '+fmt(P[i].pr));return}
   if(t.dataset.d){var d=DOORS[+t.dataset.d-1];setDoor(hlDoor===d?null:d);return}if(t.dataset.s)setSector(hlSec===t.dataset.s?null:t.dataset.s)}
 $('miniSvg').addEventListener('click',mapClick);$('fullSvg').addEventListener('click',mapClick);
 $('fullSvg').addEventListener('mousemove',function(e){if(mobile)return;var t=e.target.closest('[data-i]');if(!t){tip.style.display='none';return}showTip(+t.dataset.i,e)});
@@ -842,6 +847,8 @@ var paused=false;$('pauseBtn').onclick=function(){paused=!paused;this.classList.
 $('colBtn').onclick=function(){realCol=!realCol;this.classList.toggle('on',realCol);toast(realCol?'Цвета как в зале':'Цвета по ценам');paint()};
 function setCrowd(v){crowdOn=v;$('crowdBtn').classList.toggle('on',v);$('crowdBtn2').classList.toggle('on',v);bodies.visible=heads.visible=v}
 $('crowdBtn').onclick=$('crowdBtn2').onclick=function(){setCrowd(!crowdOn)};
+// на телефоне зрители, шоу и эффекты видны только в 3D: из схемы сначала переходим туда
+$('fxBar').addEventListener('click',function(e){var b=e.target.closest('button');if(mobile&&mode==='map'&&b&&b.id!=='pickBtn')setMode('3d')},true);
 $('zIn').onclick=function(){zoom(.8)};$('zOut').onclick=function(){zoom(1.25)};
 $('panelToggle').onclick=function(){$('panel').classList.toggle('hide');setTimeout(resize,30)};
 $('fs').onclick=function(){var a=$('app');if(document.fullscreenElement)document.exitFullscreen();else if(a.requestFullscreen)a.requestFullscreen().catch(function(){toast('Полноэкранный режим недоступен')})};
