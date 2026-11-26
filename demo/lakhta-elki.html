@@ -131,6 +131,9 @@ svg.map text{font-family:var(--font-body);pointer-events:none}
 @media (max-width:820px){#app{flex-direction:column;height:auto;min-height:100%}#view{height:64vh;flex:none}#panel{width:auto;border-left:0;border-top:1px solid var(--line)}#scroll{overflow:visible}
   #mini{width:190px}#mapFull{inset:52px 56px 112px 8px}#mapFull .ft{display:none}.hg{grid-template-columns:1fr}#fs{display:none}}
 .embed #rdCtaSlot,.embed #rdCta,.embed #hold{display:none!important}
+#mbar{display:none}
+@media (max-width:820px){#mbar.on{display:flex;position:absolute;left:10px;right:58px;bottom:112px;z-index:6;align-items:center;justify-content:space-between;gap:8px;padding:6px 6px 6px 12px;font-size:13px;font-weight:700}#mbar .btn{height:40px;flex:none;padding:0 14px}
+  #vm button{min-height:38px;padding:9px 12px}#mini{top:62px}#mapFull{top:62px}#view.hasSel #mapFull{bottom:168px}#view.hasSel #tourBar{bottom:168px}}
 </style>
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/img/mark.svg">
@@ -174,6 +177,7 @@ svg.map text{font-family:var(--font-body);pointer-events:none}
    <button data-p="over" class="on">Обзор</button><button data-p="parter">Партер</button><button data-p="tribune">Трибуны</button><button data-p="lodge">Из ложи</button>
    <button data-p="stage">Со сцены</button><button data-p="top">Сверху</button>
   </div>
+  <div id="mbar" class="glass" role="status"><span id="mbarT"></span><button class="btn pri" id="mbarBtn">Купить</button></div>
   <div id="tip"></div>
   <div id="hint"><div class="box"><h2>Как пользоваться моделью</h2><div class="note">Это живая 3D-модель Лахта Холла в конфигурации «Ёлки 2026»: её можно крутить, приближать и садиться в любое кресло.</div>
    <div class="hg"><div><b>Вид из кресла</b><span>Двойной клик по месту: манеж и сцена глазами зрителя</span></div><div><b>Вращать</b><span>Зажмите левую кнопку мыши и тяните</span></div>
@@ -768,7 +772,8 @@ function renderPanel(){
   var order=Object.keys(SECS).sort(function(a,b){var g=function(s){return /Диваны/.test(s)?1:/Партер/.test(s)?0:/Трибуна/.test(s)?2:3};return g(a)-g(b)||a.localeCompare(b,'ru',{numeric:true})});
   $('secs').innerHTML=order.map(function(k){var o=SECS[k],f=o.idx.filter(isFree).length,u=o.idx.some(function(i){return P[i].u});return '<div class="n'+(hlSec===k?' on':'')+'" data-s="'+k+'">'+k+(u?' *':'')+'</div><div class="r">'+(u?'—':f+' из '+o.n)+'</div><div class="r">'+(o.min===o.max?fmt(o.min):'от '+fmt(o.min))+'</div>'}).join('');
   [].forEach.call(document.querySelectorAll('.secs .n'),function(el){el.onclick=function(){setSector(hlSec===el.dataset.s?null:el.dataset.s)}});
-  var sum=sel.reduce(function(s,i){return s+P[i].pr},0);$('cnt').textContent=sel.length?sel.length+' '+plural(sel.length,'место','места','мест'):'Места не выбраны';$('sTotal').textContent=fmt(sum);$('payBtn').disabled=!sel.length}
+  var sum=sel.reduce(function(s,i){return s+P[i].pr},0);$('cnt').textContent=sel.length?sel.length+' '+plural(sel.length,'место','места','мест'):'Места не выбраны';$('sTotal').textContent=fmt(sum);$('payBtn').disabled=!sel.length;$('mbar').classList.toggle('on',!!sel.length);$('view').classList.toggle('hasSel',!!sel.length);$('mbarT').textContent=$('cnt').textContent+' · '+$('sTotal').textContent}
+$('mbarBtn').onclick=function(){$('payBtn').click()};
 function catName(p){var g={},L={'Диваны, партер':'Диваны','Партер':'Партер','Трибуна':'Трибуны','Ложа':'Ложи'};P.forEach(function(q){if(q.pr!==p)return;var m=q.s.match(/^(Диваны, партер|Партер|Трибуна|Ложа) ?(.*)$/),k=L[m[1]];g[k]=g[k]||{};if(k!=='Ложи')g[k][m[2]]=1});
   return Object.keys(g).map(function(k){var v=Object.keys(g[k]).sort(function(a,b){return a.localeCompare(b,'ru',{numeric:true})});return k+(v.length?' '+v.join(', '):'')}).join(' · ')}
 function plural(n,a,b,c){var m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<10||h>=20)?b:c}
