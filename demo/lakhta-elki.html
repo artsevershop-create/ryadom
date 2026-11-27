@@ -67,7 +67,10 @@ a.btn{color:var(--fg)}
 #mini .ft{font-size:11px;color:var(--mute);margin-top:4px}
 #mapFull{position:absolute;inset:52px 64px 112px 10px;z-index:4;padding:10px;display:none}
 #mapFull .hd{font:600 11px var(--font-body);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
-#mapBack[hidden]{display:none}#mapWrap{height:calc(100% - 40px)}#mapWrap svg{width:100%;height:100%}#mapBack[hidden]{display:none!important}
+#mapBack[hidden]{display:none}#mapWrap{flex:1;min-height:0}
+  #mapFull{flex-direction:column;gap:6px}#mapBack:not([hidden]){align-self:flex-start;height:34px;flex:none;font-weight:700}
+  #mapFull.sec #mapWrap{overflow:auto}#mapFull.sec #mapWrap svg{max-width:none}#mapFull.sec:not(.m) #mapWrap{cursor:grab}
+  #mapWrap svg{width:100%;height:100%}#mapBack[hidden]{display:none!important}
 #mapFull .ft{font-size:12px;color:var(--mute)}
 svg.map{display:block;width:100%;height:auto;user-select:none}
 svg.map .sec{cursor:pointer;stroke:#ffffff55;stroke-width:.12}
@@ -660,15 +663,16 @@ function drawMap(svg,full){var o='',vb=[BX[0],BZ[0],BX[1]-BX[0],BZ[1]-BZ[0]];svg
   o+='</g>';
   o=o.replace(/<text x="([^"]+)" y="([^"]+)"/g,function(m,x,y){return '<text dominant-baseline="central" x="'+x+'" y="'+y+'"'});
   svg.innerHTML=o}
-var mode='mix',mFit=false,mAt=null,MPX=66;   // MPX — точек экрана на метр на крупной схеме телефона: кресло около 30 точек
+var mode='mix',mFit=false,mAt=null,MPX=mobile?66:52;   // MPX — точек экрана на метр на крупной схеме: кресло около 30 точек на телефоне, 24 на компьютере
+// drawPhone — крупная схема с номерами, общая для телефона и компьютера
 function secName(k){return k.replace('Диваны, партер ','Диваны ')}
 function stagePt(){return[far.p[0]*.6+RC[0]*.4,far.p[1]*.6+RC[1]*.4]}
-function phoneBox(){var xs=[],zs=[];P.forEach(function(q){xs.push(q.x);zs.push(q.z)});D.stage.forEach(function(p){xs.push(p[0]);zs.push(p[1])});
+function phoneBox(){var xs=[],zs=[];P.forEach(function(q){xs.push(q.x);zs.push(q.z)});D.stage.forEach(function(p){xs.push(p[0]);zs.push(p[1])});DOORS.forEach(function(d){xs.push(d.x);zs.push(d.z)});
   var x0=Math.min.apply(0,xs)-1.2,z0=Math.min.apply(0,zs)-1.2;return[x0,z0,Math.max.apply(0,xs)+1.2-x0,Math.max.apply(0,zs)+1.2-z0]}
 function nearSeat(x,z,freeOnly){var best=-1,bd=1e9;P.forEach(function(q,i){if(freeOnly&&!isFree(i))return;var d=Math.hypot(q.x-x,q.z-z);if(d<bd){bd=d;best=i}});return best}
-function phoneHead(){var hd=$('mapFull').querySelector('.hd');if(mFit){hd.textContent='Коснитесь зала — места откроются крупно';return}
+function phoneHead(){var hd=$('mapFull').querySelector('.hd');if(mFit){hd.textContent=mobile?'Коснитесь зала — места откроются крупно':'Нажмите на зал — места откроются крупно · на выход — путь к нему';return}
   var i=nearSeat(mAt[0],mAt[1]);if(i<0)return;var s=stagePt(),dir=Math.round(Math.atan2(s[1]-mAt[1],s[0]-mAt[0])/(Math.PI/4));
-  hd.textContent=secName(P[i].s)+' · сцена '+['→','↘','↓','↙','←','↖','↑','↗','←'][(dir+8)%8]+' · двигайте пальцем'}
+  hd.textContent=secName(P[i].s)+' · сцена '+['→','↘','↓','↙','←','↖','↑','↗','←'][(dir+8)%8]+(mobile?' · двигайте пальцем':' · тяните мышью или крутите колесо')}
 function drawPhone(){var svg=$('fullSvg'),w=$('mapWrap'),vb=phoneBox(),s=stagePt(),o='';$('mapFull').classList.toggle('sec',!mFit);$('mapBack').hidden=false;$('mapBack').textContent=mFit?'Крупно, с номерами':'← Весь зал';
   // первый показ: середина сектора, где больше всего свободных мест, чтобы экран был заполнен креслами
   if(!mAt){var top=null,tn=0;Object.keys(SECS).forEach(function(k){var n=SECS[k].idx.filter(isFree).length;if(n>tn){tn=n;top=SECS[k]}});var f=top?nearSeat(top.x,top.z,true):-1;mAt=f<0?[RC[0],RC[1]]:[P[f].x,P[f].z]}
@@ -678,21 +682,31 @@ function drawPhone(){var svg=$('fullSvg'),w=$('mapWrap'),vb=phoneBox(),s=stagePt
     Object.keys(rows).forEach(function(k){var a=rows[k].sort(function(a,b){return P[a].p-P[b].p}),A=P[a[0]],B=P[a[a.length>1?1:0]],dx=A.x-B.x,dz=A.z-B.z,l=Math.hypot(dx,dz)||1,r=A.r;if(a.length<2){dx=-1;dz=0;l=1}
       if(!/Ложа|Диваны/.test(A.s)){o+='<text x="'+(A.x+dx/l*.62).toFixed(2)+'" y="'+(A.z+dz/l*.62).toFixed(2)+'" font-size=".22" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">ряд '+r+'</text>';
         a.forEach(function(i,n){if(n%6!==3)return;var q=P[i];o+='<text x="'+(q.x+Math.sin(q.f)*.42).toFixed(2)+'" y="'+(q.z+Math.cos(q.f)*.42).toFixed(2)+'" font-size=".19" fill="#f0b94a" font-weight="800" text-anchor="middle" dominant-baseline="central">р.'+r+'</text>'})}})}
-  P.forEach(function(q,i){var on=sel.indexOf(i)>=0,free=isFree(i);o+='<circle class="seat" data-i="'+i+'" cx="'+q.x.toFixed(2)+'" cy="'+q.z.toFixed(2)+'" r="'+(mFit&&on?.6:.23)+'" fill="'+colorOf(i)+'"'+(on?' stroke="#3ddc84" stroke-width="'+(mFit?.3:.09)+'"':'')+'/>';
+  ['left','right'].forEach(function(k){var a=SCREENS[k],m=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];o+='<polyline points="'+a.map(function(p){return p.join(',')}).join(' ')+'" fill="none" stroke="#4ea1ff" stroke-width=".3" stroke-linecap="round" pointer-events="none"/><text x="'+m[0]+'" y="'+(m[1]+.8)+'" font-size="'+(mFit?1.4:.5)+'" font-weight="700" fill="#7db8ff" text-anchor="middle" dominant-baseline="central">Экран</text>'});
+  if(route2d.length)o+='<polyline points="'+route2d.map(function(p){return p[0].toFixed(2)+','+p[1].toFixed(2)}).join(' ')+'" fill="none" stroke="#8dff7a" stroke-width=".12" stroke-linejoin="round" pointer-events="none"/>';
+  P.forEach(function(q,i){var on=sel.indexOf(i)>=0,free=isFree(i);o+='<circle class="seat" data-i="'+i+'" cx="'+q.x.toFixed(2)+'" cy="'+q.z.toFixed(2)+'" r="'+(mFit&&on?.6:.23)+'" fill="'+colorOf(i)+'"'+(dimmed(i)&&!on?' fill-opacity=".25"':'')+''+(on?' stroke="#3ddc84" stroke-width="'+(mFit?.3:.09)+'"':'')+'/>';
     if(!mFit)o+='<text x="'+q.x.toFixed(2)+'" y="'+q.z.toFixed(2)+'" font-size=".21" font-weight="800" fill="'+(on?'#04210f':free?'#fff':'#8d8a99')+'"'+(on||!free?'':' stroke="#000" stroke-width=".045" paint-order="stroke"')+' text-anchor="middle" dominant-baseline="central">'+q.p+'</text>'});
+  DOORS.forEach(function(d){var c=hlDoor===d?'#8dff7a':'#3ddc84',x=d.x.toFixed(2),z=d.z.toFixed(2);o+='<g class="dr" data-d="'+d.n+'"><circle cx="'+x+'" cy="'+z+'" r="'+(mFit?1.5:.42)+'" fill="'+c+'" stroke="#04210f" stroke-width=".07"/><text x="'+x+'" y="'+z+'" font-size="'+(mFit?1.7:.46)+'" font-weight="800" fill="#04210f" text-anchor="middle" dominant-baseline="central">'+d.n+'</text>'+(mFit?'':'<text x="'+x+'" y="'+(d.z+.68).toFixed(2)+'" font-size=".26" font-weight="700" fill="'+c+'" stroke="#0b0a10" stroke-width=".09" paint-order="stroke" text-anchor="middle" dominant-baseline="central">Выход '+d.n+'</text>')+'</g>'});
   svg.innerHTML=o;
   if(!mFit){w.scrollLeft=(mAt[0]-vb[0])*MPX-w.clientWidth/2;w.scrollTop=(mAt[1]-vb[1])*MPX-w.clientHeight/2}
   phoneHead()}
 // запоминаем, на что смотрит пользователь: после выбора места и смены режима схема остаётся там же
 $('mapWrap').addEventListener('scroll',function(){var w=$('mapWrap');if(mFit||!w.clientWidth||!mAt)return;var vb=phoneBox();mAt=[vb[0]+(w.scrollLeft+w.clientWidth/2)/MPX,vb[1]+(w.scrollTop+w.clientHeight/2)/MPX];phoneHead()},{passive:true});
-$('mapBack').onclick=function(){mFit=!mFit;drawPhone()};
-function drawMaps(){if(mode==='mix')drawMap($('miniSvg'),false);if(mode==='map'){if(mobile)drawPhone();else drawMap($('fullSvg'),true)}}
-function mapClick(e){if(mobile&&mode==='map'&&mFit){var m=$('fullSvg').getScreenCTM();if(!m)return;var pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());mAt=[pt.x,pt.y];mFit=false;drawPhone();return}
+$('mapBack').onclick=function(){mFit=!mFit;drawMaps()};
+// мышью схему можно тянуть; после протяжки клик по креслу не срабатывает
+(function(){var w=$('mapWrap'),from=null,moved=false;if(mobile)return;
+  w.addEventListener('mousedown',function(e){moved=false;if(e.button===0&&!mFit){from=[e.clientX,e.clientY,w.scrollLeft,w.scrollTop];e.preventDefault()}});
+  addEventListener('mousemove',function(e){if(!from)return;var dx=e.clientX-from[0],dy=e.clientY-from[1];if(Math.abs(dx)+Math.abs(dy)>5)moved=true;if(moved){w.scrollLeft=from[2]-dx;w.scrollTop=from[3]-dy}});
+  addEventListener('mouseup',function(){from=null});
+  w.addEventListener('click',function(e){if(moved){e.stopPropagation();moved=false}},true)})();
+function drawMaps(){if(mode==='mix')drawMap($('miniSvg'),false);if(mode!=='map')return;if(mobile||!mFit){drawPhone();return}
+  var s=$('fullSvg');s.style.width=s.style.height='';$('mapFull').classList.remove('sec');$('mapBack').hidden=false;$('mapBack').textContent='Крупно, с номерами';drawMap(s,true);phoneHead()}
+function mapClick(e){if(e.currentTarget===$('fullSvg')&&mode==='map'&&mFit&&!e.target.closest('[data-d]')){var m=$('fullSvg').getScreenCTM();if(!m)return;var pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(m.inverse());mAt=[pt.x,pt.y];mFit=false;tip.style.display='none';drawMaps();return}
   var t=e.target.closest('[data-i],[data-s],[data-d]');if(!t)return;if(t.dataset.i!=null){var i=+t.dataset.i,n=sel.length;toggleSel(i);if(mobile&&sel.length>n)toast('Выбрано: '+label(P[i])+' · '+fmt(P[i].pr));return}
   if(t.dataset.d){var d=DOORS[+t.dataset.d-1];setDoor(hlDoor===d?null:d);return}if(t.dataset.s)setSector(hlSec===t.dataset.s?null:t.dataset.s)}
 $('miniSvg').addEventListener('click',mapClick);$('fullSvg').addEventListener('click',mapClick);
 $('fullSvg').addEventListener('mousemove',function(e){if(mobile)return;var t=e.target.closest('[data-i]');if(!t){tip.style.display='none';return}showTip(+t.dataset.i,e)});
-function setMode(m){mode=m;[].forEach.call(document.querySelectorAll('#vm button'),function(b){b.classList.toggle('on',b.dataset.m===m)});$('mini').style.display=m==='mix'?'block':'none';$('mapFull').style.display=m==='map'?'block':'none';$('view').classList.toggle('mapOn',m==='map');drawMaps()}
+function setMode(m){mode=m;[].forEach.call(document.querySelectorAll('#vm button'),function(b){b.classList.toggle('on',b.dataset.m===m)});$('mini').style.display=m==='mix'?'block':'none';$('mapFull').style.display=m==='map'?'flex':'none';$('view').classList.toggle('mapOn',m==='map');drawMaps()}
 [].forEach.call(document.querySelectorAll('#vm button'),function(b){b.onclick=function(){setMode(b.dataset.m)}});
 $('miniX').onclick=function(){$('mini').classList.toggle('min');this.textContent=$('mini').classList.contains('min')?'+':'–'};
 
